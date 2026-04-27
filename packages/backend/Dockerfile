@@ -20,8 +20,9 @@ RUN pnpm install --frozen-lockfile
 # Build do pacote compartilhado
 RUN pnpm --filter @grafica/shared build
 
-# Build do backend
-RUN pnpm --filter @grafica/backend build
+# Build do backend e resolução de aliases (@/)
+RUN pnpm --filter @grafica/backend build && \
+    cd packages/backend && npx tsc-alias -p tsconfig.json
 
 # Stage 2: Runtime
 FROM node:22-slim
