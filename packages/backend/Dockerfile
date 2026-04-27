@@ -1,8 +1,9 @@
 # Stage 1: Build
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 
-# Instala o pnpm
-RUN npm install -g pnpm
+# Instala o pnpm e dependências do sistema
+RUN apt-get update -y && apt-get install -y openssl && \
+    npm install -g pnpm
 
 WORKDIR /app
 
@@ -23,11 +24,13 @@ RUN pnpm --filter @grafica/shared build
 RUN pnpm --filter @grafica/backend build
 
 # Stage 2: Runtime
-FROM node:20-slim
+FROM node:22-slim
+
+# Instala dependências necessárias para o Prisma (OpenSSL)
+RUN apt-get update -y && apt-get install -y openssl && \
+    npm install -g pnpm
 
 WORKDIR /app
-
-RUN npm install -g pnpm
 
 # Copia as configurações do workspace para o runtime
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/tsconfig.base.json ./
@@ -46,5 +49,5 @@ RUN pnpm install --prod --frozen-lockfile
 EXPOSE 3333
 
 # Comando para rodar migrações e iniciar o servidor
-# Usando formato de array para evitar avisos de sinal de SO
-CMD ["sh", "-c", "npx prisma migrate deploy && node packages/backend/dist/index.js"]
+# Especificamos o caminho do schema do Prisma para que ele o encontre corretamente no monorepo
+CMD ["sh", "-c", "npx prisma migrate deploy --schema ./packages/backend/prisma/schema.prisma && node packages/backend/dist/index.js"]
