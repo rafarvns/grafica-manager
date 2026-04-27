@@ -6,8 +6,8 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-# Copia arquivos de configuração do workspace
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copia arquivos de configuração do workspace e o base tsconfig
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 
 # Copia os pacotes necessários
 COPY packages/shared ./packages/shared
@@ -30,7 +30,7 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 # Copia as configurações do workspace para o runtime
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/tsconfig.base.json ./
 
 # Copia os artefatos de build e package.json de cada pacote
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
@@ -46,4 +46,5 @@ RUN pnpm install --prod --frozen-lockfile
 EXPOSE 3333
 
 # Comando para rodar migrações e iniciar o servidor
-CMD npx prisma migrate deploy && node packages/backend/dist/index.js
+# Usando formato de array para evitar avisos de sinal de SO
+CMD ["sh", "-c", "npx prisma migrate deploy && node packages/backend/dist/index.js"]
