@@ -7,9 +7,9 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: grafica_manager
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_USER: user
-      MYSQL_PASSWORD: user_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_USER: ${MYSQL_USER:-user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-user_password}
     ports:
       - "3306:3306"
     volumes:
@@ -29,7 +29,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: "mysql://user:user_password@db:3306/grafica_manager"
+      DATABASE_URL: "mysql://${MYSQL_USER:-user}:${MYSQL_PASSWORD:-user_password}@db:3306/grafica_manager"
       PORT: 3333
       NODE_ENV: production
       API_TOKEN: ${API_TOKEN}
@@ -41,15 +41,10 @@ services:
     container_name: grafica-runner
     restart: always
     environment:
-      # URL do seu repositório no GitHub
       REPO_URL: "https://github.com/rafarvns/grafica-manager"
-      # Nome para identificar este runner no GitHub
       RUNNER_NAME: "grafica-manager-auto-runner"
-      # Token do Runner ou PAT (Personal Access Token)
       RUNNER_TOKEN: ${GITHUB_RUNNER_TOKEN}
-      # Diretório de trabalho do runner
       RUNNER_WORKDIR: /tmp/runner/work
-      # Labels para filtrar jobs no workflow
       LABELS: self-hosted,linux,docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 pnpm-lock.yaml
+docker-compose.yml
 
 # Build outputs
 dist/
