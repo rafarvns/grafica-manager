@@ -388,11 +388,11 @@ pnpm --filter frontend dev
 ## 🗺️ Roadmap
 
 ### Fase 1 — Fundação
-- [ ] Setup do monorepo (pnpm workspaces, TypeScript, ESLint, Prettier)
-- [ ] Schema do banco de dados (Prisma)
-- [ ] Estrutura base do backend (Clean Architecture)
-- [ ] Estrutura base do frontend (Electron + React)
-- [ ] Componentes UI base (Button, Input, Modal, Table, Select)
+- [x] Setup do monorepo (pnpm workspaces, TypeScript, ESLint, Prettier)
+- [x] Schema do banco de dados (Prisma)
+- [x] Estrutura base do backend (Clean Architecture)
+- [x] Estrutura base do frontend (Electron + React)
+- [x] Componentes UI base (Button, Input, Modal, Table, Select)
 
 ### Fase 2 — Core de Impressão
 - [ ] Integração com impressoras do sistema (via Electron)
