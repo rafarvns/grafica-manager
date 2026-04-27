@@ -17,38 +17,36 @@ COPY packages/backend ./packages/backend
 # Instala todas as dependências
 RUN pnpm install --frozen-lockfile
 
-# Build do pacote compartilhado
-RUN pnpm --filter @grafica/shared build
+# Gerar o Prisma Client no build
+RUN npx prisma@5 generate --schema ./packages/backend/prisma/schema.prisma
 
-# Build do backend e resolução de aliases (@/)
-RUN pnpm --filter @grafica/backend build && \
-    cd packages/backend && npx tsc-alias -p tsconfig.json
+# Build dos pacotes (para typecheck e garantir integridade)
+RUN pnpm --filter @grafica/shared build
+RUN pnpm --filter @grafica/backend build
 
 # Stage 2: Runtime
 FROM node:22-slim
 
-# Instala dependências necessárias para o Prisma (OpenSSL)
+# Instala dependências necessárias (OpenSSL para o Prisma e pnpm)
 RUN apt-get update -y && apt-get install -y openssl && \
     npm install -g pnpm
 
 WORKDIR /app
 
-# Copia as configurações do workspace para o runtime
+# Copia as configurações e dependências
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/tsconfig.base.json ./
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copia os artefatos de build e package.json de cada pacote
-COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
-COPY --from=builder /app/packages/backend/package.json ./packages/backend/package.json
-COPY --from=builder /app/packages/backend/dist ./packages/backend/dist
-COPY --from=builder /app/packages/backend/prisma ./packages/backend/prisma
-
-# Instala apenas dependências de produção
-RUN pnpm install --prod --frozen-lockfile
+# Copia o código fonte e prisma (necessário para rodar com tsx e migrações)
+COPY --from=builder /app/packages/shared ./packages/shared
+COPY --from=builder /app/packages/backend ./packages/backend
 
 # Expõe a porta configurada
 EXPOSE 3333
 
 # Comando para rodar migrações e iniciar o servidor
-# Usamos prisma@5 para manter compatibilidade com o schema atual e evitar o erro da v7
-CMD ["sh", "-c", "npx prisma@5 migrate deploy --schema ./packages/backend/prisma/schema.prisma && node packages/backend/dist/index.js"]
+# Usamos tsx para rodar diretamente o código fonte, o que resolve automaticamente:
+# 1. Aliases do TypeScript (@/)
+# 2. Extensões de arquivos no ESM (Node strict mode)
+# 3. Mapeamentos entre pacotes do monorepo
+CMD ["sh", "-c", "npx prisma@5 migrate deploy --schema ./packages/backend/prisma/schema.prisma && npx tsx packages/backend/src/index.ts"]
