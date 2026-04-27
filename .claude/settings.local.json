@@ -7,7 +7,18 @@
       "Bash(echo \"SAIDA: $?\")",
       "Bash(pkill -f \"pnpm approve-builds\")",
       "Bash(pnpm --filter @grafica/backend exec tsc --noEmit)",
-      "Bash(pnpm --filter @grafica/frontend exec tsc --noEmit)"
+      "Bash(pnpm --filter @grafica/frontend exec tsc --noEmit)",
+      "Bash(pnpm --filter @grafica/backend exec prisma validate)",
+      "Bash(pnpm --filter @grafica/shared exec tsc --noEmit)",
+      "Bash(DATABASE_URL=\"mysql://user:pass@localhost:3306/test\" npx prisma validate)",
+      "Bash(pnpm test:unit)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm test:integration *)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm build *)",
+      "Bash(timeout 3 pnpm dev)",
+      "Bash(timeout 2 pnpm dev:backend)"
     ]
   }
 }

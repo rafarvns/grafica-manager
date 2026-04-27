@@ -2,40 +2,35 @@
 node_modules/
 pnpm-lock.yaml
 
-# Build outputs
+# Build
 dist/
 build/
-out/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
 # Environment
 .env
 .env.local
 .env.*.local
 
-# Logs
-*.log
-logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
 .DS_Store
 
+# Prisma
+prisma/.env
+prisma/.env.local
+
 # Testing
 coverage/
-playwright-report/
-
-# Build cache
-*.tsbuildinfo
-.turbo/
-
-# OS
-Thumbs.db
+.nyc_output/

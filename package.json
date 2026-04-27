@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter @grafica/backend dev & pnpm --filter @grafica/frontend dev",
+    "dev:backend": "pnpm --filter @grafica/backend dev",
     "build": "pnpm --filter @grafica/shared build && pnpm --filter @grafica/backend build && pnpm --filter @grafica/frontend build",
     "test": "pnpm test:unit && pnpm test:integration",
     "test:unit": "pnpm -r --filter=./packages/** run test:unit",
