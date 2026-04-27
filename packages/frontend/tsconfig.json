@@ -6,11 +6,12 @@
     "jsx": "react-jsx",
     "rootDir": ".",
     "outDir": "dist",
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
     "paths": {
       "@/*": ["./src/*"],
       "@grafica/shared": ["../shared/src/index.ts"]
     }
   },
-  "include": ["src/**/*", "electron/**/*"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": ["src/**/*", "electron/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

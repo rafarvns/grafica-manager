@@ -20,4 +20,20 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./tests/unit/setup.ts'],
+    include: ['tests/unit/**/*.spec.{ts,tsx}'],
+    alias: {
+      '@': resolve(__dirname, 'src'),
+      '@grafica/shared': resolve(__dirname, '../shared/src/index.ts'),
+    },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/main.tsx', 'src/types/**'],
+    },
+  },
 });

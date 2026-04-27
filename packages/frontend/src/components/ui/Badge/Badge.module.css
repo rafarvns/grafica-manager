@@ -1,0 +1,14 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+}
+.default  { background-color: var(--color-border);   color: var(--color-text-muted); }
+.success  { background-color: #d1fae5;               color: #065f46; }
+.warning  { background-color: #fef3c7;               color: #92400e; }
+.danger   { background-color: #fee2e2;               color: #991b1b; }
+.primary  { background-color: #dbeafe;               color: #1e3a5f; }

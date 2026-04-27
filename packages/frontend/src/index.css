@@ -1,17 +1,27 @@
 /* Design tokens — altere aqui, propaga para toda a aplicação */
 :root {
-  /* Cores */
+  /* Cores — modo light */
   --color-primary: #1a56db;
   --color-primary-dark: #1e429f;
+  --color-primary-hover: #1648c2;
   --color-secondary: #6b7280;
   --color-success: #0e9f6e;
   --color-warning: #c27803;
   --color-danger: #e02424;
-  --color-bg: #f9fafb;
+  --color-bg: #f3f4f6;
   --color-surface: #ffffff;
+  --color-surface-hover: #f9fafb;
   --color-border: #e5e7eb;
   --color-text: #111827;
   --color-text-muted: #6b7280;
+  --color-sidebar-bg: #1e2433;
+  --color-sidebar-text: #c9d1e0;
+  --color-sidebar-active: #ffffff;
+  --color-sidebar-active-bg: #1a56db;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --header-height: 56px;
 
   /* Espaçamentos */
   --space-1: 4px;
@@ -45,6 +55,24 @@
   /* Sombras */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+
+  /* Transições */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+}
+
+/* Dark mode via atributo no <html> */
+[data-theme='dark'] {
+  --color-bg: #111827;
+  --color-surface: #1f2937;
+  --color-surface-hover: #374151;
+  --color-border: #374151;
+  --color-text: #f9fafb;
+  --color-text-muted: #9ca3af;
+  --color-sidebar-bg: #0f172a;
+  --color-sidebar-text: #94a3b8;
+  --color-sidebar-active: #ffffff;
+  --color-sidebar-active-bg: #1a56db;
 }
 
 /* Reset mínimo */
