@@ -49,5 +49,5 @@ RUN pnpm install --prod --frozen-lockfile
 EXPOSE 3333
 
 # Comando para rodar migrações e iniciar o servidor
-# Especificamos o caminho do schema do Prisma para que ele o encontre corretamente no monorepo
-CMD ["sh", "-c", "npx prisma migrate deploy --schema ./packages/backend/prisma/schema.prisma && node packages/backend/dist/index.js"]
+# Usamos prisma@5 para manter compatibilidade com o schema atual e evitar o erro da v7
+CMD ["sh", "-c", "npx prisma@5 migrate deploy --schema ./packages/backend/prisma/schema.prisma && node packages/backend/dist/index.js"]
