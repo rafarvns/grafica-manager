@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: mysql:8.0
@@ -7,9 +5,9 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: grafica_manager
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
-      MYSQL_USER: ${MYSQL_USER:-user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-user_password}
+      MYSQL_ROOT_PASSWORD: root_password_aqui
+      MYSQL_USER: user_grafica
+      MYSQL_PASSWORD: senha_segura_aqui
     ports:
       - "3306:3306"
     volumes:
@@ -29,10 +27,10 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: "mysql://${MYSQL_USER:-user}:${MYSQL_PASSWORD:-user_password}@db:3306/grafica_manager"
+      DATABASE_URL: "mysql://user_grafica:senha_segura_aqui@db:3306/grafica_manager"
       PORT: 3333
       NODE_ENV: production
-      API_TOKEN: ${API_TOKEN}
+      API_TOKEN: seu_api_token_fixo_aqui
     ports:
       - "3333:3333"
 
@@ -42,8 +40,8 @@ services:
     restart: always
     environment:
       REPO_URL: "https://github.com/rafarvns/grafica-manager"
-      RUNNER_NAME: "grafica-manager-auto-runner"
-      RUNNER_TOKEN: ${GITHUB_RUNNER_TOKEN}
+      RUNNER_NAME: "grafica-manager-runner"
+      RUNNER_TOKEN: "seu_github_runner_token_aqui"
       RUNNER_WORKDIR: /tmp/runner/work
       LABELS: self-hosted,linux,docker
     volumes:
