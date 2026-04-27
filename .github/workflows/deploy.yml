@@ -21,8 +21,8 @@ jobs:
           echo "Iniciando build do backend..."
           docker compose -f docker-compose.example.yml build backend
           
-          echo "Reiniciando serviço do backend..."
-          docker compose -f docker-compose.example.yml up -d backend
+          echo "Reiniciando serviço do backend usando o arquivo real do host..."
+          docker compose -f /home/rafarvns/projects/grafica-manager/docker-compose.yml up -d backend
           
           echo "Limpeza de imagens órfãs..."
           docker image prune -f

@@ -1,0 +1,55 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: grafica-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: grafica_manager
+      MYSQL_ROOT_PASSWORD: root_password_aqui
+      MYSQL_USER: user_grafica
+      MYSQL_PASSWORD: senha_segura_aqui
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: grafica-backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "mysql://user_grafica:senha_segura_aqui@db:3306/grafica_manager"
+      PORT: 3333
+      NODE_ENV: production
+      API_TOKEN: asdf1234asdf1234asdf1234asdf1234asdf1234asdf1234asdf1234
+    ports:
+      - "3333:3333"
+
+  runner:
+    image: myoung34/github-runner:latest
+    container_name: grafica-runner
+    restart: always
+    environment:
+      REPO_URL: "https://github.com/rafarvns/grafica-manager"
+      RUNNER_NAME: "grafica-manager-auto-runner"
+      RUNNER_TOKEN: "AGK7GVW7JFW75DM2EWKGRM3J56UIQ"
+      RUNNER_WORKDIR: /tmp/runner/work
+      LABELS: self-hosted,linux,docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner_data:/tmp/runner/work
+      # Mapeamento para permitir que o pipeline encontre este arquivo no host
+      - /home/rafarvns/projects/grafica-manager:/home/rafarvns/projects/grafica-manager
+
+volumes:
+  mysql_data:
+  runner_data:
