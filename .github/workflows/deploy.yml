@@ -19,10 +19,10 @@ jobs:
       - name: Deploy Backend
         run: |
           echo "Iniciando build do backend..."
-          docker compose build backend
+          docker compose -f docker-compose.example.yml build backend
           
           echo "Reiniciando serviço do backend..."
-          docker compose up -d backend
+          docker compose -f docker-compose.example.yml up -d backend
           
           echo "Limpeza de imagens órfãs..."
           docker image prune -f
