@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: grafica-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: grafica_manager
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: grafica-backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "mysql://user:user_password@db:3306/grafica_manager"
+      PORT: 3333
+      NODE_ENV: production
+      API_TOKEN: ${API_TOKEN}
+    ports:
+      - "3333:3333"
+
+  runner:
+    image: myoung34/github-runner:latest
+    container_name: grafica-runner
+    restart: always
+    environment:
+      # URL do seu repositório no GitHub
+      REPO_URL: "https://github.com/rafarvns/grafica-manager"
+      # Nome para identificar este runner no GitHub
+      RUNNER_NAME: "grafica-manager-auto-runner"
+      # Token do Runner ou PAT (Personal Access Token)
+      RUNNER_TOKEN: ${GITHUB_RUNNER_TOKEN}
+      # Diretório de trabalho do runner
+      RUNNER_WORKDIR: /tmp/runner/work
+      # Labels para filtrar jobs no workflow
+      LABELS: self-hosted,linux,docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner_data:/tmp/runner/work
+
+volumes:
+  mysql_data:
+  runner_data:

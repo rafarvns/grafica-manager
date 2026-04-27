@@ -1,0 +1,28 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build and Deploy Backend
+    runs-on: self-hosted
+    # Garante que só roda se as labels coincidirem com as do nosso runner
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Backend
+        run: |
+          echo "Iniciando build do backend..."
+          docker compose build backend
+          
+          echo "Reiniciando serviço do backend..."
+          docker compose up -d backend
+          
+          echo "Limpeza de imagens órfãs..."
+          docker image prune -f
