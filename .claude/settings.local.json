@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm -v)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(echo \"SAIDA: $?\")",
+      "Bash(pkill -f \"pnpm approve-builds\")",
+      "Bash(pnpm --filter @grafica/backend exec tsc --noEmit)",
+      "Bash(pnpm --filter @grafica/frontend exec tsc --noEmit)"
+    ]
+  }
+}

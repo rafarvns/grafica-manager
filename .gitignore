@@ -1,5 +1,6 @@
 node_modules/
 dist/
+build/
 .env
 .DS_Store
 *.log
@@ -8,4 +9,8 @@ yarn-debug.log*
 yarn-error.log*
 .idea/
 .vscode/
-build/
+coverage/
+*.tsbuildinfo
+.turbo/
+playwright-report/
+packages/frontend/dist/

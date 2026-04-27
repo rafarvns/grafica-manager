@@ -1,0 +1,14 @@
+// Gráfica Manager — Prisma Schema
+// Banco: MySQL 8+
+// IDs: UUID por padrão (sem auto-increment em entidades de domínio)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Entidades de domínio serão adicionadas conforme as specs forem implementadas
