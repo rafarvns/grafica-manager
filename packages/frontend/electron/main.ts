@@ -2,6 +2,16 @@ import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 
 const isDev = process.env['NODE_ENV'] === 'development';
+if (isDev) {
+  try {
+    require('electron-reloader')(module, {
+      debug: true,
+      watchRenderer: false // Vite handles renderer hot reload
+    });
+  } catch (err) {
+    console.error('Error loading electron-reloader:', err);
+  }
+}
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -24,7 +34,10 @@ function createWindow(): void {
   }
 }
 
+import { setupPrinterHandlers } from './ipc/printer';
+
 app.whenReady().then(() => {
+  setupPrinterHandlers();
   createWindow();
 
   app.on('activate', () => {

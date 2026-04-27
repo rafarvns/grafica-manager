@@ -10,6 +10,7 @@
     "dev": "pnpm --filter @grafica/backend dev & pnpm --filter @grafica/frontend dev",
     "dev:backend": "pnpm --filter @grafica/backend dev",
     "dev:frontend": "pnpm --filter @grafica/frontend dev",
+    "dev:desktop": "concurrently -n \"Vite,Watch,App\" -c \"blue,yellow,green\" \"pnpm dev:frontend\" \"pnpm --filter @grafica/frontend electron:watch\" \"wait-on http://localhost:5173 && pnpm --filter @grafica/frontend electron:dev\"",
     "build": "pnpm --filter @grafica/shared build && pnpm --filter @grafica/backend build && pnpm --filter @grafica/frontend build",
     "test": "pnpm test:unit && pnpm test:integration",
     "test:unit": "pnpm -r --filter=./packages/** run test:unit",
@@ -30,8 +31,10 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "prettier": "^3.0.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "wait-on": "^9.0.5"
   }
 }

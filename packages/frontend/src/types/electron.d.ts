@@ -1,14 +1,30 @@
-// Declaração global de window.electronAPI exposta pelo preload.ts
-// Atualizar sempre que preload.ts expor novos métodos (na mesma PR).
-export {};
+export interface PrinterInfo {
+  name: string;
+  displayName: string;
+  description: string;
+  status: number;
+  isDefault: boolean;
+  options: Record<string, string>;
+}
+
+export interface PrintOptions {
+  printer?: string;
+  pages?: string;
+  subset?: string;
+  orientation?: string;
+  scale?: string;
+  side?: string;
+  copies?: number;
+}
+
+export interface IElectronAPI {
+  platform: string;
+  getPrinters: () => Promise<PrinterInfo[]>;
+  printPdf: (filePath: string, options: PrintOptions) => Promise<boolean>;
+}
 
 declare global {
   interface Window {
-    electronAPI: {
-      /** Plataforma do SO: 'win32' | 'darwin' | 'linux' */
-      platform: NodeJS.Platform;
-      /** Obtém o API_TOKEN do main process via IPC seguro */
-      getApiToken: () => Promise<string>;
-    };
+    electronAPI: IElectronAPI;
   }
 }

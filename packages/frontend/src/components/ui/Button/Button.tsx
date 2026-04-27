@@ -1,65 +1,31 @@
-import React from 'react';
-import { cn } from '@/utils/cn';
+import React, { forwardRef } from 'react';
 import styles from './Button.module.css';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
 
-const VARIANT_CLASS: Record<ButtonVariant, string> = {
-  primary: styles.variantPrimary ?? '',
-  secondary: styles.variantSecondary ?? '',
-  ghost: styles.variantGhost ?? '',
-};
-
-const SIZE_CLASS: Record<ButtonSize, string | undefined> = {
-  sm: styles.sizeSm,
-  md: undefined,
-  lg: styles.sizeLg,
-};
-
-export interface ButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'disabled'> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
-  size?: ButtonSize;
-  disabled?: boolean;
+  isLoading?: boolean;
+  leftIcon?: React.ReactNode;
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  function Button(
-    {
-      variant = 'primary',
-      size = 'md',
-      disabled = false,
-      className,
-      onClick,
-      children,
-      ...rest
-    },
-    ref,
-  ) {
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (disabled) return;
-      onClick?.(e);
-    };
-
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = 'primary', isLoading, leftIcon, children, disabled, ...props }, ref) => {
+    const variantClass = styles[variant] || styles.primary;
+    
     return (
       <button
         ref={ref}
-        type="button"
-        aria-disabled={disabled}
-        className={cn(
-          styles.button,
-          VARIANT_CLASS[variant],
-          SIZE_CLASS[size],
-          disabled && styles.disabled,
-          className,
-        )}
-        onClick={handleClick}
-        tabIndex={disabled ? -1 : undefined}
-        {...rest}
+        className={`${styles.button} ${variantClass} ${className || ''}`}
+        disabled={disabled || isLoading}
+        {...props}
       >
-        {children}
+        {isLoading && <span className={styles.spinner} aria-hidden="true" />}
+        {!isLoading && leftIcon && <span className={styles.icon}>{leftIcon}</span>}
+        <span className={styles.content}>{children}</span>
       </button>
     );
-  },
+  }
 );
+
+Button.displayName = 'Button';

@@ -4,5 +4,6 @@ import { contextBridge, ipcRenderer } from 'electron';
 // Nunca exponha ipcRenderer diretamente — apenas métodos explícitos.
 contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
-  // Exemplo de canal futuro: send: (channel: string, data: unknown) => ipcRenderer.send(channel, data)
+  getPrinters: () => ipcRenderer.invoke('printer:get-list'),
+  printPdf: (filePath: string, options: any) => ipcRenderer.invoke('printer:print-pdf', filePath, options)
 });

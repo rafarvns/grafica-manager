@@ -395,7 +395,7 @@ pnpm --filter frontend dev
 - [x] Componentes UI base (Button, Input, Modal, Table, Select)
 
 ### Fase 2 — Core de Impressão
-- [ ] Integração com impressoras do sistema (via Electron)
+- [x] Integração com impressoras do sistema (via Electron)
 - [ ] Preview de documentos PDF
 - [ ] Configuração de parâmetros de impressão (CMYK, papel, qualidade)
 - [ ] Registro e contabilização de impressões

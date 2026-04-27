@@ -1,67 +1,23 @@
-import React, { ReactNode, HTMLAttributes, forwardRef } from 'react';
-import { cn } from '@/utils/cn';
+import React from 'react';
 import styles from './Card.module.css';
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  children?: ReactNode;
+interface CardProps {
+  children: React.ReactNode;
+  title?: string;
+  className?: string;
+  footer?: React.ReactNode;
 }
 
-export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div 
-        ref={ref} 
-        className={cn(styles.card, className)} 
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
-Card.displayName = 'Card';
-
-export const CardHeader = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div 
-        ref={ref} 
-        className={cn(styles.header, className)} 
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
-CardHeader.displayName = 'CardHeader';
-
-export const CardContent = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div 
-        ref={ref} 
-        className={cn(styles.content, className)} 
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
-CardContent.displayName = 'CardContent';
-
-export const CardFooter = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div 
-        ref={ref} 
-        className={cn(styles.footer, className)} 
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
-CardFooter.displayName = 'CardFooter';
+export const Card: React.FC<CardProps> = ({ children, title, className, footer }) => {
+  return (
+    <div className={`${styles.card} ${className || ''}`}>
+      {title && (
+        <div className={styles.header}>
+          <h3 className={styles.title}>{title}</h3>
+        </div>
+      )}
+      <div className={styles.body}>{children}</div>
+      {footer && <div className={styles.footer}>{footer}</div>}
+    </div>
+  );
+};

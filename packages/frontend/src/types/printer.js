@@ -1,0 +1,33 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PrinterStatus = void 0;
+var PrinterStatus;
+(function (PrinterStatus) {
+    PrinterStatus[PrinterStatus["READY"] = 0] = "READY";
+    PrinterStatus[PrinterStatus["PAUSED"] = 1] = "PAUSED";
+    PrinterStatus[PrinterStatus["ERROR"] = 2] = "ERROR";
+    PrinterStatus[PrinterStatus["PENDING_DELETION"] = 4] = "PENDING_DELETION";
+    PrinterStatus[PrinterStatus["PAPER_JAM"] = 8] = "PAPER_JAM";
+    PrinterStatus[PrinterStatus["PAPER_OUT"] = 16] = "PAPER_OUT";
+    PrinterStatus[PrinterStatus["MANUAL_FEED"] = 32] = "MANUAL_FEED";
+    PrinterStatus[PrinterStatus["PAPER_PROBLEM"] = 64] = "PAPER_PROBLEM";
+    PrinterStatus[PrinterStatus["OFFLINE"] = 128] = "OFFLINE";
+    PrinterStatus[PrinterStatus["IO_ACTIVE"] = 256] = "IO_ACTIVE";
+    PrinterStatus[PrinterStatus["BUSY"] = 512] = "BUSY";
+    PrinterStatus[PrinterStatus["PRINTING"] = 1024] = "PRINTING";
+    PrinterStatus[PrinterStatus["OUTPUT_BIN_FULL"] = 2048] = "OUTPUT_BIN_FULL";
+    PrinterStatus[PrinterStatus["NOT_AVAILABLE"] = 4096] = "NOT_AVAILABLE";
+    PrinterStatus[PrinterStatus["WAITING"] = 8192] = "WAITING";
+    PrinterStatus[PrinterStatus["PROCESSING"] = 16384] = "PROCESSING";
+    PrinterStatus[PrinterStatus["INITIALIZING"] = 32768] = "INITIALIZING";
+    PrinterStatus[PrinterStatus["WARMING_UP"] = 65536] = "WARMING_UP";
+    PrinterStatus[PrinterStatus["TONER_LOW"] = 131072] = "TONER_LOW";
+    PrinterStatus[PrinterStatus["NO_TONER"] = 262144] = "NO_TONER";
+    PrinterStatus[PrinterStatus["PAGE_PUNT"] = 524288] = "PAGE_PUNT";
+    PrinterStatus[PrinterStatus["USER_INTERVENTION"] = 1048576] = "USER_INTERVENTION";
+    PrinterStatus[PrinterStatus["OUT_OF_MEMORY"] = 2097152] = "OUT_OF_MEMORY";
+    PrinterStatus[PrinterStatus["DOOR_OPEN"] = 4194304] = "DOOR_OPEN";
+    PrinterStatus[PrinterStatus["SERVER_UNKNOWN"] = 8388608] = "SERVER_UNKNOWN";
+    PrinterStatus[PrinterStatus["POWER_SAVE"] = 16777216] = "POWER_SAVE";
+})(PrinterStatus || (exports.PrinterStatus = PrinterStatus = {}));
+//# sourceMappingURL=printer.js.map

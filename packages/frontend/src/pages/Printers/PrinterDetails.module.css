@@ -1,0 +1,94 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-lg, 0.5rem);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text, #1e293b);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-muted, #64748b);
+  padding: 0;
+}
+
+.closeBtn:hover {
+  color: var(--color-text, #1e293b);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-strong, #0f172a);
+}
+
+.datalist {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.datalist dt {
+  font-weight: 500;
+  color: var(--color-text-muted, #64748b);
+}
+
+.datalist dd {
+  margin: 0;
+  color: var(--color-text, #1e293b);
+}
+
+.statusList {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text, #1e293b);
+}
+
+.statusList code {
+  background: var(--color-surface-hover, #f1f5f9);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
+.jsonBlock {
+  background: var(--color-surface-hover, #f1f5f9);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  overflow-x: auto;
+  margin: 0;
+}
