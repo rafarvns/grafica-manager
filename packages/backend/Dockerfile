@@ -45,8 +45,5 @@ COPY --from=builder /app/packages/backend ./packages/backend
 EXPOSE 3333
 
 # Comando para rodar migrações e iniciar o servidor
-# Usamos tsx para rodar diretamente o código fonte, o que resolve automaticamente:
-# 1. Aliases do TypeScript (@/)
-# 2. Extensões de arquivos no ESM (Node strict mode)
-# 3. Mapeamentos entre pacotes do monorepo
-CMD ["sh", "-c", "npx prisma@5 migrate deploy --schema ./packages/backend/prisma/schema.prisma && npx tsx packages/backend/src/index.ts"]
+# Usamos pnpm exec para garantir que o tsx local do monorepo seja encontrado
+CMD ["sh", "-c", "pnpm --filter @grafica/backend exec prisma migrate deploy --schema prisma/schema.prisma && pnpm --filter @grafica/backend exec tsx src/index.ts"]
