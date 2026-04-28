@@ -10,7 +10,7 @@
     "dev": "pnpm --filter @grafica/backend dev & pnpm --filter @grafica/frontend dev",
     "dev:backend": "pnpm --filter @grafica/backend dev",
     "dev:frontend": "pnpm --filter @grafica/frontend dev",
-    "dev:desktop": "concurrently -n \"Vite,Watch,App\" -c \"blue,yellow,green\" \"pnpm dev:frontend\" \"pnpm --filter @grafica/frontend electron:watch\" \"wait-on http://localhost:5173 && pnpm --filter @grafica/frontend electron:dev\"",
+    "dev:desktop": "concurrently -n \"Back,Vite,Watch,App\" -c \"magenta,blue,yellow,green\" \"pnpm dev:backend\" \"pnpm dev:frontend\" \"pnpm --filter @grafica/frontend electron:watch\" \"wait-on http://localhost:5173 && pnpm --filter @grafica/frontend electron:dev\"",
     "build": "pnpm --filter @grafica/shared build && pnpm --filter @grafica/backend build && pnpm --filter @grafica/frontend build",
     "test": "pnpm test:unit && pnpm test:integration",
     "test:unit": "pnpm -r --filter=./packages/** run test:unit",

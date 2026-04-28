@@ -4,7 +4,7 @@ class ApiClient {
   private token: string | null = null;
   // Fallback URL (a Spec-0003 menciona que a URL base deve vir do env no main, 
   // mas como o frontend se comunica com a API local, vamos definir por padrão localhost:3000)
-  private readonly baseUrl = 'http://localhost:3000/api';
+  private readonly baseUrl = 'http://localhost:3333/api/v1';
 
   public setToken(token: string | null) {
     this.token = token;
@@ -20,7 +20,7 @@ class ApiClient {
     const url = path.startsWith('http') ? path : `${this.baseUrl}${path}`;
 
     try {
-      const finalUrl = path.startsWith('/') && !path.startsWith(this.baseUrl) ? path : url;
+      const finalUrl = url;
 
       const response = await fetch(finalUrl, {
         ...options,
