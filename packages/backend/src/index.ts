@@ -1,11 +1,14 @@
 import 'dotenv/config';
 import express from 'express';
+import { PrismaClient } from '@prisma/client';
 import { getEnv } from '@/infrastructure/config/env';
 import { authMiddleware } from '@/infrastructure/http/middlewares/auth.middleware';
+import { createMetricsRouter } from '@/infrastructure/http/routes/metrics.routes';
 
 async function bootstrap() {
   try {
     const env = getEnv();
+    const prisma = new PrismaClient();
     console.log(`[ENV] Variáveis de ambiente carregadas com sucesso`);
 
     const app = express();
@@ -17,6 +20,7 @@ async function bootstrap() {
 
     const protectedRouter = express.Router();
     protectedRouter.use(authMiddleware(() => env.API_TOKEN));
+    protectedRouter.use('/metrics', createMetricsRouter(prisma));
 
     app.use('/api/v1', protectedRouter);
 
