@@ -1,7 +1,7 @@
 export const DEFAULT_PAGE_SIZE = 20;
 export const MAX_PAGE_SIZE = 100;
 
-export enum OrderStatus {
+export enum OrderStatusEnum {
   RECEIVED = 'RECEIVED',
   IN_PRODUCTION = 'IN_PRODUCTION',
   PRODUCTION_DONE = 'PRODUCTION_DONE',
@@ -29,11 +29,11 @@ export enum StoreSource {
 }
 
 // Ordem das transições válidas de status de pedido
-export const ORDER_STATUS_FLOW: OrderStatus[] = [
-  OrderStatus.RECEIVED,
-  OrderStatus.IN_PRODUCTION,
-  OrderStatus.PRODUCTION_DONE,
-  OrderStatus.PACKAGED,
-  OrderStatus.SHIPPED,
-  OrderStatus.DELIVERED,
+export const ORDER_STATUS_FLOW: OrderStatusEnum[] = [
+  OrderStatusEnum.RECEIVED,
+  OrderStatusEnum.IN_PRODUCTION,
+  OrderStatusEnum.PRODUCTION_DONE,
+  OrderStatusEnum.PACKAGED,
+  OrderStatusEnum.SHIPPED,
+  OrderStatusEnum.DELIVERED,
 ];

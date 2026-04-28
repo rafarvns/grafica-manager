@@ -38,8 +38,9 @@ export class DeletePaperTypeUseCase {
     const presetsCount = presetsInUse.length;
 
     if (presetsCount > 0 && !options.force) {
+      const noun = presetsCount === 1 ? 'preset' : 'presets';
       throw new Error(
-        `Este tipo de papel está em uso por ${presetsCount} preset(s). ` +
+        `Este tipo de papel está em uso por ${presetsCount} ${noun}. ` +
           'Para deletar mesmo assim, use a flag force=true.'
       );
     }

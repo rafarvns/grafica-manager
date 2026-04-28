@@ -57,3 +57,23 @@ export function Route({ path, component }: RouteProps) {
   
   return null;
 }
+
+interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  to: string;
+  children: ReactNode;
+}
+
+export function Link({ to, children, ...props }: LinkProps) {
+  const { navigate } = useRouter();
+  
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    navigate(to);
+  };
+  
+  return (
+    <a href={`#${to}`} onClick={handleClick} {...props}>
+      {children}
+    </a>
+  );
+}

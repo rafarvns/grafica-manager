@@ -159,6 +159,54 @@
   color: var(--color-primary);
 }
 
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.reprocessButton {
+  padding: 8px 16px;
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reprocessButton:hover {
+  background-color: #d97706;
+}
+
+.reprocessButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.viewDocumentButton {
+  padding: 8px 16px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.viewDocumentButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.viewDocumentButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
   .panel {
     width: 100%;

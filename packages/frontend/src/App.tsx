@@ -22,6 +22,9 @@ const PrintHistoryPage = lazy(() =>
 const ReportsPage = lazy(() =>
   import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage }))
 );
+const OrderDetailPage = lazy(() =>
+  import('@/pages/OrderDetailPage').then((m) => ({ default: m.OrderDetailPage }))
+);
 
 function LoadingFallback() {
   return (
@@ -41,6 +44,7 @@ export function App(): React.ReactElement {
               <Suspense fallback={<LoadingFallback />}>
                 <Route path="/" component={<DashboardPage />} />
                 <Route path="/pedidos" component={<OrdersPage />} />
+                <Route path="/pedidos/:id" component={<OrderDetailPage />} />
                 <Route path="/clientes" component={<CustomersPage />} />
                 <Route path="/impressoes" component={<PrintHistoryPage />} />
                 <Route path="/relatorios" component={<ReportsPage />} />

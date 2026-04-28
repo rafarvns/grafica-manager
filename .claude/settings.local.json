@@ -29,7 +29,10 @@
       "Bash(npx prisma *)",
       "Bash(pnpm --filter @grafica/backend test:unit -- tests/unit/domain/value-objects/ReportFilter.spec.ts tests/unit/domain/services/MarginCalculator.spec.ts tests/unit/application/use-cases/GenerateReportUseCase.spec.ts tests/unit/application/use-cases/ExportReportUseCase.spec.ts)",
       "Bash(npm run *)",
-      "Bash(pnpm dev:desktop)"
+      "Bash(pnpm dev:desktop)",
+      "Bash(pnpm --filter @grafica/backend run test:unit)",
+      "Bash(pnpm --filter @grafica/backend run test:unit -- --reporter=verbose)",
+      "Bash(pnpm --filter @grafica/frontend run test:unit)"
     ]
   }
 }

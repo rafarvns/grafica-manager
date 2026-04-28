@@ -1,0 +1,102 @@
+.container {
+  max-width: 900px;
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.fileItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.fileIcon {
+  font-size: 1.5rem;
+}
+
+.fileDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fileName {
+  color: #fff;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.fileSize {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.fileActions {
+  display: flex;
+  gap: 12px;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  color: var(--primary-color, #3b82f6);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.actionButton:hover {
+  text-decoration: underline;
+}
+
+.actionButton.delete {
+  color: #ef4444;
+}
+
+.empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 32px;
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 640px) {
+  .fileItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .fileActions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+}

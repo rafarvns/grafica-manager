@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCustomers, ListCustomersInput } from '@/hooks/useCustomers';
 import { CustomerTable } from '@/components/domain/CustomerTable';
 import { CustomerForm } from '@/components/domain/CustomerForm';
 import { CustomerFilters } from '@/components/domain/CustomerFilters';
+import { ConfirmDeleteModal } from '@/components/domain/ConfirmDeleteModal';
+import { CustomerProfile } from '@/components/domain/CustomerProfile';
+import { useToast } from '@/hooks/useToast';
 import styles from './CustomersPage.module.css';
 
 export function CustomersPage() {
@@ -18,13 +21,16 @@ export function CustomersPage() {
     getCustomer,
   } = useCustomers();
 
+  const { addToast } = useToast();
+
   const [showForm, setShowForm] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [viewingCustomerId, setViewingCustomerId] = useState<string | null>(null);
+  const [deletingCustomer, setDeletingCustomer] = useState<{ id: string; name: string } | null>(null);
+  
   const [filters, setFilters] = useState<ListCustomersInput>({
     page: 1,
-    pageSize: 10,
+    pageSize: 25,
   });
 
   useEffect(() => {
@@ -32,12 +38,13 @@ export function CustomersPage() {
   }, []);
 
   const handleApplyFilters = async (newFilters: ListCustomersInput) => {
-    setFilters({ ...newFilters, page: 1 });
-    await listCustomers({ ...newFilters, page: 1 });
+    const updatedFilters = { ...newFilters, page: 1, pageSize: 25 };
+    setFilters(updatedFilters);
+    await listCustomers(updatedFilters);
   };
 
   const handleClearFilters = async () => {
-    const emptyFilters: ListCustomersInput = { page: 1, pageSize: 10 };
+    const emptyFilters: ListCustomersInput = { page: 1, pageSize: 25 };
     setFilters(emptyFilters);
     await listCustomers(emptyFilters);
   };
@@ -45,57 +52,58 @@ export function CustomersPage() {
   const handleCreateClick = () => {
     setSelectedCustomerId(null);
     setShowForm(true);
-    setFormError(null);
   };
 
   const handleEditClick = (customerId: string) => {
     setSelectedCustomerId(customerId);
     setShowForm(true);
-    setFormError(null);
+  };
+
+  const handleViewDetails = (customerId: string) => {
+    setViewingCustomerId(customerId);
   };
 
   const handleFormClose = () => {
     setShowForm(false);
     setSelectedCustomerId(null);
-    setFormError(null);
   };
 
   const handleFormSubmit = async (data: any) => {
     try {
-      setFormError(null);
-      setFormSuccess(null);
-
       if (selectedCustomerId) {
         await updateCustomer(selectedCustomerId, data);
-        setFormSuccess('Cliente atualizado com sucesso!');
+        addToast({ type: 'success', message: 'Cliente atualizado com sucesso!' });
       } else {
         await createCustomer(data);
-        setFormSuccess('Cliente criado com sucesso!');
+        addToast({ type: 'success', message: 'Cliente criado com sucesso!' });
       }
 
       handleFormClose();
       await listCustomers(filters);
-      setTimeout(() => setFormSuccess(null), 3000);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao salvar cliente';
-      setFormError(message);
+      addToast({ type: 'error', message });
     }
   };
 
-  const handleDeleteClick = async (customerId: string) => {
-    const confirmDelete = window.confirm(
-      'Tem certeza que deseja deletar este cliente?'
-    );
-    if (!confirmDelete) return;
+  const handleDeleteClick = (customerId: string) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      setDeletingCustomer({ id: customer.id, name: customer.name });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingCustomer) return;
 
     try {
-      await deleteCustomer(customerId);
-      setFormSuccess('Cliente deletado com sucesso!');
+      await deleteCustomer(deletingCustomer.id);
+      addToast({ type: 'success', message: 'Cliente deletado com sucesso!' });
+      setDeletingCustomer(null);
       await listCustomers(filters);
-      setTimeout(() => setFormSuccess(null), 3000);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao deletar cliente';
-      setFormError(message);
+      addToast({ type: 'error', message });
     }
   };
 
@@ -117,6 +125,17 @@ export function CustomersPage() {
     await listCustomers(newFilters);
   };
 
+  // Memoized order counts (ideally this comes from the list API, but we'll mock for now if missing)
+  // In a real scenario, the list endpoint should return activeOrderCount
+  const activeOrderCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    customers.forEach(c => {
+      // Assuming the API might provide this in the future or we have it cached
+      counts[c.id] = 0; 
+    });
+    return counts;
+  }, [customers]);
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -133,26 +152,6 @@ export function CustomersPage() {
       {error && (
         <div className={styles.errorBanner} role="alert">
           {error}
-        </div>
-      )}
-
-      {formError && (
-        <div
-          className={styles.formErrorMessage}
-          data-testid="customer-error-message"
-          role="alert"
-        >
-          {formError}
-        </div>
-      )}
-
-      {formSuccess && (
-        <div
-          className={styles.formSuccessMessage}
-          data-testid="customer-success-message"
-          role="alert"
-        >
-          {formSuccess}
         </div>
       )}
 
@@ -177,6 +176,8 @@ export function CustomersPage() {
             customers={customers}
             onEdit={handleEditClick}
             onDelete={handleDeleteClick}
+            onViewDetails={handleViewDetails}
+            activeOrderCounts={activeOrderCounts}
           />
 
           <div className={styles.pagination}>
@@ -214,6 +215,23 @@ export function CustomersPage() {
           onSubmit={handleFormSubmit}
           onClose={handleFormClose}
           getCustomer={getCustomer}
+        />
+      )}
+
+      {deletingCustomer && (
+        <ConfirmDeleteModal
+          customerName={deletingCustomer.name}
+          activeOrderCount={activeOrderCounts[deletingCustomer.id] || 0}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setDeletingCustomer(null)}
+        />
+      )}
+
+      {viewingCustomerId && (
+        <CustomerProfile
+          customerId={viewingCustomerId}
+          getCustomer={getCustomer}
+          onClose={() => setViewingCustomerId(null)}
         />
       )}
     </div>

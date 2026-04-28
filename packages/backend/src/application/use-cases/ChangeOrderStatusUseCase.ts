@@ -23,6 +23,11 @@ export class ChangeOrderStatusUseCase {
       throw new Error('Pedido não encontrado');
     }
 
+    // Bloquear transição para cancelado (deve usar CancelOrderUseCase)
+    if (newStatus === 'cancelled') {
+      throw new Error('Use CancelOrderUseCase para cancelar pedidos');
+    }
+
     // Validar status é válido
     if (!VALID_STATUSES.includes(newStatus)) {
       throw new Error('Status inválido');
@@ -36,11 +41,6 @@ export class ChangeOrderStatusUseCase {
     // Bloquear mudança de shipping para outro status
     if (order.status === 'shipping') {
       throw new Error('Pedido em shipping não pode mudar de status');
-    }
-
-    // Bloquear transição para cancelado (usar CancelOrderUseCase)
-    if (newStatus === 'cancelled') {
-      throw new Error('Use CancelOrderUseCase para cancelar pedidos');
     }
 
     // Bloquear transição para mesmo status

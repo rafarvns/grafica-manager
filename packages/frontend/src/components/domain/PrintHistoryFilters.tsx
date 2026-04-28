@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { PrintFilters, PrintStatus } from '@/hooks/usePrintHistory';
+import type { PrintJobFilters, PrintStatus } from '@/hooks/usePrintHistory';
 import styles from './PrintHistoryFilters.module.css';
 
 interface PrintHistoryFiltersProps {
-  filters: PrintFilters;
-  onApply: (filters: PrintFilters) => void;
+  filters: PrintJobFilters;
+  onApply: () => void;
   onClear: () => void;
+  onFilterChange: (filters: Partial<PrintJobFilters>) => void;
   loading: boolean;
 }
 
@@ -13,68 +14,57 @@ const STATUSES: Array<{ value: PrintStatus; label: string }> = [
   { value: 'sucesso', label: 'Sucesso' },
   { value: 'erro', label: 'Erro' },
   { value: 'cancelada', label: 'Cancelada' },
+  { value: 'pendente', label: 'Pendente' },
+];
+
+const ORIGINS: Array<{ value: string; label: string }> = [
+  { value: '', label: 'Todas' },
+  { value: 'SHOPEE', label: 'Shopee' },
+  { value: 'MANUAL', label: 'Manual' },
 ];
 
 export function PrintHistoryFilters({
   filters,
   onApply,
   onClear,
+  onFilterChange,
   loading,
 }: PrintHistoryFiltersProps) {
-  const [localFilters, setLocalFilters] = useState<PrintFilters>(filters);
-
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setLocalFilters((prev) => ({
-      ...prev,
-      startDate: value ? new Date(value) : undefined,
-    }));
+    onFilterChange({ startDate: value || undefined });
   };
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setLocalFilters((prev) => ({
-      ...prev,
-      endDate: value ? new Date(value) : undefined,
-    }));
+    onFilterChange({ endDate: value || undefined });
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    setLocalFilters((prev) => ({
-      ...prev,
-      status: (value as PrintStatus) || undefined,
-    }));
+    onFilterChange({ status: (value as PrintStatus) || undefined });
   };
 
   const handleOrderIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalFilters((prev) => ({
-      ...prev,
-      orderId: e.target.value || undefined,
-    }));
+    onFilterChange({ orderId: e.target.value || undefined });
   };
 
-  const handleDocumentNameChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setLocalFilters((prev) => ({
-      ...prev,
-      documentName: e.target.value || undefined,
-    }));
+  const handleDocumentNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFilterChange({ documentName: e.target.value || undefined });
   };
 
-  const handleApply = () => {
-    onApply(localFilters);
+  const handleOriginChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    onFilterChange({ origin: (value as any) || undefined });
   };
 
   const handleClear = () => {
-    setLocalFilters({});
     onClear();
   };
 
-  const formatDateForInput = (date?: Date): string => {
+  const formatDateForInput = (date?: string): string => {
     if (!date) return '';
-    return date.toISOString().split('T')[0];
+    return date.split('T')[0];
   };
 
   return (
@@ -86,7 +76,7 @@ export function PrintHistoryFilters({
             id="start-date"
             type="date"
             data-testid="filter-start-date"
-            value={formatDateForInput(localFilters.startDate)}
+            value={formatDateForInput(filters.startDate)}
             onChange={handleStartDateChange}
             disabled={loading}
           />
@@ -98,7 +88,7 @@ export function PrintHistoryFilters({
             id="end-date"
             type="date"
             data-testid="filter-end-date"
-            value={formatDateForInput(localFilters.endDate)}
+            value={formatDateForInput(filters.endDate)}
             onChange={handleEndDateChange}
             disabled={loading}
           />
@@ -109,7 +99,7 @@ export function PrintHistoryFilters({
           <select
             id="status"
             data-testid="filter-status"
-            value={localFilters.status || ''}
+            value={filters.status || ''}
             onChange={handleStatusChange}
             disabled={loading}
           >
@@ -123,13 +113,30 @@ export function PrintHistoryFilters({
         </div>
 
         <div className={styles.filterField}>
-          <label htmlFor="order-id">ID do Pedido:</label>
+          <label htmlFor="origin">Origem:</label>
+          <select
+            id="origin"
+            data-testid="filter-origin"
+            value={filters.origin || ''}
+            onChange={handleOriginChange}
+            disabled={loading}
+          >
+            {ORIGINS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label htmlFor="order-id">Pedido:</label>
           <input
             id="order-id"
             type="text"
             data-testid="filter-order-id"
             placeholder="Buscar..."
-            value={localFilters.orderId || ''}
+            value={filters.orderId || ''}
             onChange={handleOrderIdChange}
             disabled={loading}
           />
@@ -142,7 +149,7 @@ export function PrintHistoryFilters({
             type="text"
             data-testid="filter-document-name"
             placeholder="Buscar..."
-            value={localFilters.documentName || ''}
+            value={filters.documentName || ''}
             onChange={handleDocumentNameChange}
             disabled={loading}
           />
@@ -152,7 +159,7 @@ export function PrintHistoryFilters({
       <div className={styles.actions}>
         <button
           className={styles.applyButton}
-          onClick={handleApply}
+          onClick={onApply}
           disabled={loading}
           data-testid="apply-filters-button"
         >

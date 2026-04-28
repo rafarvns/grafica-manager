@@ -209,9 +209,10 @@ describe('ChangeOrderStatusUseCase', () => {
       const validStatuses = ['draft', 'scheduled', 'in_production', 'completed', 'shipping'];
 
       for (const status of validStatuses) {
+        const currentStatus = status === 'draft' ? 'in_production' : 'draft';
         mockOrderRepository.findById.mockResolvedValue({
           ...mockOrder,
-          status: 'draft',
+          status: currentStatus,
         });
         mockOrderRepository.updateStatus.mockResolvedValue({
           ...mockOrder,

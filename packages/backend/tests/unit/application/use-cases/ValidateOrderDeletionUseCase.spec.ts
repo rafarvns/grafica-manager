@@ -38,7 +38,7 @@ describe('ValidateOrderDeletionUseCase', () => {
       mockPrintJobRepository.countInProgressByOrderId.mockResolvedValue(2);
 
       await expect(useCase.execute('order-1')).rejects.toThrow(
-        'Pedido possui impressões em andamento'
+        'Pedido possui 2 impressões em andamento'
       );
     });
 

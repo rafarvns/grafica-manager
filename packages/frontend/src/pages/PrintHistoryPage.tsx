@@ -2,76 +2,87 @@ import { useState } from 'react';
 import { usePrintHistory } from '@/hooks/usePrintHistory';
 import { PrintHistoryFilters } from '@/components/domain/PrintHistoryFilters';
 import { PrintHistoryTable } from '@/components/domain/PrintHistoryTable';
+import { PrintHistoryStats } from '@/components/domain/PrintHistoryStats';
 import { PriceTableManager } from '@/components/domain/PriceTableManager';
 import { PrintJobDetailsPanel } from '@/components/domain/PrintJobDetailsPanel';
-import { PrintFilters, PrintJob } from '@/hooks/usePrintHistory';
+import type { PrintJobDTO, PrintJobDetailDTO, PrintJobSortField, SortOrder, ExportFormat } from '@grafica/shared/types';
 import styles from './PrintHistoryPage.module.css';
 
 export function PrintHistoryPage() {
   const {
     printJobs,
-    priceTable,
     loading,
     error,
+    page,
+    pageSize,
+    totalItems,
+    totalPages,
+    setPage,
+    setPageSize,
+    sortBy,
+    sortOrder,
+    setSorting,
     filters,
     setFilters,
-    fetchPrintHistory,
-    fetchPriceTable,
-    getTotalCost,
-    getSuccessRate,
+    applyFilters,
+    clearFilters,
+    selectedJob,
+    fetchPrintJobDetail,
+    clearSelectedJob,
+    reprocessJob,
+    exportJobs,
+    stats,
+    priceTable,
     createPriceEntry,
     updatePriceEntry,
     deletePriceEntry,
+    fetchPriceTable,
+    getPriceForPaperTypeAndQuality,
   } = usePrintHistory();
 
   const [activeTab, setActiveTab] = useState<'history' | 'prices'>('history');
-  const [selectedJob, setSelectedJob] = useState<PrintJob | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [showReprocessModal, setShowReprocessModal] = useState(false);
+  const [reprocessJobId, setReprocessJobId] = useState<string | null>(null);
 
-  const handleApplyFilters = async (newFilters: PrintFilters) => {
-    setFilters(newFilters);
-    await fetchPrintHistory(newFilters);
+  const handleJobClick = async (job: PrintJobDTO) => {
+    await fetchPrintJobDetail(job.id);
   };
 
-  const handleClearFilters = async () => {
-    setFilters({});
-    await fetchPrintHistory({});
+  const handleReprocess = (jobId: string) => {
+    setReprocessJobId(jobId);
+    setShowReprocessModal(true);
   };
 
-  const handleJobClick = (job: PrintJob) => {
-    setSelectedJob(job);
-    setDetailsOpen(true);
+  const handleReprocessConfirm = async () => {
+    if (reprocessJobId) {
+      await reprocessJob(reprocessJobId);
+    }
+    setShowReprocessModal(false);
+    setReprocessJobId(null);
   };
 
-  const handleCloseDetails = () => {
-    setDetailsOpen(false);
-    setSelectedJob(null);
+  const handleReprocessCancel = () => {
+    setShowReprocessModal(false);
+    setReprocessJobId(null);
+  };
+
+  const handleViewDocument = (job: PrintJobDetailDTO) => {
+    // TODO: Integrar com PDF Preview (spec 0006)
+  };
+
+  const handleSort = (field: PrintJobSortField) => {
+    const newOrder: SortOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSorting(field, newOrder);
+  };
+
+  const handleExport = async (format: ExportFormat) => {
+    await exportJobs(format);
   };
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1>Histórico de Impressões</h1>
-        <div className={styles.indicators}>
-          <div
-            className={styles.indicator}
-            data-testid="total-cost-indicator"
-          >
-            <span className={styles.label}>Custo Total:</span>
-            <span className={styles.value}>
-              R$ {getTotalCost(printJobs).toFixed(2)}
-            </span>
-          </div>
-          <div
-            className={styles.indicator}
-            data-testid="success-rate-indicator"
-          >
-            <span className={styles.label}>Taxa de Sucesso:</span>
-            <span className={styles.value}>
-              {getSuccessRate(printJobs).toFixed(2)}%
-            </span>
-          </div>
-        </div>
       </header>
 
       {error && (
@@ -80,17 +91,25 @@ export function PrintHistoryPage() {
         </div>
       )}
 
-      <div className={styles.tabsContainer}>
+      <div className={styles.tabsContainer} role="tablist" aria-label="Seções do histórico">
         <button
           className={`${styles.tab} ${activeTab === 'history' ? styles.active : ''}`}
+          role="tab"
+          aria-selected={activeTab === 'history'}
+          aria-controls="history-panel"
+          id="history-tab"
           onClick={() => setActiveTab('history')}
         >
           Histórico de Impressões
         </button>
         <button
           className={`${styles.tab} ${activeTab === 'prices' ? styles.active : ''}`}
-          onClick={() => setActiveTab('prices')}
+          role="tab"
+          aria-selected={activeTab === 'prices'}
+          aria-controls="prices-panel"
+          id="prices-tab"
           data-testid="price-table-tab"
+          onClick={() => setActiveTab('prices')}
         >
           Tabela de Preços
         </button>
@@ -98,19 +117,38 @@ export function PrintHistoryPage() {
 
       <div className={styles.content}>
         {activeTab === 'history' ? (
-          <div className={styles.historySection}>
+          <div className={styles.historySection} role="tabpanel" id="history-panel" aria-labelledby="history-tab">
+            <PrintHistoryStats stats={stats} loading={loading} />
+
             <PrintHistoryFilters
               filters={filters}
-              onApply={handleApplyFilters}
-              onClear={handleClearFilters}
+              onApply={applyFilters}
+              onClear={clearFilters}
+              onFilterChange={setFilters}
               loading={loading}
             />
 
-            {loading && (
-              <div
-                className={styles.loadingSpinner}
-                data-testid="loading-spinner"
+            <div className={styles.exportActions}>
+              <button
+                className={styles.exportButton}
+                onClick={() => handleExport('csv')}
+                disabled={loading}
+                data-testid="export-csv-button"
               >
+                Exportar CSV
+              </button>
+              <button
+                className={styles.exportButton}
+                onClick={() => handleExport('pdf')}
+                disabled={loading}
+                data-testid="export-pdf-button"
+              >
+                Exportar PDF
+              </button>
+            </div>
+
+            {loading && (
+              <div className={styles.loadingSpinner} data-testid="loading-spinner">
                 <div className={styles.spinner} />
                 <span>Carregando...</span>
               </div>
@@ -120,25 +158,57 @@ export function PrintHistoryPage() {
               <PrintHistoryTable
                 jobs={printJobs}
                 onJobClick={handleJobClick}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+                page={page}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                onPageChange={setPage}
+                pageSize={pageSize}
+                onPageSizeChange={setPageSize}
               />
             )}
           </div>
         ) : (
-          <PriceTableManager
-            priceTable={priceTable}
-            onPricesUpdated={fetchPriceTable}
-            onCreate={createPriceEntry}
-            onUpdate={updatePriceEntry}
-            onDelete={deletePriceEntry}
-          />
+          <div role="tabpanel" id="prices-panel" aria-labelledby="prices-tab">
+            <PriceTableManager
+              priceTable={priceTable}
+              onPricesUpdated={fetchPriceTable}
+              onCreate={createPriceEntry}
+              onUpdate={updatePriceEntry}
+              onDelete={deletePriceEntry}
+            />
+          </div>
         )}
+
       </div>
 
-      {detailsOpen && selectedJob && (
+      {selectedJob && (
         <PrintJobDetailsPanel
           job={selectedJob}
-          onClose={handleCloseDetails}
+          onClose={clearSelectedJob}
+          onReprocess={handleReprocess}
+          onViewDocument={handleViewDocument}
         />
+      )}
+
+      {/* Modal de confirmação para reprocessar */}
+      {showReprocessModal && (
+        <div className={styles.modalOverlay} onClick={handleReprocessCancel}>
+          <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="reprocess-title">
+            <h3 id="reprocess-title">Reprocessar Impressão</h3>
+            <p>Tem certeza que deseja reprocessar a impressão <strong>{reprocessJobId}</strong>?</p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalCancelButton} onClick={handleReprocessCancel} autoFocus>
+                Cancelar
+              </button>
+              <button className={styles.modalConfirmButton} onClick={handleReprocessConfirm}>
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

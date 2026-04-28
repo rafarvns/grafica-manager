@@ -10,12 +10,19 @@ class ApiClient {
     this.token = token;
   }
 
-  private async fetch<T>(path: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  private async fetch<T>(path: string, options: RequestInit & { params?: Record<string, any> } = {}): Promise<ApiResponse<T>> {
     const headers = { ...options.headers } as Record<string, string>;
-    headers['Content-Type'] = 'application/json';
+    
+    // Se o corpo for FormData, o navegador define o Content-Type automaticamente com o boundary correto
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
+
+    const { params, ...fetchOptions } = options;
 
     // Normalização robusta do path
     let cleanPath = path;
@@ -31,13 +38,24 @@ class ApiClient {
       cleanPath = `/api/v1${normalizedPath}`;
     }
 
-    const url = path.startsWith('http') ? path : `${this.baseUrl}${cleanPath}`;
+    let url = path.startsWith('http') ? path : `${this.baseUrl}${cleanPath}`;
+
+    if (params) {
+      const query = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          query.append(key, String(value));
+        }
+      });
+      const queryString = query.toString();
+      if (queryString) {
+        url += (url.includes('?') ? '&' : '?') + queryString;
+      }
+    }
 
     try {
-      const finalUrl = url;
-
-      const response = await fetch(finalUrl, {
-        ...options,
+      const response = await fetch(url, {
+        ...fetchOptions,
         headers,
       });
 
@@ -64,24 +82,32 @@ class ApiClient {
     }
   }
 
-  public get<T>(path: string, options?: RequestInit) {
+  public get<T>(path: string, options?: RequestInit & { params?: Record<string, any> }) {
     return this.fetch<T>(path, { ...options, method: 'GET' });
   }
 
-  public post<T>(path: string, body: unknown, options?: RequestInit) {
+  public post<T>(path: string, body: unknown, options?: RequestInit & { params?: Record<string, any> }) {
     return this.fetch<T>(path, { ...options, method: 'POST', body: JSON.stringify(body) });
   }
 
-  public put<T>(path: string, body: unknown, options?: RequestInit) {
+  public put<T>(path: string, body: unknown, options?: RequestInit & { params?: Record<string, any> }) {
     return this.fetch<T>(path, { ...options, method: 'PUT', body: JSON.stringify(body) });
   }
 
-  public patch<T>(path: string, body: unknown, options?: RequestInit) {
+  public patch<T>(path: string, body: unknown, options?: RequestInit & { params?: Record<string, any> }) {
     return this.fetch<T>(path, { ...options, method: 'PATCH', body: JSON.stringify(body) });
   }
 
-  public delete<T>(path: string, options?: RequestInit) {
+  public delete<T>(path: string, options?: RequestInit & { params?: Record<string, any> }) {
     return this.fetch<T>(path, { ...options, method: 'DELETE' });
+  }
+
+  public getBaseUrl(): string {
+    return this.baseUrl;
+  }
+
+  public getToken(): string | null {
+    return this.token;
   }
 }
 

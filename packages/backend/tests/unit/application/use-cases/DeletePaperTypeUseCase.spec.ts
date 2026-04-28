@@ -57,9 +57,7 @@ describe('DeletePaperTypeUseCase', () => {
     ]);
 
     await expect(useCase.execute(paperId)).rejects.toThrow(
-      expect.objectMatching({
-        message: expect.stringContaining('está em uso por 1 preset'),
-      })
+      'está em uso por 1 preset'
     );
   });
 
@@ -77,9 +75,7 @@ describe('DeletePaperTypeUseCase', () => {
     ]);
 
     await expect(useCase.execute(paperId)).rejects.toThrow(
-      expect.objectMatching({
-        message: expect.stringContaining('está em uso por 3 presets'),
-      })
+      'está em uso por 3 presets'
     );
   });
 

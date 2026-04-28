@@ -1,18 +1,21 @@
-import { PrintJob } from '@/hooks/usePrintHistory';
+import type { PrintJobDetailDTO } from '@/hooks/usePrintHistory';
 import styles from './PrintJobDetailsPanel.module.css';
 
 interface PrintJobDetailsPanelProps {
-  job: PrintJob;
+  job: PrintJobDetailDTO;
   onClose: () => void;
+  onReprocess?: (id: string) => void;
+  onViewDocument?: (job: PrintJobDetailDTO) => void;
 }
 
 const STATUS_LABELS: Record<string, string> = {
   sucesso: 'Sucesso',
   erro: 'Erro',
   cancelada: 'Cancelada',
+  pendente: 'Pendente',
 };
 
-export function PrintJobDetailsPanel({ job, onClose }: PrintJobDetailsPanelProps) {
+export function PrintJobDetailsPanel({ job, onClose, onReprocess, onViewDocument }: PrintJobDetailsPanelProps) {
   const formatDate = (date: Date | string): string => {
     const d = typeof date === 'string' ? new Date(date) : date;
     return d.toLocaleDateString('pt-BR', {
@@ -118,6 +121,33 @@ export function PrintJobDetailsPanel({ job, onClose }: PrintJobDetailsPanelProps
             <div className={styles.field}>
               <label>Registrado em:</label>
               <span>{formatDate(job.createdAt)}</span>
+            </div>
+          </div>
+
+          {/* Ações */}
+          <div className={styles.section}>
+            <h3>Ações</h3>
+            <div className={styles.actions}>
+              {job.status === 'erro' && onReprocess && (
+                <button
+                  className={styles.reprocessButton}
+                  onClick={() => onReprocess(job.id)}
+                  data-testid="reprocess-button"
+                  aria-label="Reprocessar impressão"
+                >
+                  Reprocessar
+                </button>
+              )}
+              {job.status === 'sucesso' && onViewDocument && (
+                <button
+                  className={styles.viewDocumentButton}
+                  onClick={() => onViewDocument(job)}
+                  data-testid="view-document-button"
+                  aria-label="Ver documento PDF"
+                >
+                  Ver Documento
+                </button>
+              )}
             </div>
           </div>
         </div>

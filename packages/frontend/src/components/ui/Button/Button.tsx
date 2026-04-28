@@ -18,6 +18,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={`${styles.button} ${variantClass} ${className || ''}`}
         disabled={disabled || isLoading}
+        aria-disabled={disabled || isLoading ? 'true' : undefined}
         {...props}
       >
         {isLoading && <span className={styles.spinner} aria-hidden="true" />}

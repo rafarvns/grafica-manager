@@ -38,7 +38,7 @@ describe('ValidateCustomerDeletionUseCase', () => {
       mockOrderRepository.countActiveByCustomerId.mockResolvedValue(2);
 
       await expect(useCase.execute('customer-1')).rejects.toThrow(
-        'Cliente possui pedidos ativos'
+        'Cliente possui 2 pedidos ativos'
       );
     });
 

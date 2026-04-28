@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ListCustomersInput } from '@/hooks/useCustomers';
 import styles from './CustomerFilters.module.css';
 
@@ -11,6 +11,20 @@ export function CustomerFilters({ onApply, onClear }: CustomerFiltersProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [city, setCity] = useState('');
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      handleApply();
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [name]);
 
   const handleApply = () => {
     onApply({

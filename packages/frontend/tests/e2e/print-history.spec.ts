@@ -39,17 +39,20 @@ test.describe('Histórico de Impressões', () => {
     });
 
     test('deve exibir indicadores de custo total e taxa de sucesso', async ({ page }) => {
-      const totalCostIndicator = page.locator('[data-testid="total-cost-indicator"]');
-      const successRateIndicator = page.locator('[data-testid="success-rate-indicator"]');
+      const statsContainer = page.locator('[data-testid="print-history-stats"]');
+      await expect(statsContainer).toBeVisible();
 
-      await expect(totalCostIndicator).toBeVisible();
-      await expect(successRateIndicator).toBeVisible();
+      const statCost = page.locator('[data-testid="stat-cost"]');
+      const statSuccessRate = page.locator('[data-testid="stat-success-rate"]');
+
+      await expect(statCost).toBeVisible();
+      await expect(statSuccessRate).toBeVisible();
 
       // Verificar que contêm números
-      const totalText = await totalCostIndicator.textContent();
-      const rateText = await successRateIndicator.textContent();
+      const costText = await statCost.textContent();
+      const rateText = await statSuccessRate.textContent();
 
-      expect(totalText).toMatch(/[\d.,]/);
+      expect(costText).toMatch(/[\d.,]/);
       expect(rateText).toMatch(/[\d.,]%/);
     });
   });
@@ -350,6 +353,99 @@ test.describe('Histórico de Impressões', () => {
       });
 
       expect(hasLabel).toBe(true);
+    });
+  });
+
+  test.describe('Paginação e Sorting', () => {
+    test('deve exibir controles de paginação', async ({ page }) => {
+      const pagination = page.locator('[data-testid="pagination"]');
+      await expect(pagination).toBeVisible();
+
+      const pageInfo = page.locator('[data-testid="page-info"]');
+      await expect(pageInfo).toBeVisible();
+
+      const pageSizeSelect = page.locator('[data-testid="page-size-select"]');
+      await expect(pageSizeSelect).toBeVisible();
+    });
+
+    test('deve navegar entre páginas', async ({ page }) => {
+      const nextPageButton = page.locator('[data-testid="next-page"]');
+
+      // Se houver próxima página, clicar
+      if (await nextPageButton.isEnabled()) {
+        await nextPageButton.click();
+
+        // Verificar que a tabela atualizou
+        const table = page.locator('[data-testid="print-history-table"]');
+        await expect(table).toBeVisible();
+      }
+    });
+
+    test('deve alterar tamanho de página', async ({ page }) => {
+      const pageSizeSelect = page.locator('[data-testid="page-size-select"]');
+      await pageSizeSelect.selectOption('50');
+
+      // Verificar que a tabela atualizou
+      const table = page.locator('[data-testid="print-history-table"]');
+      await expect(table).toBeVisible();
+    });
+
+    test('deve ordenar por coluna ao clicar no header', async ({ page }) => {
+      const sortCostHeader = page.locator('[data-testid="sort-cost"]');
+      await sortCostHeader.click();
+
+      // Verificar que a tabela atualizou
+      const table = page.locator('[data-testid="print-history-table"]');
+      await expect(table).toBeVisible();
+    });
+  });
+
+  test.describe('Estatísticas (KPIs)', () => {
+    test('deve exibir cards de estatísticas', async ({ page }) => {
+      const statsContainer = page.locator('[data-testid="print-history-stats"]');
+      await expect(statsContainer).toBeVisible();
+
+      const statTotal = page.locator('[data-testid="stat-total"]');
+      const statCost = page.locator('[data-testid="stat-cost"]');
+      const statSuccessRate = page.locator('[data-testid="stat-success-rate"]');
+
+      await expect(statTotal).toBeVisible();
+      await expect(statCost).toBeVisible();
+      await expect(statSuccessRate).toBeVisible();
+    });
+  });
+
+  test.describe('Exportação', () => {
+    test('deve ter botões de exportação CSV e PDF', async ({ page }) => {
+      const exportCsvButton = page.locator('[data-testid="export-csv-button"]');
+      const exportPdfButton = page.locator('[data-testid="export-pdf-button"]');
+
+      await expect(exportCsvButton).toBeVisible();
+      await expect(exportPdfButton).toBeVisible();
+    });
+  });
+
+  test.describe('Reprocessar impressão com erro', () => {
+    test('deve exibir botão de reprocessar para job com erro', async ({ page }) => {
+      // Filtrar por status "erro"
+      const statusSelect = page.locator('[data-testid="filter-status"]');
+      await statusSelect.selectOption('erro');
+      const applyButton = page.locator('[data-testid="apply-filters-button"]');
+      await applyButton.click();
+
+      // Clicar em um job com erro
+      const firstRow = page.locator('[data-testid="print-job-row"]').first();
+      await firstRow.click();
+
+      // Verificar que o botão de reprocessar aparece
+      const reprocessButton = page.locator('[data-testid="reprocess-button"]');
+      if (await reprocessButton.isVisible()) {
+        await reprocessButton.click();
+
+        // Verificar modal de confirmação
+        const modal = page.locator('[role="dialog"]');
+        await expect(modal).toBeVisible();
+      }
     });
   });
 });

@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `customers` ADD COLUMN `address` TEXT NULL,
+    ADD COLUMN `city` VARCHAR(191) NULL,
+    ADD COLUMN `notes` TEXT NULL,
+    ADD COLUMN `state` VARCHAR(191) NULL,
+    ADD COLUMN `zipCode` VARCHAR(191) NULL;

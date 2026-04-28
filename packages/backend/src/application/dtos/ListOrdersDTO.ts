@@ -1,13 +1,13 @@
 export type OrderStatus = 'draft' | 'scheduled' | 'in_production' | 'completed' | 'shipping' | 'cancelled';
 
 export interface ListOrdersInput {
-  page?: number;
-  pageSize?: number;
-  customerId?: string;
-  status?: OrderStatus;
-  startDate?: Date;
-  endDate?: Date;
-  orderNumber?: string;
+  page?: number | undefined;
+  pageSize?: number | undefined;
+  customerId?: string | undefined;
+  status?: OrderStatus | undefined;
+  startDate?: Date | undefined;
+  endDate?: Date | undefined;
+  orderNumber?: string | undefined;
 }
 
 export interface OrderListItem {

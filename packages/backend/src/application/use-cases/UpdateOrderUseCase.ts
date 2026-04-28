@@ -76,6 +76,10 @@ export class UpdateOrderUseCase {
       updateData.notes = input.notes;
     }
 
+    if (input.position !== undefined) {
+      updateData.position = input.position;
+    }
+
     // Atualizar pedido
     const updatedOrder = await this.orderRepository.update(orderId, updateData);
 

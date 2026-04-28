@@ -1,85 +1,89 @@
 import React, { useState } from 'react';
-import { useOrders } from '@/hooks/useOrders';
-import { OrderTable } from '@/components/domain/OrderTable';
-import { OrderForm } from '@/components/domain/OrderForm';
-import { OrderDetailsPanel } from '@/components/domain/OrderDetailsPanel';
 import styles from './OrdersPage.module.css';
+import { useOrders } from '@/hooks/useOrders';
+import { OrderFilters } from '@/components/domain/OrderFilters';
+import { OrderKanban } from '@/components/domain/OrderKanban';
+import { OrderList } from '@/components/domain/OrderList';
+import { OrderModal } from '@/components/domain/OrderModal';
+import { Order } from '@grafica/shared';
 
 export function OrdersPage() {
-  const { orders, pagination, loading, error, listOrders, createOrder, changeOrderStatus, cancelOrder } = useOrders();
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const {
+    orders,
+    loading,
+    error,
+    view,
+    setView,
+    filters,
+    setFilters,
+    moveOrder,
+    refresh
+  } = useOrders();
 
-  const handleCreateOrder = async (input: any) => {
-    try {
-      await createOrder(input);
-      setShowForm(false);
-      await listOrders();
-    } catch (err) {
-      // Error is handled by the hook
-    }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | undefined>(undefined);
+
+  const handleCreateOrder = () => {
+    setSelectedOrder(undefined);
+    setIsModalOpen(true);
   };
 
-  const handleChangeStatus = async (orderId: string, status: string) => {
-    try {
-      await changeOrderStatus(orderId, status);
-      await listOrders();
-    } catch (err) {
-      // Error is handled by the hook
-    }
-  };
-
-  const handleCancelOrder = async (orderId: string, reason: string) => {
-    try {
-      await cancelOrder(orderId, reason);
-      await listOrders();
-      setSelectedOrderId(null);
-    } catch (err) {
-      // Error is handled by the hook
-    }
+  const handleEditOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Pedidos</h1>
-        <button onClick={() => setShowForm(true)} className={styles.createButton}>
-          Novo Pedido
+      <header className={styles.header}>
+        <div className={styles.titleSection}>
+          <h1>Gerenciamento de Pedidos</h1>
+          <p>Acompanhe e gerencie todos os pedidos da gráfica</p>
+        </div>
+        <button className={styles.createButton} onClick={handleCreateOrder}>
+          <span className={styles.plus}>+</span> Novo Pedido
         </button>
+      </header>
+
+      <div className={styles.toolbar}>
+        <div className={styles.viewToggle}>
+          <button 
+            className={`${styles.toggleButton} ${view === 'kanban' ? styles.active : ''}`}
+            onClick={() => setView('kanban')}
+          >
+            Kanban
+          </button>
+          <button 
+            className={`${styles.toggleButton} ${view === 'list' ? styles.active : ''}`}
+            onClick={() => setView('list')}
+          >
+            Lista
+          </button>
+        </div>
       </div>
+
+      <OrderFilters filters={filters} onFilterChange={setFilters} />
 
       {error && <div className={styles.error}>{error}</div>}
 
-      {showForm && (
-        <OrderForm
-          onSubmit={handleCreateOrder}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
-
-      <div className={styles.content}>
-        <div className={styles.tableSection}>
-          <OrderTable
-            orders={orders}
-            loading={loading}
-            selectedOrderId={selectedOrderId}
-            onSelectOrder={setSelectedOrderId}
-            onChangeStatus={handleChangeStatus}
-            onCancelOrder={handleCancelOrder}
-          />
-        </div>
-
-        {selectedOrderId && (
-          <div className={styles.panelSection}>
-            <OrderDetailsPanel
-              orderId={selectedOrderId}
-              onStatusChange={handleChangeStatus}
-              onCancel={handleCancelOrder}
-            />
-          </div>
+      <main className={styles.main}>
+        {loading && <div className={styles.loader}>Carregando pedidos...</div>}
+        
+        {!loading && view === 'kanban' && (
+          <OrderKanban orders={orders} onMoveOrder={moveOrder} onEdit={handleEditOrder} />
         )}
-      </div>
+
+        {!loading && view === 'list' && (
+          <OrderList orders={orders} onEdit={handleEditOrder} onMoveOrder={moveOrder} />
+        )}
+      </main>
+
+      <OrderModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={refresh}
+        initialOrder={selectedOrder}
+      />
     </div>
   );
 }

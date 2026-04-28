@@ -8,6 +8,7 @@ export interface UpdateOrderInput {
   salePrice?: number;
   productionCost?: number;
   notes?: string | null;
+  position?: number;
 }
 
 export interface UpdateOrderOutput {
@@ -24,5 +25,6 @@ export interface UpdateOrderOutput {
   productionCost: number;
   status: string;
   notes: string | null;
+  position: number;
   createdAt: Date;
 }

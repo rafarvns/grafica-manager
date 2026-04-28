@@ -91,6 +91,111 @@
   height: 100%;
 }
 
+.exportActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.exportButton {
+  padding: 8px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: background-color 0.2s;
+}
+
+.exportButton:hover:not(:disabled) {
+  background-color: var(--color-surface-secondary);
+}
+
+.exportButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exportButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+}
+
+.modal p {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modalCancelButton {
+  padding: 8px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.modalCancelButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.modalConfirmButton {
+  padding: 8px 16px;
+  background-color: #f59e0b;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+}
+
+.modalConfirmButton:hover {
+  background-color: #d97706;
+}
+
+.modalConfirmButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 .loadingSpinner {
   display: flex;
   flex-direction: column;

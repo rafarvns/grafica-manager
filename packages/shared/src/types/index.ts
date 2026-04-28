@@ -17,3 +17,23 @@ export type PaginatedResult<T> = {
 export type ApiResponse<T> =
   | { success: true; data: T }
   | { success: false; error: string; details?: unknown };
+
+export * from './orders';
+
+// Re-exportar seletivamente de print-jobs para evitar conflitos com tipos base
+export type {
+  PrintJobStatus,
+  PrintJobSortField,
+  SortOrder,
+  PrintJobOrigin,
+  ExportFormat,
+  PrintJobDTO,
+  PrintJobDetailDTO,
+  PrintJobCostBreakdown,
+  PrintJobFilters,
+  PaginatedPrintJobs,
+  ReprocessPrintJobInput,
+  ReprocessPrintJobOutput,
+  ExportPrintJobsInput,
+  PrintJobStats,
+} from './print-jobs';

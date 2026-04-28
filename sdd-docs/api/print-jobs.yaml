@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: Gráfica Manager — Print Jobs API
+  version: 1.0.0
+  description: Endpoints de histórico de impressões (spec 0021)
+
+servers:
+  - url: http://localhost:3000/api/v1
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    PrintJobStatus:
+      type: string
+      enum: [sucesso, erro, pendente]
+      description: Status da impressão
+
+    PrintJobSortField:
+      type: string
+      enum: [date, cost, status, customer]
+      description: Campo de ordenação
+
+    SortOrder:
+      type: string
+      enum: [asc, desc]
+      description: Direção da ordenação
+
+    PrintJobOrigin:
+      type: string
+      enum: [SHOPEE, MANUAL]
+      description: Origem do pedido associado
+
+    PrintJobDTO:
+      type: object
+      required: [id, documentName, paperTypeId, quality, colorMode, dpi, pageCount, status, registeredCost, createdAt]
+      properties:
+        id:
+          type: string
+          description: ID único da impressão
+        documentName:
+          type: string
+          description: Nome do documento impresso
+        paperTypeId:
+          type: string
+          description: ID do tipo de papel
+        paperTypeName:
+          type: string
+          description: Nome do tipo de papel
+        quality:
+          type: string
+          description: Qualidade da impressão (rascunho, normal, alta)
+        colorMode:
+          type: string
+          description: Modo de cor (CMYK, RGB, GRAYSCALE)
+        dpi:
+          type: integer
+          description: Resolução em DPI
+        pageCount:
+          type: integer
+          description: Número de páginas
+        status:
+          $ref: '#/components/schemas/PrintJobStatus'
+        registeredCost:
+          type: number
+          description: Custo registrado (R$)
+        errorMessage:
+          type: string
+          description: Mensagem de erro (se status = erro)
+        orderId:
+          type: string
+          description: ID do pedido associado
+        orderNumber:
+          type: string
+          description: Número do pedido (ex: ORD-001)
+        customerId:
+          type: string
+          description: ID do cliente associado
+        customerName:
+          type: string
+          description: Nome do cliente
+        origin:
+          $ref: '#/components/schemas/PrintJobOrigin'
+        createdAt:
+          type: string
+          format: date-time
+          description: Data/hora de registro
+
+    PrintJobDetailDTO:
+      allOf:
+        - $ref: '#/components/schemas/PrintJobDTO'
+        - type: object
+          properties:
+            printerId:
+              type: string
+              description: ID da impressora
+            printerName:
+              type: string
+              description: Nome da impressora
+            presetId:
+              type: string
+              description: ID do preset utilizado
+            presetName:
+              type: string
+              description: Nome do preset
+            paperWeight:
+              type: integer
+              description: Gramatura do papel (g/m²)
+            pagesBlackAndWhite:
+              type: integer
+              description: Páginas em P&B
+            pagesColor:
+              type: integer
+              description: Páginas em cor
+            costBreakdown:
+              type: object
+              description: Detalhamento do custo
+              properties:
+                paperCost:
+                  type: number
+                  description: Custo do papel
+                marginCost:
+                  type: number
+                  description: Custo de margem
+                discount:
+                  type: number
+                  description: Desconto aplicado
+                total:
+                  type: number
+                  description: Custo total
+
+    PaginatedPrintJobs:
+      type: object
+      required: [data, total, page, pageSize]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrintJobDTO'
+        total:
+          type: integer
+          description: Total de registros (sem paginação)
+        page:
+          type: integer
+          description: Página atual
+        pageSize:
+          type: integer
+          description: Itens por página
+
+    PrintJobStats:
+      type: object
+      required: [totalJobs, totalCost, successRate]
+      properties:
+        totalJobs:
+          type: integer
+          description: Total de impressões no período
+        totalCost:
+          type: number
+          description: Custo total (R$)
+        successRate:
+          type: number
+          description: Taxa de sucesso (%)
+
+    ReprocessPrintJobOutput:
+      type: object
+      required: [id, status, message]
+      properties:
+        id:
+          type: string
+          description: ID da impressão reprocessada
+        status:
+          $ref: '#/components/schemas/PrintJobStatus'
+          description: Novo status (pendente)
+        message:
+          type: string
+          description: Mensagem de confirmação
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+
+paths:
+  /print-jobs:
+    get:
+      summary: Listar impressões com filtros, paginação e sorting
+      operationId: listPrintJobs
+      tags: [Print Jobs]
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Data inicial (ISO 8601)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Data final (ISO 8601)
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/PrintJobStatus'
+          description: Filtrar por status
+        - name: customerId
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ID de cliente
+        - name: orderId
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ID ou número do pedido
+        - name: documentName
+          in: query
+          schema:
+            type: string
+          description: Buscar por nome do documento
+        - name: origin
+          in: query
+          schema:
+            type: string
+            enum: [SHOPEE, MANUAL, ALL]
+          description: Filtrar por origem
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+        - name: sortBy
+          in: query
+          schema:
+            $ref: '#/components/schemas/PrintJobSortField'
+          description: Campo de ordenação
+        - name: sortOrder
+          in: query
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+          description: Direção da ordenação (padrão: desc)
+      responses:
+        '200':
+          description: Lista paginada de impressões
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPrintJobs'
+        '400':
+          description: Parâmetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Não autenticado
+
+  /print-jobs/stats:
+    get:
+      summary: Obter estatísticas de impressões (KPIs)
+      operationId: getPrintJobStats
+      tags: [Print Jobs]
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/PrintJobStatus'
+        - name: customerId
+          in: query
+          schema:
+            type: string
+        - name: origin
+          in: query
+          schema:
+            type: string
+            enum: [SHOPEE, MANUAL, ALL]
+      responses:
+        '200':
+          description: Estatísticas de impressões
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrintJobStats'
+
+  /print-jobs/{id}:
+    get:
+      summary: Obter detalhe de uma impressão
+      operationId: getPrintJob
+      tags: [Print Jobs]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID da impressão
+      responses:
+        '200':
+          description: Detalhe da impressão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrintJobDetailDTO'
+        '404':
+          description: Impressão não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /print-jobs/{id}/reprocess:
+    post:
+      summary: Reprocessar impressão com erro
+      operationId: reprocessPrintJob
+      tags: [Print Jobs]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID da impressão a reprocessar
+      responses:
+        '200':
+          description: Impressão reprocessada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReprocessPrintJobOutput'
+        '404':
+          description: Impressão não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Impressão não está em status de erro
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /print-jobs/export:
+    get:
+      summary: Exportar dados de impressões em CSV ou PDF
+      operationId: exportPrintJobs
+      tags: [Print Jobs]
+      parameters:
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [csv, pdf]
+          description: Formato de exportação
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/PrintJobStatus'
+        - name: customerId
+          in: query
+          schema:
+            type: string
+        - name: orderId
+          in: query
+          schema:
+            type: string
+        - name: origin
+          in: query
+          schema:
+            type: string
+            enum: [SHOPEE, MANUAL, ALL]
+      responses:
+        '200':
+          description: Arquivo exportado
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Parâmetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

@@ -6,6 +6,9 @@ import { getEnv } from '@/infrastructure/config/env';
 import { authMiddleware } from '@/infrastructure/http/middlewares/auth.middleware';
 import { createMetricsRouter } from '@/infrastructure/http/routes/metrics.routes';
 import { createReportsRouter } from '@/infrastructure/http/routes/reports.routes';
+import { createCustomersRouter } from '@/infrastructure/http/routes/customers.routes';
+import { createOrdersRouter } from '@/infrastructure/http/routes/orders.routes';
+import { createPrintJobsRouter } from '@/infrastructure/http/routes/print-jobs.routes';
 
 async function bootstrap() {
   try {
@@ -25,6 +28,9 @@ async function bootstrap() {
     protectedRouter.use(authMiddleware(() => env.API_TOKEN));
     protectedRouter.use('/metrics', createMetricsRouter(prisma));
     protectedRouter.use('/reports', createReportsRouter(prisma));
+    protectedRouter.use('/customers', createCustomersRouter(prisma));
+    protectedRouter.use('/orders', createOrdersRouter(prisma));
+    protectedRouter.use('/print-jobs', createPrintJobsRouter(prisma));
 
     app.use('/api/v1', protectedRouter);
 
