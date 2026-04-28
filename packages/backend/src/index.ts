@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import { getEnv } from '@/infrastructure/config/env';
 import { authMiddleware } from '@/infrastructure/http/middlewares/auth.middleware';
@@ -13,6 +14,7 @@ async function bootstrap() {
     console.log(`[ENV] Variáveis de ambiente carregadas com sucesso`);
 
     const app = express();
+    app.use(cors());
     app.use(express.json());
 
     app.get('/health', (_req, res) => {

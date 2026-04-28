@@ -1,10 +1,10 @@
 import { ApiError, type ApiResponse } from '@/types/api';
 
 class ApiClient {
-  private token: string | null = null;
+  private token: string | null = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
   // Fallback URL (a Spec-0003 menciona que a URL base deve vir do env no main, 
   // mas como o frontend se comunica com a API local, vamos definir por padrão localhost:3000)
-  private readonly baseUrl = 'http://localhost:3333/api/v1';
+  private readonly baseUrl = 'http://localhost:3333';
 
   public setToken(token: string | null) {
     this.token = token;
@@ -17,7 +17,21 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
 
-    const url = path.startsWith('http') ? path : `${this.baseUrl}${path}`;
+    // Normalização robusta do path
+    let cleanPath = path;
+    if (!path.startsWith('http')) {
+      // Remove prefixos conhecidos para reconstruir do zero
+      let p = path;
+      if (p.startsWith('/api/v1')) p = p.substring(7);
+      else if (p.startsWith('/api')) p = p.substring(4);
+      else if (p.startsWith('/v1')) p = p.substring(3);
+      
+      // Garante que o path comece com /
+      const normalizedPath = p.startsWith('/') ? p : `/${p}`;
+      cleanPath = `/api/v1${normalizedPath}`;
+    }
+
+    const url = path.startsWith('http') ? path : `${this.baseUrl}${cleanPath}`;
 
     try {
       const finalUrl = url;
