@@ -21,6 +21,7 @@ export interface IElectronAPI {
   platform: string;
   getPrinters: () => Promise<PrinterInfo[]>;
   printPdf: (filePath: string, options: PrintOptions) => Promise<boolean>;
+  readFile: (filePath: string) => Promise<ArrayBuffer>;
 }
 
 declare global {

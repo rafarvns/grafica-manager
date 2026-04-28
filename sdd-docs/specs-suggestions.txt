@@ -1,0 +1,269 @@
+================================================================================
+  ANÁLISE DOS SPECS + SUGESTÕES DE NOVOS SPECS
+  Grafica Manager — 2026-04-27
+================================================================================
+
+--------------------------------------------------------------------------------
+1. ESTADO ATUAL DO PROJETO
+--------------------------------------------------------------------------------
+
+O que está implementado hoje:
+  Frontend:
+    - 13 componentes UI base (Button, Input, Select, Modal, Table, Toast, etc.)
+    - 1 componente de domínio: PrinterSelector
+    - 1 página: PrinterDetails (detalhes de impressora)
+    - ZERO telas das features de negócio (clientes, pedidos, relatórios...)
+
+  Backend:
+    - Estrutura Clean Architecture preparada (pastas criadas, vazias)
+    - Schema Prisma com 7 modelos: Printer, PrintPreset, Store, Customer,
+      Order, PrintJob, OrderFile
+    - Apenas env.ts e auth.middleware.ts implementados
+    - ZERO controllers, routes, use cases, repositories
+
+  Shared:
+    - Estrutura básica de tipos/validators/constants
+
+--------------------------------------------------------------------------------
+2. ANÁLISE DOS SPECS EXISTENTES (0006–0016)
+--------------------------------------------------------------------------------
+
+0006 - PDF Preview
+  Status: BEM DEFINIDO. Frontend-only. Pronto para implementar.
+
+0007 - Print Parameters Configuration
+  Status: BEM DEFINIDO. Tem backend (API) e frontend.
+  Obs: PaperType e PrintPreset existem no schema (PrintPreset já no Prisma).
+       Verificar se campos batem com o schema existente antes de implementar.
+
+0008 - Print Recording and Accounting
+  Status: BEM DEFINIDO. Principalmente backend.
+  ALERTA: PriceTable/PriceTableEntry NÃO existe no schema Prisma atual.
+          Será necessária migration antes de implementar.
+
+0009 - Customer CRUD
+  Status: BEM DEFINIDO. Backend + Frontend.
+  Obs: Customer já existe no schema Prisma com soft-delete. BOM.
+
+0010 - Manual Order CRUD
+  Status: BEM DEFINIDO. Backend + Frontend.
+  ALERTA CRÍTICO: OrderStatus no schema Prisma diverge do spec:
+    Schema atual: RECEIVED, IN_PRODUCTION, PRODUCTION_DONE, PACKAGED,
+                  SHIPPED, DELIVERED
+    Spec define:  draft, scheduled, in_production, completed,
+                  shipping, cancelled
+  PRECISA RESOLVER antes de implementar. Migrar ou redefinir o enum.
+
+  ALERTA: OrderStatusHistory NÃO existe no schema. Migration necessária.
+  ALERTA: OrderFile existe no schema mas precisa verificar campos.
+
+0011 - Order-Print-Customer Linking
+  Status: BEM DEFINIDO. Principalmente backend (relações já estão no Prisma).
+  Obs: As FKs entre Customer-Order-PrintJob já existem no schema. BOM.
+
+0012 - Shopee Integration
+  Status: BEM DEFINIDO. Backend.
+  ALERTA: WebhookEvent NÃO existe no schema Prisma atual. Migration necessária.
+  Obs: Store model existe no schema e serve como base para integração Shopee.
+
+0013 - Automatic Webhook Reception
+  Status: BEM DEFINIDO. Backend.
+  ALERTA: Depende do WebhookEvent que não está no schema ainda.
+  ALERTA: Depende de Redis + Bull (infraestrutura não provisionada).
+
+0014 - Shopee Order Data Mapping
+  Status: BEM DEFINIDO. Application layer puro.
+  Obs: Status mapping ainda é placeholder — preencher ao revisar docs Shopee.
+
+0015 - Metrics Dashboard
+  Status: BEM DEFINIDO. Backend + Frontend.
+  Obs: Todos os dados virão de agregações sobre tabelas que já existem.
+       Depende de 0008, 0009, 0010 estarem implementados primeiro.
+
+0016 - Detailed Reports
+  Status: BEM DEFINIDO. Backend + Frontend.
+  Obs: Mesma dependência de 0015. Implementar por último.
+
+--------------------------------------------------------------------------------
+3. PROBLEMAS CRÍTICOS (resolver ANTES de implementar)
+--------------------------------------------------------------------------------
+
+[CRÍTICO-1] OrderStatus INCONSISTENTE
+  O enum OrderStatus no schema Prisma não bate com o spec 0010.
+  Schema: RECEIVED | IN_PRODUCTION | PRODUCTION_DONE | PACKAGED | SHIPPED | DELIVERED
+  Spec:   draft | scheduled | in_production | completed | shipping | cancelled
+  AÇÃO: Criar spec de migration para alinhar o enum ao que foi definido.
+
+[CRÍTICO-2] Modelos faltando no schema Prisma
+  Os seguintes modelos estão nos specs mas não no schema atual:
+    - PaperType       (spec 0007)
+    - PriceTableEntry (spec 0008)
+    - WebhookEvent    (spec 0013)
+    - OrderStatusHistory (spec 0010)
+  AÇÃO: Criar spec de schema complementar ou incluir na spec 0001 via addendum.
+
+[CRÍTICO-3] Redis/Bull não provisionado
+  Specs 0012 e 0013 dependem de Bull + Redis para job queue.
+  Não há spec nem setup documentado para isso.
+  AÇÃO: Criar spec de infraestrutura ou ADR documentando a dependência.
+
+--------------------------------------------------------------------------------
+4. GAPS DE SPECS — FRONTEND (telas que não têm spec)
+--------------------------------------------------------------------------------
+
+O maior gap do projeto. Os specs de domínio (CRUD, regras de negócio) existem,
+mas não há nenhum spec descrevendo as TELAS que o usuário vai ver e usar.
+
+SUGESTÃO 0017 — Layout Principal e Navegação
+  Descrever: sidebar, header, menu de navegação, routing entre páginas,
+  breadcrumbs, estado de carregamento global, tratamento de erro global (error boundary).
+  Por que é urgente: todas as outras telas dependem do shell da aplicação.
+
+SUGESTÃO 0018 — Tela de Clientes
+  Descrever: listagem paginada com filtros, formulário de criação/edição,
+  modal de confirmação de deleção, visualização de perfil do cliente com pedidos.
+  Cobre o frontend do spec 0009.
+
+SUGESTÃO 0019 — Tela de Pedidos (Lista + Formulário)
+  Descrever: listagem com filtros avançados (status, cliente, período),
+  kanban ou lista por status, formulário de criação de pedido manual,
+  seleção de cliente, upload de arquivos.
+  Cobre o frontend do spec 0010.
+
+SUGESTÃO 0020 — Tela de Detalhe do Pedido
+  Descrever: visualização completa do pedido, timeline de status,
+  lista de impressões vinculadas, arquivos anexos, botões de ação
+  (mudar status, cancelar, adicionar arquivo, enviar para impressão).
+  Cobre parte do frontend de 0010 e 0011.
+
+SUGESTÃO 0021 — Tela de Histórico de Impressões
+  Descrever: listagem de impressões com filtros, custo por impressão,
+  status, link para pedido de origem, detalhe expandido.
+  Cobre o frontend do spec 0008.
+
+SUGESTÃO 0022 — Tela de Configurações do Sistema
+  Descrever: três seções em tabs —
+    (1) Tipos de papel (CRUD)
+    (2) Presets de impressão (CRUD)
+    (3) Tabela de preços unitários (CRUD)
+  Cobre o frontend dos specs 0007 e 0008.
+
+SUGESTÃO 0023 — Tela de Integração Shopee
+  Descrever: status da integração (token configurado? ativo?),
+  painel de webhooks recebidos (tabela com status: processado/erro/pendente),
+  botão de sync manual, log de erros, reprocessamento manual de webhook falho.
+  Cobre o frontend dos specs 0012 e 0013.
+
+SUGESTÃO 0024 — Tela de Relatórios
+  Descrever: formulário de filtros (datepicker obrigatório, cliente, origem, papel),
+  seletor de agrupamento, tabela de resultados com paginação e sorting,
+  botões de export (PDF, CSV, Excel).
+  Cobre o frontend do spec 0016.
+
+--------------------------------------------------------------------------------
+5. GAPS DE SPECS — BACKEND (funcionalidades sem spec)
+--------------------------------------------------------------------------------
+
+SUGESTÃO 0025 — Configurações Globais do Sistema
+  Descrever: dados da gráfica (nome, CNPJ, telefone, endereço, logo),
+  persistidos no banco, exibidos em relatórios e PDFs exportados.
+  Por que: relatórios PDF precisam de cabeçalho com dados da empresa.
+
+SUGESTÃO 0026 — Servidor de Arquivos Local (File Storage)
+  Descrever: API para upload, listagem e download de arquivos associados
+  a pedidos; armazenamento em disco local em pasta configurável;
+  política de expiração/limpeza de arquivos de pedidos concluídos há X dias.
+  Por que: mencionado em 0006, 0008, 0010, 0012 mas sem spec própria.
+
+SUGESTÃO 0027 — Notificações In-App (Toast + Painel)
+  Descrever: sistema de notificações persistentes para eventos críticos
+  (webhook falhou, pedido urgente vencendo prazo, impressora desconectada).
+  Diferentes de toasts: ficam no painel até o usuário dispensar.
+  Por que: spec 0013 menciona "notificar usuário de falhas" sem detalhar como.
+
+SUGESTÃO 0028 — Schema Complementar (Migration)
+  Descrever: migration Prisma para adicionar modelos faltantes:
+    - PaperType, PriceTableEntry, WebhookEvent, OrderStatusHistory
+  E alinhar OrderStatus enum com o definido nos specs 0010/0012.
+  Por que: CRÍTICO-1 e CRÍTICO-2 acima. Bloqueia tudo se não resolver.
+
+--------------------------------------------------------------------------------
+6. GAPS DE SPECS — FEATURES DE NEGÓCIO (a discutir)
+--------------------------------------------------------------------------------
+
+As sugestões abaixo são features que podem ou não fazer sentido para o seu negócio.
+Avalie se cabem no escopo do MVP.
+
+SUGESTÃO 0029 — Orçamentos / Cotações (Pré-pedido)
+  Descrever: criar cotação para cliente com itens, preços estimados e validade.
+  Cliente aprova → cotação vira pedido automaticamente.
+  Por que: gráficas geralmente cotam antes de fechar pedido.
+
+SUGESTÃO 0030 — Catálogo de Serviços da Gráfica
+  Descrever: lista de serviços oferecidos (ex.: "Banner A0", "Cartaz A1 CMYK"),
+  cada um com preço padrão e especificações. Usado para popular pedidos rapidamente.
+  Por que: facilita criação de pedidos sem digitar tudo manualmente.
+
+SUGESTÃO 0031 — Financeiro Básico (Contas a Receber)
+  Descrever: registrar pagamentos de pedidos (pago, pendente, parcial),
+  relatório de inadimplência, fluxo de caixa simples.
+  Por que: complementa os relatórios de custo/margem dos specs 0015/0016.
+
+SUGESTÃO 0032 — Backup e Exportação de Dados
+  Descrever: export do banco completo em formato backup (SQL dump ou JSON),
+  agendamento opcional, restauração de backup.
+  Por que: sistema desktop sem redundância precisa de backup explícito.
+
+--------------------------------------------------------------------------------
+7. PRIORIZAÇÃO SUGERIDA
+--------------------------------------------------------------------------------
+
+FASE 1 — Pré-requisitos (resolver antes de qualquer coisa):
+  [CRÍTICO-1] Resolver OrderStatus (spec ou ADR de migration)
+  [CRÍTICO-2] Spec 0028 — Schema Complementar (migration)
+  [CRÍTICO-3] ADR sobre Redis/Bull (infraestrutura)
+
+FASE 2 — Base da aplicação:
+  0017 — Layout Principal e Navegação (frontend shell)
+  0009 → 0018 — Clientes (backend + tela)
+  0010 → 0019 + 0020 — Pedidos (backend + telas)
+
+FASE 3 — Operação diária:
+  0007 → 0022 — Configurações (backend + tela)
+  0008 → 0021 — Impressões (backend + tela)
+  0006 — PDF Preview (frontend)
+  0011 — Linking (backend + custo agregado)
+
+FASE 4 — Integrações:
+  0026 — File Storage (backend)
+  0012 + 0013 + 0014 — Shopee (backend)
+  0023 — Tela Shopee (frontend)
+
+FASE 5 — Inteligência e relatórios:
+  0015 — Dashboard (backend + frontend)
+  0016 → 0024 — Relatórios (backend + frontend)
+  0025 — Configurações Globais (para PDFs com cabeçalho)
+
+FASE 6 — Qualidade de vida:
+  0027 — Notificações In-App
+  0029 — Orçamentos (se for no escopo)
+  0030 — Catálogo de Serviços (se for no escopo)
+  0031 — Financeiro Básico (se for no escopo)
+  0032 — Backup (se for no escopo)
+
+--------------------------------------------------------------------------------
+8. RESUMO DE CONTAGEM
+--------------------------------------------------------------------------------
+
+  Specs implementados:       0001-0005  (5 specs)
+  Specs com decisões OK:     0006-0016  (11 specs — prontos para TDD)
+  Novos specs sugeridos:
+    Frontend (telas):        0017-0024  (8 specs)
+    Backend (infra/features):0025-0028  (4 specs)
+    Negócio (a discutir):    0029-0032  (4 specs)
+
+  Total sugerido: 16 specs novos
+
+================================================================================
+  FIM DO DOCUMENTO
+================================================================================

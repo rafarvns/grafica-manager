@@ -2,6 +2,7 @@
 // Banco: MySQL 8+
 // IDs: UUID (sem auto-increment em entidades de domínio — CLAUDE.md seção 9)
 // Tokens de e-commerce gravados encriptados — ADR 0001
+// Schema atualizado para alinhar com specs 0006–0016 (2026-04-27)
 
 generator client {
   provider = "prisma-client-js"
@@ -15,12 +16,12 @@ datasource db {
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 enum OrderStatus {
-  RECEIVED
-  IN_PRODUCTION
-  PRODUCTION_DONE
-  PACKAGED
-  SHIPPED
-  DELIVERED
+  draft           // Pedido em rascunho, não confirmado
+  scheduled       // Pedido agendado para produção
+  in_production   // Pedido em produção
+  completed       // Produção concluída, aguardando envio
+  shipping        // Pedido enviado (read-only)
+  cancelled       // Pedido cancelado (terminal, sem transição)
 }
 
 enum PrintQuality {
@@ -41,6 +42,14 @@ enum StoreSource {
   MANUAL
 }
 
+enum WebhookStatus {
+  pending         // Aguardando processamento
+  processed       // Processado com sucesso
+  error           // Erro no processamento
+  discarded       // Descartado (duplicata, inválido)
+  failed          // Falha permanente após retries
+}
+
 // ─── Entidades ────────────────────────────────────────────────────────────────
 
 model Printer {
@@ -58,21 +67,68 @@ model Printer {
   @@map("printers")
 }
 
+model PaperType {
+  id        String @id @default(uuid())
+  name      String // ex: "Sulfite A4", "Couchê 150g", etc.
+  gsm       Int?   // Gramatura em g/m²
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  printPresets PrintPreset[]
+  printJobs    PrintJob[]
+
+  @@map("paper_types")
+}
+
 model PrintPreset {
   id           String       @id @default(uuid())
   name         String
   description  String?      @db.Text
   quality      PrintQuality
   colorProfile ColorProfile
-  paperType    String
-  // Gramatura em g/m²
-  paperWeight  Int
+  paperTypeId  String?
+  paperType    String? // Fallback se paperTypeId não existir
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
+  paper     PaperType? @relation(fields: [paperTypeId], references: [id])
   printJobs PrintJob[]
 
+  @@index([paperTypeId])
   @@map("print_presets")
+}
+
+model PriceTableEntry {
+  id              String   @id @default(uuid())
+  name            String   // ex: "Sulfite A4 PB Econômico"
+  description     String?  @db.Text
+  pricePerUnit    Decimal  @db.Decimal(12, 4) // Preço unitário
+  unit            String?  // "por página", "por impressão", etc. (informativo)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("price_table_entries")
+}
+
+model WebhookEvent {
+  id              String         @id @default(uuid())
+  source          String         // "shopee", "mercado_livre", etc.
+  externalId      String         // shopee_order_id, order_id, etc. — deduplication key
+  status          WebhookStatus  @default(pending)
+  payload         Json           // Payload original do webhook (imutável para auditoria)
+  mappingWarnings String?        @db.Text // JSON com avisos de mapeamento
+  attempt         Int            @default(0) // Número de tentativa
+  lastError       String?        @db.Text
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id])
+
+  @@unique([source, externalId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("webhook_events")
 }
 
 model Store {
@@ -96,7 +152,7 @@ model Store {
 model Customer {
   id         String    @id @default(uuid())
   name       String
-  email      String?
+  email      String?   @unique // Spec 0009 RNF1
   phone      String?
   // ID do cliente na plataforma de e-commerce de origem
   externalId String?
@@ -106,19 +162,28 @@ model Customer {
   // Soft-delete — queries de listagem filtram deletedAt: null (spec 0001 RNF3)
   deletedAt  DateTime?
 
-  store  Store?  @relation(fields: [storeId], references: [id])
-  orders Order[]
+  store            Store?            @relation(fields: [storeId], references: [id])
+  orders           Order[]
+  webhookEvents    WebhookEvent[]
 
   @@index([externalId])
   @@index([storeId])
+  @@index([deletedAt])
   @@map("customers")
 }
 
 model Order {
   id              String      @id @default(uuid())
-  status          OrderStatus @default(RECEIVED)
+  orderNumber     String      @unique // ex: "ORD-001", "ORD-SHOPEE-12345"
+  status          OrderStatus @default(draft)
   // ID do pedido na plataforma de e-commerce de origem
   externalOrderId String?
+  // Para Shopee: shopee_order_id (deduplication key)
+  shopeeOrderId   String?     @unique
+  shopeeShopId    String?
+  // Valores financeiros
+  salePrice       Decimal     @db.Decimal(12, 4)
+  productionCost  Decimal     @db.Decimal(12, 4)
   notes           String?     @db.Text
   customerId      String?
   storeId         String?
@@ -127,16 +192,35 @@ model Order {
   // Soft-delete — queries de listagem filtram deletedAt: null (spec 0001 RNF3)
   deletedAt       DateTime?
 
-  customer  Customer?   @relation(fields: [customerId], references: [id])
-  store     Store?      @relation(fields: [storeId], references: [id])
-  printJobs PrintJob[]
-  files     OrderFile[]
+  customer          Customer?          @relation(fields: [customerId], references: [id])
+  store             Store?             @relation(fields: [storeId], references: [id])
+  printJobs         PrintJob[]
+  files             OrderFile[]
+  statusHistory     OrderStatusHistory[]
+  webhookEvents     WebhookEvent[]
 
   @@index([status])
   @@index([customerId])
   @@index([storeId])
   @@index([externalOrderId])
+  @@index([shopeeOrderId])
+  @@index([deletedAt])
+  @@index([createdAt])
   @@map("orders")
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(uuid())
+  orderId   String
+  fromStatus String?
+  toStatus   String
+  reason     String?  @db.Text // ex: "Cancelado via Shopee", "Mudança manual"
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_status_history")
 }
 
 model PrintJob {
@@ -146,23 +230,28 @@ model PrintJob {
   presetId           String?
   quality            PrintQuality
   colorProfile       ColorProfile
-  paperType          String
+  paperTypeId        String?
+  paperType          String? // Fallback se paperTypeId não existir
   // Gramatura em g/m²
   paperWeight        Int
   pagesBlackAndWhite Int          @default(0)
   pagesColor         Int          @default(0)
-  // Custo estimado do job completo em reais
-  estimatedCost      Decimal      @db.Decimal(12, 4)
+  // Custo CONGELADO do job no momento do registro (imutável, snapshot da tabela de preços)
+  registeredCost     Decimal      @db.Decimal(12, 4)
+  status             String       @default("success") // "success", "error", "cancelled"
+  errorMessage       String?      @db.Text
   printedAt          DateTime     @default(now())
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
-  order   Order?       @relation(fields: [orderId], references: [id])
-  printer Printer      @relation(fields: [printerId], references: [id])
+  order   Order?     @relation(fields: [orderId], references: [id])
+  printer Printer    @relation(fields: [printerId], references: [id])
   preset  PrintPreset? @relation(fields: [presetId], references: [id])
+  paper   PaperType? @relation(fields: [paperTypeId], references: [id])
 
   @@index([printerId])
   @@index([orderId])
+  @@index([createdAt])
   @@map("print_jobs")
 }
 
@@ -179,7 +268,7 @@ model OrderFile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  order Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@map("order_files")

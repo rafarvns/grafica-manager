@@ -62,6 +62,10 @@ class ApiClient {
     return this.fetch<T>(path, { ...options, method: 'PUT', body: JSON.stringify(body) });
   }
 
+  public patch<T>(path: string, body: unknown, options?: RequestInit) {
+    return this.fetch<T>(path, { ...options, method: 'PATCH', body: JSON.stringify(body) });
+  }
+
   public delete<T>(path: string, options?: RequestInit) {
     return this.fetch<T>(path, { ...options, method: 'DELETE' });
   }

@@ -1,0 +1,165 @@
+.tableContainer {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-surface);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead {
+  background-color: var(--color-surface-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table thead th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-surface-secondary);
+}
+
+.table tbody td {
+  padding: 12px;
+  color: var(--color-text);
+}
+
+.documentName {
+  font-weight: 500;
+  word-break: break-word;
+  max-width: 200px;
+}
+
+.quality {
+  text-transform: capitalize;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.cost {
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: right;
+}
+
+.date {
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status.warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.emptyState {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .table {
+    font-size: 12px;
+  }
+
+  .table thead th {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .table tbody td {
+    padding: 8px;
+  }
+
+  .documentName {
+    max-width: 120px;
+    font-size: 13px;
+  }
+
+  .date {
+    font-size: 11px;
+    white-space: normal;
+  }
+
+  .tableContainer {
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  .table {
+    font-size: 11px;
+  }
+
+  .table thead th {
+    padding: 6px;
+    font-size: 10px;
+  }
+
+  .table tbody td {
+    padding: 6px;
+  }
+
+  .documentName {
+    max-width: 80px;
+    font-size: 11px;
+  }
+
+  .numeric {
+    text-align: center;
+  }
+
+  .cost {
+    font-size: 12px;
+  }
+}

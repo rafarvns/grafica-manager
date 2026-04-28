@@ -1,10 +1,17 @@
 import { defineConfig } from 'vitest/config';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 
-const __dirname = new URL('.', import.meta.url).pathname;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
-  plugins: [tsconfigPaths({ root: __dirname })],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@grafica/shared': resolve(__dirname, '../shared/src/index.ts'),
+    },
+  },
   test: {
     globals: true,
     environment: 'node',

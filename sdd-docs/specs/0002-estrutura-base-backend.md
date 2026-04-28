@@ -1,6 +1,6 @@
 # Feature: Estrutura Base do Backend
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 

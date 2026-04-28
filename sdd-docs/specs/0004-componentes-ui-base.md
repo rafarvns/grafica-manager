@@ -1,6 +1,6 @@
 # Feature: Componentes UI Base Complementares
 
-> Status: `draft` · Autor: Antigravity · Data: 2026-04-27
+> Status: `implemented` · Autor: Antigravity · Data: 2026-04-27
 
 ## Contexto
 
