@@ -22,7 +22,9 @@
       "Bash(pnpm vitest *)",
       "Bash(pnpm test:unit -r --filter=backend)",
       "Bash(pnpm -C packages/backend test:unit)",
-      "Bash(pnpm -C packages/backend vitest run tests/unit/application/use-cases/ValidateCustomerDeletionUseCase.spec.ts tests/unit/application/use-cases/ValidateOrderDeletionUseCase.spec.ts)"
+      "Bash(pnpm -C packages/backend vitest run tests/unit/application/use-cases/ValidateCustomerDeletionUseCase.spec.ts tests/unit/application/use-cases/ValidateOrderDeletionUseCase.spec.ts)",
+      "Bash(grep -E \"\\(\\\\.ts$|test|spec\\)\")",
+      "Bash(npx vitest *)"
     ]
   }
 }
