@@ -4,6 +4,7 @@ import { AppLayout } from '@/layout/AppLayout';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary/ErrorBoundary';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { AppProvider } from '@/contexts/AppContext';
 import { ToastContainer } from '@/components/ui/Toast/ToastContainer';
 
 const DashboardPage = lazy(() =>
@@ -34,18 +35,20 @@ export function App(): React.ReactElement {
   return (
     <ErrorBoundary>
       <NotificationProvider>
-        <RouterProvider>
-          <AppLayout>
-            <Suspense fallback={<LoadingFallback />}>
-              <Route path="/" component={<DashboardPage />} />
-              <Route path="/pedidos" component={<OrdersPage />} />
-              <Route path="/clientes" component={<CustomersPage />} />
-              <Route path="/impressoes" component={<PrintHistoryPage />} />
-              <Route path="/relatorios" component={<ReportsPage />} />
-            </Suspense>
-          </AppLayout>
-          <ToastContainer />
-        </RouterProvider>
+        <AppProvider>
+          <RouterProvider>
+            <AppLayout>
+              <Suspense fallback={<LoadingFallback />}>
+                <Route path="/" component={<DashboardPage />} />
+                <Route path="/pedidos" component={<OrdersPage />} />
+                <Route path="/clientes" component={<CustomersPage />} />
+                <Route path="/impressoes" component={<PrintHistoryPage />} />
+                <Route path="/relatorios" component={<ReportsPage />} />
+              </Suspense>
+            </AppLayout>
+            <ToastContainer />
+          </RouterProvider>
+        </AppProvider>
       </NotificationProvider>
     </ErrorBoundary>
   );

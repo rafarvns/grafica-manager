@@ -1,22 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useToast } from '@/hooks/useToast';
-import { ToastContainer } from '@/components/ui/Toast/Toast';
 
 export type Theme = 'light' | 'dark';
 
 export interface AppContextValue {
   theme: Theme;
   toggleTheme: () => void;
-  // Apenas delegamos os métodos do hook useToast para uso global
-  addToast: ReturnType<typeof useToast>['addToast'];
-  removeToast: ReturnType<typeof useToast>['removeToast'];
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
-  const { toasts, addToast, removeToast } = useToast();
 
   // Inicializa tema buscando do localStorage
   useEffect(() => {
@@ -44,9 +38,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AppContext.Provider value={{ theme, toggleTheme, addToast, removeToast }}>
+    <AppContext.Provider value={{ theme, toggleTheme }}>
       {children}
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </AppContext.Provider>
   );
 }
