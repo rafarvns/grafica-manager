@@ -28,6 +28,9 @@ const OrderDetailPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage }))
 );
+const ShopeeIntegrationPage = lazy(() =>
+  import('@/pages/ShopeeIntegrationPage')
+);
 
 function LoadingFallback() {
   return (
@@ -52,6 +55,7 @@ export function App(): React.ReactElement {
                 <Route path="/impressoes" component={<PrintHistoryPage />} />
                 <Route path="/relatorios" component={<ReportsPage />} />
                 <Route path="/configuracoes" component={<SettingsPage />} />
+                <Route path="/shopee" component={<ShopeeIntegrationPage />} />
               </Suspense>
             </AppLayout>
             <ToastContainer />

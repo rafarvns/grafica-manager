@@ -8,12 +8,14 @@ export type OrderStatus =
   | 'shipping' 
   | 'cancelled';
 
-export interface OrderFile {
+export interface OrderAttachment {
   id: ID;
-  originalName: string;
+  orderId: ID;
+  originalFilename: string;
   url: string;
   mimeType: string;
   size: number;
+  uploadedAt: string;
 }
 
 export interface OrderPrintJob {
@@ -49,7 +51,7 @@ export interface Order {
   status: OrderStatus;
   position: number;
   origin: 'SHOPEE' | 'MANUAL';
-  files: OrderFile[];
+  attachments: OrderAttachment[];
   printJobs: OrderPrintJob[];
   statusHistory: StatusHistory[];
   createdAt: string;

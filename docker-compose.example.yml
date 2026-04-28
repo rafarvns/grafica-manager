@@ -17,6 +17,20 @@ services:
       timeout: 20s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    container_name: grafica-redis
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: .
@@ -26,13 +40,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: "mysql://user_grafica:senha_segura_aqui@db:3306/grafica_manager"
+      REDIS_URL: "redis://redis:6379"
+      FILE_STORAGE_PATH: "./uploads"
       PORT: 3333
       NODE_ENV: production
       API_TOKEN: seu_api_token_fixo_aqui
     ports:
       - "3333:3333"
+    volumes:
+      - ./uploads:/app/uploads
 
   runner:
     image: myoung34/github-runner:latest
@@ -50,4 +70,5 @@ services:
 
 volumes:
   mysql_data:
+  redis_data:
   runner_data:

@@ -8,3 +8,4 @@ export const paginationSchema = z.object({
 export type PaginationInput = z.infer<typeof paginationSchema>;
 
 export * from './settings-validators';
+export * from './cnpj';

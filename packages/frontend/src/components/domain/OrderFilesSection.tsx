@@ -7,10 +7,10 @@ import type { Order } from '@grafica/shared';
 interface OrderFilesSectionProps {
   order: Order;
   onUpload: (file: File) => Promise<void>;
-  onRemove: (fileId: string) => Promise<void>;
+  onDownload: (fileId: string, filename: string) => Promise<void>;
 }
 
-export function OrderFilesSection({ order, onUpload, onRemove }: OrderFilesSectionProps) {
+export function OrderFilesSection({ order, onUpload, onDownload }: OrderFilesSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -59,24 +59,21 @@ export function OrderFilesSection({ order, onUpload, onRemove }: OrderFilesSecti
           </div>
         }
       >
-        {order.files && order.files.length > 0 ? (
+        {order.attachments && order.attachments.length > 0 ? (
           <div className={styles.fileList}>
-            {order.files.map((file) => (
+            {order.attachments.map((file) => (
               <div key={file.id} className={styles.fileItem}>
                 <div className={styles.fileIcon}>📄</div>
                 <div className={styles.fileDetails}>
-                  <span className={styles.fileName}>{file.originalName}</span>
+                  <span className={styles.fileName}>{file.originalFilename}</span>
                   <span className={styles.fileSize}>{formatSize(file.size)}</span>
                 </div>
                 <div className={styles.fileActions}>
-                  <a href={file.url} target="_blank" rel="noopener noreferrer" className={styles.actionButton}>
-                    Download
-                  </a>
                   <button 
-                    onClick={() => onRemove(file.id)} 
-                    className={`${styles.actionButton} ${styles.delete}`}
+                    onClick={() => onDownload(file.id, file.originalFilename)} 
+                    className={styles.actionButton}
                   >
-                    Excluir
+                    Download
                   </button>
                 </div>
               </div>

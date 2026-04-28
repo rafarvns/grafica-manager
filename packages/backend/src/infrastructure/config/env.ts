@@ -9,6 +9,8 @@ const envSchema = z.object({
       'API_TOKEN deve ter pelo menos 32 caracteres'
     ),
   PORT: z.string({ message: 'PORT é obrigatória' }).transform((val) => parseInt(val, 10)),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
+  FILE_STORAGE_PATH: z.string().default('./uploads'),
 });
 
 type Env = z.infer<typeof envSchema>;

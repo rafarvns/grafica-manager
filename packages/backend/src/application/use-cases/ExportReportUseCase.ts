@@ -1,5 +1,5 @@
 import { ReportFilter } from '@/domain/value-objects/ReportFilter';
-import { ReportRow } from '@/application/dtos/ReportDTO';
+import { ReportRow } from '@grafica/shared';
 
 export interface IReportStreamRepository {
   streamReportRows(filter: ReportFilter): AsyncIterable<ReportRow>;
@@ -9,29 +9,38 @@ export interface IExcelExporter {
   generate(rows: ReportRow[]): Promise<Buffer>;
 }
 
-const CSV_HEADER = 'Grupo,Impressões,Receita,Custo,Margem Bruta (%)';
+export interface IPdfExporter {
+  generate(rows: ReportRow[]): Promise<Buffer>;
+}
 
-function csvEscape(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`;
+const CSV_HEADER = 'Número,Cliente,Papel,Quantidade,Venda,Custo,Margem (%),Data';
+
+function csvEscape(value: string | number): string {
+  const str = String(value);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return `"${str.replace(/"/g, '""')}"`;
   }
-  return value;
+  return str;
 }
 
 function rowToCsv(row: ReportRow): string {
   return [
-    csvEscape(row.label),
-    String(row.printCount),
-    String(row.revenue),
-    String(row.cost),
-    String(row.grossMarginPercent),
+    csvEscape(row.orderNumber),
+    csvEscape(row.customerName),
+    csvEscape(row.paperType),
+    csvEscape(row.quantity),
+    csvEscape(row.salePrice),
+    csvEscape(row.cost),
+    csvEscape(row.marginPercent),
+    csvEscape(row.date),
   ].join(',');
 }
 
 export class ExportReportUseCase {
   constructor(
     private readonly repo: IReportStreamRepository,
-    private readonly excelExporter: IExcelExporter
+    private readonly excelExporter: IExcelExporter,
+    private readonly pdfExporter: IPdfExporter
   ) {}
 
   async exportCsv(filter: ReportFilter): Promise<string> {
@@ -48,5 +57,13 @@ export class ExportReportUseCase {
       rows.push(row);
     }
     return this.excelExporter.generate(rows);
+  }
+
+  async exportPdf(filter: ReportFilter): Promise<Buffer> {
+    const rows: ReportRow[] = [];
+    for await (const row of this.repo.streamReportRows(filter)) {
+      rows.push(row);
+    }
+    return this.pdfExporter.generate(rows);
   }
 }

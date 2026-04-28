@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: System Settings API
+  version: 1.0.0
+  description: Endpoints para gerenciamento de configurações globais da gráfica.
+
+paths:
+  /system-settings:
+    get:
+      summary: Recuperar configurações atuais
+      responses:
+        '200':
+          description: Configurações atuais
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemSettings'
+    patch:
+      summary: Atualizar configurações
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSystemSettingsDto'
+      responses:
+        '200':
+          description: Configurações atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemSettings'
+        '400':
+          description: Erro de validação
+
+  /system-settings/logo:
+    post:
+      summary: Upload de logo
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Logo atualizada
+        '400':
+          description: Erro no upload
+    delete:
+      summary: Remover logo
+      responses:
+        '200':
+          description: Logo removida
+
+components:
+  schemas:
+    SystemSettings:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        cnpj: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        website: { type: string, nullable: true }
+        address_street: { type: string }
+        address_number: { type: string }
+        address_complement: { type: string, nullable: true }
+        address_city: { type: string }
+        address_state: { type: string }
+        address_zip: { type: string }
+        logoPath: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    
+    UpdateSystemSettingsDto:
+      type: object
+      properties:
+        name: { type: string }
+        cnpj: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        website: { type: string, nullable: true }
+        address_street: { type: string }
+        address_number: { type: string }
+        address_complement: { type: string, nullable: true }
+        address_city: { type: string }
+        address_state: { type: string }
+        address_zip: { type: string }

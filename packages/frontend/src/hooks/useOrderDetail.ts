@@ -68,6 +68,24 @@ export function useOrderDetail(id: string) {
     }
   };
 
+  const downloadFile = async (fileId: string, filename: string) => {
+    try {
+      const response = await apiClient.get(`/orders/${id}/attachments/${fileId}`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao baixar arquivo');
+      throw err;
+    }
+  };
+
   const removeFile = async (fileId: string) => {
     try {
       await apiClient.delete(`/orders/${id}/attachments/${fileId}`);
@@ -86,6 +104,7 @@ export function useOrderDetail(id: string) {
     cancelOrder,
     updateDescription,
     uploadFile,
+    downloadFile,
     removeFile,
     refresh: fetchOrder,
   };

@@ -1,11 +1,12 @@
 import { PeriodFilter } from './PeriodFilter';
+import { OrderStatus } from '@grafica/shared';
 
 export enum ReportGrouping {
-  NONE = 'NONE',
-  CLIENT = 'CLIENT',
-  PAPER = 'PAPER',
-  ORIGIN = 'ORIGIN',
-  PERIOD = 'PERIOD',
+  NONE = 'none',
+  CUSTOMER = 'customer',
+  ORDER = 'order',
+  PAPER = 'paper',
+  ORIGIN = 'origin',
 }
 
 export type SortDirection = 'ASC' | 'DESC';
@@ -15,100 +16,83 @@ type PageSize = (typeof VALID_PAGE_SIZES)[number];
 
 export interface ReportFilterParams {
   period: PeriodFilter;
-  customerId?: string;
-  origin?: string;
-  paperTypeId?: string;
-  grouping?: ReportGrouping;
-  sortColumn?: string;
-  sortDirection?: SortDirection;
-  page?: number;
-  pageSize?: PageSize;
+  customerIds?: string[] | undefined;
+  paperTypeIds?: string[] | undefined;
+  origin?: ('SHOPEE' | 'MANUAL')[] | undefined;
+  statuses?: OrderStatus[] | undefined;
+  grouping?: ReportGrouping | undefined;
+  sortColumn?: string | undefined;
+  sortDirection?: SortDirection | undefined;
+  page?: number | undefined;
+  pageSize?: PageSize | undefined;
 }
 
 export class ReportFilter {
   readonly period: PeriodFilter;
-  readonly customerId?: string;
-  readonly origin?: string;
-  readonly paperTypeId?: string;
+  readonly customerIds?: string[] | undefined;
+  readonly paperTypeIds?: string[] | undefined;
+  readonly origin?: ('SHOPEE' | 'MANUAL')[] | undefined;
+  readonly statuses?: OrderStatus[] | undefined;
   readonly grouping: ReportGrouping;
-  readonly sortColumn?: string;
+  readonly sortColumn?: string | undefined;
   readonly sortDirection: SortDirection;
   readonly page: number;
   readonly pageSize: PageSize;
 
-  private constructor(
-    period: PeriodFilter,
-    grouping: ReportGrouping,
-    sortDirection: SortDirection,
-    page: number,
-    pageSize: PageSize,
-    customerId?: string,
-    origin?: string,
-    paperTypeId?: string,
-    sortColumn?: string
-  ) {
-    this.period = period;
-    this.grouping = grouping;
-    this.sortDirection = sortDirection;
-    this.page = page;
-    this.pageSize = pageSize;
-    if (customerId !== undefined) this.customerId = customerId;
-    if (origin !== undefined) this.origin = origin;
-    if (paperTypeId !== undefined) this.paperTypeId = paperTypeId;
-    if (sortColumn !== undefined) this.sortColumn = sortColumn;
+  private constructor(params: ReportFilterParams) {
+    this.period = params.period;
+    this.customerIds = params.customerIds;
+    this.paperTypeIds = params.paperTypeIds;
+    this.origin = params.origin;
+    this.statuses = params.statuses;
+    this.grouping = params.grouping ?? ReportGrouping.NONE;
+    this.sortColumn = params.sortColumn;
+    this.sortDirection = params.sortDirection ?? 'DESC';
+    this.page = params.page ?? 1;
+    this.pageSize = params.pageSize ?? 50;
   }
 
-  static create(params: ReportFilterParams): ReportFilter {
-    if (!params.period) {
-      throw new Error('Selecione um período para gerar o relatório');
-    }
-    const pageSize = params.pageSize ?? 25;
-    if (!VALID_PAGE_SIZES.includes(pageSize as PageSize)) {
-      throw new Error(`Tamanho de página inválido: ${pageSize}. Valores aceitos: 25, 50, 100`);
-    }
-    return new ReportFilter(
-      params.period,
-      params.grouping ?? ReportGrouping.NONE,
-      params.sortDirection ?? 'ASC',
-      params.page ?? 1,
-      pageSize as PageSize,
-      params.customerId,
-      params.origin,
-      params.paperTypeId,
-      params.sortColumn
-    );
+  static create(params: Partial<ReportFilterParams> & { period: PeriodFilter }): ReportFilter {
+    return new ReportFilter({
+      ...params,
+      pageSize: params.pageSize ?? 50,
+    });
   }
 
   static fromQueryParams(query: Record<string, unknown>): ReportFilter {
-    const { from, to } = query;
-    if (!from || !to) {
-      throw new Error('Selecione um período para gerar o relatório');
+    const { startDate, endDate } = query;
+    if (!startDate || !endDate) {
+      throw new Error('Período é obrigatório');
     }
 
-    const period = PeriodFilter.custom(new Date(from as string), new Date(to as string));
+    const period = PeriodFilter.custom(new Date(startDate as string), new Date(endDate as string));
 
-    const rawPageSize = query['pageSize'] ? Number(query['pageSize']) : 25;
-    if (!VALID_PAGE_SIZES.includes(rawPageSize as PageSize)) {
-      throw new Error(`Tamanho de página inválido: ${rawPageSize}. Valores aceitos: 25, 50, 100`);
+    // Validar intervalo de 1 ano
+    const diffTime = Math.abs(period.to.getTime() - period.from.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays > 366) {
+      throw new Error('Período não pode exceder 1 ano');
     }
 
-    const rawGrouping = query['grouping'] as string | undefined;
-    const grouping =
-      rawGrouping && rawGrouping in ReportGrouping
-        ? ReportGrouping[rawGrouping as keyof typeof ReportGrouping]
-        : ReportGrouping.NONE;
+    const parseArray = (val: unknown): string[] | undefined => {
+      if (!val) return undefined;
+      if (Array.isArray(val)) return val.map(String);
+      if (typeof val === 'string') return val.split(',');
+      return undefined;
+    };
 
-    return new ReportFilter(
+    return ReportFilter.create({
       period,
-      grouping,
-      (query['sortDirection'] as SortDirection | undefined) ?? 'ASC',
-      query['page'] ? Number(query['page']) : 1,
-      rawPageSize as PageSize,
-      query['customerId'] as string | undefined,
-      query['origin'] as string | undefined,
-      query['paperTypeId'] as string | undefined,
-      query['sortColumn'] as string | undefined
-    );
+      customerIds: parseArray(query['customerIds']),
+      paperTypeIds: parseArray(query['paperTypeIds']),
+      origin: parseArray(query['origin']) as ('SHOPEE' | 'MANUAL')[] | undefined,
+      statuses: parseArray(query['statuses']) as OrderStatus[] | undefined,
+      grouping: (query['grouping'] as ReportGrouping) ?? ReportGrouping.NONE,
+      sortColumn: query['sortColumn'] as string | undefined,
+      sortDirection: (query['sortDirection'] as SortDirection) ?? 'DESC',
+      page: query['page'] ? Number(query['page']) : 1,
+      pageSize: query['pageSize'] ? (Number(query['pageSize']) as PageSize) : 50,
+    });
   }
 
   getOffset(): number {

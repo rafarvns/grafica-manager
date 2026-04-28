@@ -8,6 +8,13 @@ import { GetOrderUseCase } from '@/application/use-cases/GetOrderUseCase';
 import { UpdateOrderUseCase } from '@/application/use-cases/UpdateOrderUseCase';
 import { ChangeOrderStatusUseCase } from '@/application/use-cases/ChangeOrderStatusUseCase';
 import { CancelOrderUseCase } from '@/application/use-cases/CancelOrderUseCase';
+import { UploadOrderAttachmentUseCase } from '@/application/use-cases/UploadOrderAttachmentUseCase';
+import { ListOrderAttachmentsUseCase } from '@/application/use-cases/ListOrderAttachmentsUseCase';
+import { DownloadOrderAttachmentUseCase } from '@/application/use-cases/DownloadOrderAttachmentUseCase';
+import { DeleteOrderAttachmentUseCase } from '@/application/use-cases/DeleteOrderAttachmentUseCase';
+import { OrderAttachmentController } from '@/infrastructure/http/controllers/OrderAttachmentController';
+import { PrismaOrderAttachmentRepository } from '@/infrastructure/database/repositories/PrismaOrderAttachmentRepository';
+import { LocalFileStorage } from '@/infrastructure/file-storage/LocalFileStorage';
 
 function mapOrder(item: any) {
   return {
@@ -74,7 +81,7 @@ function buildOrderRepository(prisma: PrismaClient) {
           statusHistory: {
             orderBy: { createdAt: 'desc' }
           },
-          files: true,
+          attachments: true,
           customer: true
         }
       });
@@ -163,20 +170,6 @@ function buildOrderRepository(prisma: PrismaClient) {
         include: { printer: true, paper: true }
       });
     },
-    async addAttachment(orderId: string, file: { name: string; path: string; size: number; mimeType: string }) {
-      return prisma.orderFile.create({
-        data: {
-          orderId,
-          ...file
-        }
-      });
-    },
-    async removeAttachment(orderId: string, fileId: string) {
-      // Nota: em produção também removeria do disco
-      return prisma.orderFile.delete({
-        where: { id: fileId, orderId }
-      });
-    }
   };
 }
 
@@ -192,6 +185,8 @@ export function createOrdersRouter(prisma: PrismaClient): Router {
   const router = Router();
   const orderRepo = buildOrderRepository(prisma);
   const customerRepo = buildCustomerRepository(prisma);
+  const attachmentRepo = new PrismaOrderAttachmentRepository(prisma);
+  const fileStorage = new LocalFileStorage();
 
   const listUseCase = new ListOrdersUseCase(orderRepo as any);
   const createUseCase = new CreateOrderUseCase(customerRepo, orderRepo as any);
@@ -281,39 +276,26 @@ export function createOrdersRouter(prisma: PrismaClient): Router {
     }
   });
 
-  // Configuração Multer para anexos
-  const upload = multer({ dest: 'uploads/orders/' });
+  // Configuração Multer para anexos (usando buffer para validação MIME real no use case)
+  const storage = multer.memoryStorage();
+  const upload = multer({ storage });
 
-  router.post('/:id/attachments', upload.single('file'), async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      if (!id) throw new Error('ID não fornecido');
-      if (!req.file) throw new Error('Arquivo não enviado');
-      
-      const fileData = {
-        name: req.file.originalname,
-        path: req.file.path,
-        size: req.file.size,
-        mimeType: req.file.mimetype
-      };
+  const uploadAttachmentUseCase = new UploadOrderAttachmentUseCase(attachmentRepo, fileStorage);
+  const listAttachmentsUseCase = new ListOrderAttachmentsUseCase(attachmentRepo);
+  const downloadAttachmentUseCase = new DownloadOrderAttachmentUseCase(attachmentRepo, fileStorage);
+  const deleteAttachmentUseCase = new DeleteOrderAttachmentUseCase(attachmentRepo);
+  
+  const attachmentController = new OrderAttachmentController(
+    uploadAttachmentUseCase,
+    listAttachmentsUseCase,
+    downloadAttachmentUseCase,
+    deleteAttachmentUseCase
+  );
 
-      const result = await orderRepo.addAttachment(id, fileData);
-      res.status(201).json(result);
-    } catch (error) {
-      res.status(400).json({ error: error instanceof Error ? error.message : 'Erro ao adicionar anexo' });
-    }
-  });
-
-  router.delete('/:id/attachments/:fileId', async (req: Request, res: Response) => {
-    try {
-      const { id, fileId } = req.params;
-      if (!id || !fileId) throw new Error('IDs não fornecidos');
-      await orderRepo.removeAttachment(id, fileId);
-      res.status(204).send();
-    } catch (error) {
-      res.status(400).json({ error: error instanceof Error ? error.message : 'Erro ao remover anexo' });
-    }
-  });
+  router.post('/:id/attachments', upload.single('file'), (req, res) => attachmentController.upload(req, res));
+  router.get('/:id/attachments', (req, res) => attachmentController.list(req, res));
+  router.get('/:id/attachments/:fileId', (req, res) => attachmentController.download(req, res));
+  router.delete('/:id/attachments/:fileId', (req, res) => attachmentController.delete(req, res));
 
   router.get('/:id/print-jobs', async (req: Request, res: Response) => {
     try {

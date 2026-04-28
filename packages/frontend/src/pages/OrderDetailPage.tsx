@@ -26,6 +26,7 @@ export function OrderDetailPage() {
     changeStatus, 
     cancelOrder,
     uploadFile,
+    downloadFile,
     removeFile
   } = useOrderDetail(orderId);
 
@@ -44,7 +45,7 @@ export function OrderDetailPage() {
 
   const handleChangeStatus = async (status: any, reason?: string) => {
     try {
-      await changeStatus(status, reason);
+      await changeStatus(status);
       addToast({ type: 'success', message: 'Status atualizado!' });
     } catch (err) {
       addToast({ type: 'error', message: 'Erro ao atualizar status.' });
@@ -112,7 +113,7 @@ export function OrderDetailPage() {
           <OrderFilesSection 
             order={order} 
             onUpload={handleUploadFile} 
-            onRemove={removeFile} 
+            onDownload={downloadFile} 
           />
         )}
         

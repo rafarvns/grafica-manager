@@ -20,6 +20,8 @@ export type ApiResponse<T> =
 
 export * from './orders';
 export * from './settings';
+export * from './reports.js';
+export * from './system-settings';
 
 // Re-exportar seletivamente de print-jobs para evitar conflitos com tipos base
 export type {

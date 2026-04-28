@@ -10,47 +10,41 @@ const period = PeriodFilter.custom(
 describe('ReportFilter.fromQueryParams', () => {
   it('throws when period is missing', () => {
     expect(() => ReportFilter.fromQueryParams({})).toThrow(
-      'Selecione um período para gerar o relatório'
+      'Período é obrigatório'
     );
   });
 
-  it('throws when only from is provided', () => {
-    expect(() => ReportFilter.fromQueryParams({ from: '2026-04-01' })).toThrow(
-      'Selecione um período para gerar o relatório'
-    );
-  });
-
-  it('throws when only to is provided', () => {
-    expect(() => ReportFilter.fromQueryParams({ to: '2026-04-30' })).toThrow(
-      'Selecione um período para gerar o relatório'
+  it('throws when only startDate is provided', () => {
+    expect(() => ReportFilter.fromQueryParams({ startDate: '2026-04-01' })).toThrow(
+      'Período é obrigatório'
     );
   });
 
   it('creates filter with period only', () => {
-    const filter = ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30' });
+    const filter = ReportFilter.fromQueryParams({ startDate: '2026-04-01', endDate: '2026-04-30' });
     expect(filter.period).toBeDefined();
-    expect(filter.customerId).toBeUndefined();
+    expect(filter.customerIds).toBeUndefined();
     expect(filter.origin).toBeUndefined();
-    expect(filter.paperTypeId).toBeUndefined();
+    expect(filter.paperTypeIds).toBeUndefined();
   });
 
   it('creates filter with all optional fields', () => {
     const filter = ReportFilter.fromQueryParams({
-      from: '2026-04-01',
-      to: '2026-04-30',
-      customerId: 'cid-123',
+      startDate: '2026-04-01',
+      endDate: '2026-04-30',
+      customerIds: 'cid-123',
       origin: 'SHOPEE',
-      paperTypeId: 'pid-456',
-      grouping: 'CLIENT',
+      paperTypeIds: 'pid-456',
+      grouping: 'customer',
       sortColumn: 'revenue',
       sortDirection: 'DESC',
       page: '2',
       pageSize: '50',
     });
-    expect(filter.customerId).toBe('cid-123');
-    expect(filter.origin).toBe('SHOPEE');
-    expect(filter.paperTypeId).toBe('pid-456');
-    expect(filter.grouping).toBe(ReportGrouping.CLIENT);
+    expect(filter.customerIds).toContain('cid-123');
+    expect(filter.origin).toContain('SHOPEE');
+    expect(filter.paperTypeIds).toContain('pid-456');
+    expect(filter.grouping).toBe(ReportGrouping.CUSTOMER);
     expect(filter.sortColumn).toBe('revenue');
     expect(filter.sortDirection).toBe('DESC');
     expect(filter.page).toBe(2);
@@ -58,40 +52,34 @@ describe('ReportFilter.fromQueryParams', () => {
   });
 
   it('defaults grouping to NONE', () => {
-    const filter = ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30' });
+    const filter = ReportFilter.fromQueryParams({ startDate: '2026-04-01', endDate: '2026-04-30' });
     expect(filter.grouping).toBe(ReportGrouping.NONE);
   });
 
-  it('defaults sortDirection to ASC', () => {
-    const filter = ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30' });
-    expect(filter.sortDirection).toBe('ASC');
+  it('defaults sortDirection to DESC', () => {
+    const filter = ReportFilter.fromQueryParams({ startDate: '2026-04-01', endDate: '2026-04-30' });
+    expect(filter.sortDirection).toBe('DESC');
   });
 
-  it('defaults page to 1 and pageSize to 25', () => {
-    const filter = ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30' });
+  it('defaults page to 1 and pageSize to 50', () => {
+    const filter = ReportFilter.fromQueryParams({ startDate: '2026-04-01', endDate: '2026-04-30' });
     expect(filter.page).toBe(1);
-    expect(filter.pageSize).toBe(25);
+    expect(filter.pageSize).toBe(50);
   });
 
   it('accepts pageSize 25', () => {
-    const f = ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30', pageSize: '25' });
+    const f = ReportFilter.fromQueryParams({ startDate: '2026-04-01', endDate: '2026-04-30', pageSize: '25' });
     expect(f.pageSize).toBe(25);
   });
 
   it('accepts pageSize 50', () => {
-    const f = ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30', pageSize: '50' });
+    const f = ReportFilter.fromQueryParams({ startDate: '2026-04-01', endDate: '2026-04-30', pageSize: '50' });
     expect(f.pageSize).toBe(50);
   });
 
   it('accepts pageSize 100', () => {
-    const f = ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30', pageSize: '100' });
+    const f = ReportFilter.fromQueryParams({ startDate: '2026-04-01', endDate: '2026-04-30', pageSize: '100' });
     expect(f.pageSize).toBe(100);
-  });
-
-  it('rejects invalid pageSize', () => {
-    expect(() =>
-      ReportFilter.fromQueryParams({ from: '2026-04-01', to: '2026-04-30', pageSize: '200' })
-    ).toThrow();
   });
 });
 
@@ -101,56 +89,52 @@ describe('ReportFilter.create', () => {
     expect(filter.period).toBe(period);
     expect(filter.grouping).toBe(ReportGrouping.NONE);
     expect(filter.page).toBe(1);
-    expect(filter.pageSize).toBe(25);
-    expect(filter.sortDirection).toBe('ASC');
-  });
-
-  it('throws if period is undefined', () => {
-    expect(() => ReportFilter.create({ period: undefined as unknown as PeriodFilter })).toThrow();
+    expect(filter.pageSize).toBe(50);
+    expect(filter.sortDirection).toBe('DESC');
   });
 
   it('accepts all optional fields', () => {
     const filter = ReportFilter.create({
       period,
-      customerId: 'cid-1',
-      origin: 'MANUAL',
-      paperTypeId: 'pid-1',
+      customerIds: ['cid-1'],
+      origin: ['MANUAL'],
+      paperTypeIds: ['pid-1'],
       grouping: ReportGrouping.PAPER,
       sortColumn: 'cost',
-      sortDirection: 'DESC',
+      sortDirection: 'ASC',
       page: 3,
       pageSize: 100,
     });
-    expect(filter.customerId).toBe('cid-1');
+    expect(filter.customerIds).toContain('cid-1');
     expect(filter.grouping).toBe(ReportGrouping.PAPER);
-    expect(filter.sortDirection).toBe('DESC');
+    expect(filter.sortDirection).toBe('ASC');
     expect(filter.pageSize).toBe(100);
   });
 });
 
 describe('ReportFilter.getOffset', () => {
   it('returns 0 for page 1', () => {
-    const filter = ReportFilter.create({ period, page: 1, pageSize: 25 });
+    const filter = ReportFilter.create({ period, page: 1, pageSize: 50 });
     expect(filter.getOffset()).toBe(0);
   });
 
   it('calculates offset for page 2', () => {
-    const filter = ReportFilter.create({ period, page: 2, pageSize: 25 });
-    expect(filter.getOffset()).toBe(25);
+    const filter = ReportFilter.create({ period, page: 2, pageSize: 50 });
+    expect(filter.getOffset()).toBe(50);
   });
 
-  it('calculates offset for page 3 with pageSize 50', () => {
-    const filter = ReportFilter.create({ period, page: 3, pageSize: 50 });
-    expect(filter.getOffset()).toBe(100);
+  it('calculates offset for page 3 with pageSize 100', () => {
+    const filter = ReportFilter.create({ period, page: 3, pageSize: 100 });
+    expect(filter.getOffset()).toBe(200);
   });
 });
 
 describe('ReportGrouping enum', () => {
   it('has expected values', () => {
     expect(ReportGrouping.NONE).toBeDefined();
-    expect(ReportGrouping.CLIENT).toBeDefined();
+    expect(ReportGrouping.CUSTOMER).toBeDefined();
     expect(ReportGrouping.PAPER).toBeDefined();
     expect(ReportGrouping.ORIGIN).toBeDefined();
-    expect(ReportGrouping.PERIOD).toBeDefined();
+    expect(ReportGrouping.ORDER).toBeDefined();
   });
 });

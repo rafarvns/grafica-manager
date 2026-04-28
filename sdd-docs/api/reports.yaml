@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
   title: Gráfica Manager — Reports API
-  version: 1.0.0
-  description: Endpoints de relatórios detalhados (spec 0016)
+  version: 1.1.0
+  description: Endpoints de relatórios detalhados (spec 0024)
 
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: http://localhost:3333/api/v1
 
 security:
   - bearerAuth: []
@@ -19,88 +19,105 @@ components:
   schemas:
     ReportRow:
       type: object
-      required: [label, printCount, revenue, cost, grossMarginPercent, netMarginPercent]
+      required: [orderId, orderNumber, customerName, paperType, quantity, salePrice, cost, margin, marginPercent, date, origin]
       properties:
-        label:
+        orderId:
           type: string
-          description: Rótulo do grupo (nome do pedido, cliente, origem, etc.)
-        printCount:
+        orderNumber:
+          type: string
+        customerId:
+          type: string
+        customerName:
+          type: string
+        paperType:
+          type: string
+        quantity:
           type: integer
-          description: Quantidade de impressões no período
-        revenue:
+        salePrice:
           type: number
-          description: Receita total (R$)
         cost:
           type: number
-          description: Custo total de impressão (R$)
-        grossMarginPercent:
+        margin:
           type: number
-          description: Margem bruta em percentual
-        netMarginPercent:
+        marginPercent:
           type: number
-          description: Margem líquida em percentual
+        date:
+          type: string
+          format: date-time
+        origin:
+          type: string
+          enum: [SHOPEE, MANUAL]
+
+    ReportTotals:
+      type: object
+      required: [totalOrders, totalQuantity, totalCost, totalRevenue, totalMargin, marginPercent, ticketAverage]
+      properties:
+        totalOrders:
+          type: integer
+        totalQuantity:
+          type: integer
+        totalCost:
+          type: number
+        totalRevenue:
+          type: number
+        totalMargin:
+          type: number
+        marginPercent:
+          type: number
+        ticketAverage:
+          type: number
 
     ReportResult:
       type: object
-      required: [rows, total, page, pageSize, totalPages]
+      required: [rows, totals, pagination]
       properties:
         rows:
           type: array
           items:
             $ref: '#/components/schemas/ReportRow'
-        total:
-          type: integer
-          description: Total de registros (sem paginação)
-        page:
-          type: integer
-          description: Página atual
-        pageSize:
-          type: integer
-          enum: [25, 50, 100]
-        totalPages:
-          type: integer
+        totals:
+          $ref: '#/components/schemas/ReportTotals'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            pageSize:
+              type: integer
+            totalCount:
+              type: integer
+
+    OrderStatus:
+      type: string
+      enum: [draft, scheduled, in_production, completed, shipping, cancelled]
 
     ReportFilters:
       type: object
-      required: [from, to]
+      required: [startDate, endDate]
       properties:
-        from:
+        startDate:
           type: string
           format: date
-          description: Data inicial (obrigatório)
-        to:
+        endDate:
           type: string
           format: date
-          description: Data final (obrigatório)
-        customerId:
-          type: string
-          description: Filtrar por ID de cliente
+        customerIds:
+          type: array
+          items:
+            type: string
+        paperTypeIds:
+          type: array
+          items:
+            type: string
         origin:
-          type: string
-          enum: [SHOPEE, MERCADO_LIVRE, MANUAL]
-          description: Filtrar por origem do pedido
-        paperTypeId:
-          type: string
-          description: Filtrar por tipo de papel
-        grouping:
-          type: string
-          enum: [NONE, CLIENT, PAPER, ORIGIN, PERIOD]
-          default: NONE
-        sortColumn:
-          type: string
-          description: Coluna de ordenação
-        sortDirection:
-          type: string
-          enum: [ASC, DESC]
-          default: ASC
-        page:
-          type: integer
-          minimum: 1
-          default: 1
-        pageSize:
-          type: integer
-          enum: [25, 50, 100]
-          default: 25
+          type: array
+          items:
+            type: string
+            enum: [SHOPEE, MANUAL]
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderStatus'
 
     Error:
       type: object
@@ -111,178 +128,115 @@ components:
 
 paths:
   /reports/generate:
-    post:
-      summary: Gerar relatório com filtros e agrupamento
+    get:
+      summary: Gerar relatório com filtros
       description: >
-        Retorna dados paginados do relatório. Período obrigatório.
-        Para datasets grandes, use os endpoints de export com streaming.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ReportFilters'
-            examples:
-              basico:
-                summary: Relatório básico por período
-                value:
-                  from: "2026-04-01"
-                  to: "2026-04-30"
-              agrupadoPorCliente:
-                summary: Agrupado por cliente, ordenado por receita DESC
-                value:
-                  from: "2026-04-01"
-                  to: "2026-04-30"
-                  grouping: CLIENT
-                  sortColumn: revenue
-                  sortDirection: DESC
-                  pageSize: 50
+        Retorna dados do relatório. Período obrigatório (máximo 1 ano).
+        Retorna JSON streaming para grandes datasets.
+      parameters:
+        - in: query
+          name: startDate
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: customerIds
+          schema:
+            type: array
+            items:
+              type: string
+            style: form
+            explode: false
+        - in: query
+          name: paperTypeIds
+          schema:
+            type: array
+            items:
+              type: string
+            style: form
+            explode: false
+        - in: query
+          name: origin
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [SHOPEE, MANUAL]
+            style: form
+            explode: false
+        - in: query
+          name: statuses
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OrderStatus'
+            style: form
+            explode: false
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 50
       responses:
         '200':
           description: Relatório gerado com sucesso
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/ReportResult'
+                $ref: '#/components/schemas/ReportResult'
         '400':
-          description: Período não informado ou parâmetros inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                error: "Selecione um período para gerar o relatório"
-
-  /reports/export/csv:
-    get:
-      summary: Export em CSV (download direto, streaming)
-      description: >
-        Gera e baixa o relatório em formato CSV (RFC 4180).
-        Campos com vírgulas ou aspas são escapados corretamente.
-        BOM UTF-8 incluído para compatibilidade com Excel.
-        Não armazenado no servidor — download imediato.
-      parameters:
-        - in: query
-          name: from
-          required: true
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: to
-          required: true
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: customerId
-          schema:
-            type: string
-        - in: query
-          name: origin
-          schema:
-            type: string
-            enum: [SHOPEE, MERCADO_LIVRE, MANUAL]
-        - in: query
-          name: grouping
-          schema:
-            type: string
-            enum: [NONE, CLIENT, PAPER, ORIGIN, PERIOD]
-      responses:
-        '200':
-          description: Arquivo CSV para download
-          headers:
-            Content-Disposition:
-              schema:
-                type: string
-                example: attachment; filename="relatorio.csv"
-          content:
-            text/csv:
-              schema:
-                type: string
-        '400':
-          description: Parâmetros inválidos
+          description: Erro de validação (ex: período > 1 ano)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /reports/export/excel:
-    get:
-      summary: Export em Excel .xlsx (download direto)
-      description: >
-        Gera e baixa o relatório em formato .xlsx via exceljs.
-        Não armazenado no servidor — download imediato.
-      parameters:
-        - in: query
-          name: from
-          required: true
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: to
-          required: true
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: grouping
-          schema:
-            type: string
-            enum: [NONE, CLIENT, PAPER, ORIGIN, PERIOD]
+  /reports/export:
+    post:
+      summary: Exportar relatório em múltiplos formatos
+      description: Gera e baixa o relatório em formato CSV, PDF ou Excel.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [filters, format]
+              properties:
+                filters:
+                  $ref: '#/components/schemas/ReportFilters'
+                format:
+                  type: string
+                  enum: [csv, pdf, xlsx]
+                grouping:
+                  type: string
+                  enum: [none, customer, order, paper, origin]
+                  default: none
       responses:
         '200':
-          description: Arquivo Excel para download
+          description: Arquivo para download
           headers:
             Content-Disposition:
               schema:
                 type: string
-                example: attachment; filename="relatorio.xlsx"
+                example: attachment; filename="report.pdf"
           content:
-            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            application/octet-stream:
               schema:
                 type: string
                 format: binary
-        '400':
-          description: Parâmetros inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /reports/export/pdf:
-    get:
-      summary: Export em PDF — retorna dados para impressão pelo frontend
-      description: >
-        Retorna os dados do relatório em JSON. O frontend usa window.print()
-        para gerar o PDF. Não armazenado no servidor.
-      parameters:
-        - in: query
-          name: from
-          required: true
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: to
-          required: true
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Dados do relatório para impressão
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/ReportResult'
         '400':
           description: Parâmetros inválidos
           content:

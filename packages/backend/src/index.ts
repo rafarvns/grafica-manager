@@ -10,6 +10,9 @@ import { createCustomersRouter } from '@/infrastructure/http/routes/customers.ro
 import { createOrdersRouter } from '@/infrastructure/http/routes/orders.routes';
 import { createPrintJobsRouter } from '@/infrastructure/http/routes/print-jobs.routes';
 import { createSettingsRouter } from '@/infrastructure/http/routes/settings.routes';
+import { createSystemSettingsRouter } from '@/infrastructure/http/routes/system-settings.routes';
+import { setupRetentionCleanup } from '@/infrastructure/jobs/RetentionCleanupJob';
+import IORedis from 'ioredis';
 
 async function bootstrap() {
   try {
@@ -20,6 +23,15 @@ async function bootstrap() {
     const app = express();
     app.use(cors());
     app.use(express.json());
+
+    // Inicialização do Redis e Jobs
+    try {
+      const redis = new IORedis(env.REDIS_URL, { maxRetriesPerRequest: null });
+      setupRetentionCleanup(prisma, redis);
+      console.log(`[JOBS] Jobs inicializados com sucesso (Redis: ${env.REDIS_URL})`);
+    } catch (redisError) {
+      console.warn(`[JOBS] Falha ao conectar ao Redis, jobs em background podem não funcionar:`, redisError instanceof Error ? redisError.message : redisError);
+    }
 
     app.get('/health', (_req, res) => {
       res.status(200).json({ status: 'ok', uptime: process.uptime() });
@@ -33,6 +45,7 @@ async function bootstrap() {
     protectedRouter.use('/orders', createOrdersRouter(prisma));
     protectedRouter.use('/print-jobs', createPrintJobsRouter(prisma));
     protectedRouter.use('/settings', createSettingsRouter(prisma));
+    protectedRouter.use('/system-settings', createSystemSettingsRouter(prisma));
 
     app.use('/api/v1', protectedRouter);
 

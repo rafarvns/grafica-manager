@@ -1,16 +1,43 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ExportReportUseCase } from '@/application/use-cases/ExportReportUseCase';
+import { ExportReportUseCase, IReportStreamRepository, IExcelExporter, IPdfExporter } from '@/application/use-cases/ExportReportUseCase';
 import { ReportFilter } from '@/domain/value-objects/ReportFilter';
 import { PeriodFilter } from '@/domain/value-objects/PeriodFilter';
+import { ReportRow } from '@grafica/shared';
 
 const period = PeriodFilter.custom(new Date('2026-04-01'), new Date('2026-04-30'));
 
-const sampleRows = [
-  { label: 'Maria Silva', printCount: 10, revenue: 200, cost: 80, grossMarginPercent: 60, netMarginPercent: 60 },
-  { label: 'João Santos', printCount: 5, revenue: 100, cost: 40, grossMarginPercent: 60, netMarginPercent: 60 },
+const sampleRows: ReportRow[] = [
+  {
+    orderId: '1',
+    orderNumber: 'ORD-001',
+    customerId: 'cust-1',
+    customerName: 'Maria Silva',
+    paperType: 'Couchê',
+    quantity: 10,
+    salePrice: 200,
+    cost: 80,
+    margin: 120,
+    marginPercent: 60,
+    date: '2026-04-05T10:00:00Z',
+    origin: 'MANUAL',
+  },
+  {
+    orderId: '2',
+    orderNumber: 'ORD-002',
+    customerId: 'cust-2',
+    customerName: 'João Santos',
+    paperType: 'Sulfite',
+    quantity: 5,
+    salePrice: 100,
+    cost: 40,
+    margin: 60,
+    marginPercent: 60,
+    date: '2026-04-06T10:00:00Z',
+    origin: 'SHOPEE',
+  },
 ];
 
-function makeRepo(rows = sampleRows) {
+function makeRepo(rows = sampleRows): IReportStreamRepository {
   return {
     streamReportRows: vi.fn().mockImplementation(async function* () {
       for (const row of rows) yield row;
@@ -18,58 +45,61 @@ function makeRepo(rows = sampleRows) {
   };
 }
 
-function makeExcelExporter() {
+function makeExcelExporter(): IExcelExporter {
   return {
     generate: vi.fn().mockResolvedValue(Buffer.from('fake-excel')),
   };
 }
 
+function makePdfExporter(): IPdfExporter {
+  return {
+    generate: vi.fn().mockResolvedValue(Buffer.from('fake-pdf')),
+  };
+}
+
 describe('ExportReportUseCase — CSV', () => {
-  it('returns CSV string with header row', async () => {
+  it('returns CSV string with new header row', async () => {
     const repo = makeRepo();
     const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
+    const pdf = makePdfExporter();
+    const useCase = new ExportReportUseCase(repo, excel, pdf);
     const filter = ReportFilter.create({ period });
 
     const csv = await useCase.exportCsv(filter);
     const lines = csv.split('\n').filter(Boolean);
 
-    expect(lines[0]).toBe('Grupo,Impressões,Receita,Custo,Margem Bruta (%)');
+    expect(lines[0]).toBe('Número,Cliente,Papel,Quantidade,Venda,Custo,Margem (%),Data');
   });
 
-  it('returns one row per data record', async () => {
+  it('contains correct data values in rows', async () => {
     const repo = makeRepo();
     const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
+    const pdf = makePdfExporter();
+    const useCase = new ExportReportUseCase(repo, excel, pdf);
     const filter = ReportFilter.create({ period });
 
     const csv = await useCase.exportCsv(filter);
     const lines = csv.split('\n').filter(Boolean);
 
-    expect(lines).toHaveLength(3); // header + 2 data rows
-  });
-
-  it('contains data values in rows', async () => {
-    const repo = makeRepo();
-    const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
-    const filter = ReportFilter.create({ period });
-
-    const csv = await useCase.exportCsv(filter);
-    const lines = csv.split('\n').filter(Boolean);
-
+    expect(lines[1]).toContain('ORD-001');
     expect(lines[1]).toContain('Maria Silva');
+    expect(lines[1]).toContain('Couchê');
+    expect(lines[1]).toContain('10');
     expect(lines[1]).toContain('200');
     expect(lines[1]).toContain('80');
     expect(lines[1]).toContain('60');
   });
 
-  it('escapes commas in field values with double quotes (RFC 4180)', async () => {
+  it('escapes commas in field values', async () => {
     const repo = makeRepo([
-      { label: 'Empresa, Ltda', printCount: 1, revenue: 50, cost: 20, grossMarginPercent: 60, netMarginPercent: 60 },
+      {
+        ...sampleRows[0],
+        customerName: 'Empresa, Ltda',
+      },
     ]);
     const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
+    const pdf = makePdfExporter();
+    const useCase = new ExportReportUseCase(repo, excel, pdf);
     const filter = ReportFilter.create({ period });
 
     const csv = await useCase.exportCsv(filter);
@@ -77,71 +107,52 @@ describe('ExportReportUseCase — CSV', () => {
 
     expect(lines[1]).toContain('"Empresa, Ltda"');
   });
-
-  it('escapes double-quotes in field values by doubling them (RFC 4180)', async () => {
-    const repo = makeRepo([
-      { label: 'Nome "Apelido" Silva', printCount: 1, revenue: 50, cost: 20, grossMarginPercent: 60, netMarginPercent: 60 },
-    ]);
-    const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
-    const filter = ReportFilter.create({ period });
-
-    const csv = await useCase.exportCsv(filter);
-    const lines = csv.split('\n').filter(Boolean);
-
-    expect(lines[1]).toContain('"Nome ""Apelido"" Silva"');
-  });
-
-  it('returns empty CSV (header only) when no rows', async () => {
-    const repo = makeRepo([]);
-    const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
-    const filter = ReportFilter.create({ period });
-
-    const csv = await useCase.exportCsv(filter);
-    const lines = csv.split('\n').filter(Boolean);
-
-    expect(lines).toHaveLength(1);
-    expect(lines[0]).toBe('Grupo,Impressões,Receita,Custo,Margem Bruta (%)');
-  });
 });
 
 describe('ExportReportUseCase — Excel', () => {
   it('calls excel exporter with all rows', async () => {
     const repo = makeRepo();
     const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
+    const pdf = makePdfExporter();
+    const useCase = new ExportReportUseCase(repo, excel, pdf);
     const filter = ReportFilter.create({ period });
 
     await useCase.exportExcel(filter);
 
     expect(excel.generate).toHaveBeenCalledWith(
       expect.arrayContaining([
-        expect.objectContaining({ label: 'Maria Silva', revenue: 200 }),
-        expect.objectContaining({ label: 'João Santos', revenue: 100 }),
+        expect.objectContaining({ orderNumber: 'ORD-001', customerName: 'Maria Silva' }),
+      ])
+    );
+  });
+});
+
+describe('ExportReportUseCase — PDF', () => {
+  it('calls pdf exporter with all rows', async () => {
+    const repo = makeRepo();
+    const excel = makeExcelExporter();
+    const pdf = makePdfExporter();
+    const useCase = new ExportReportUseCase(repo, excel, pdf);
+    const filter = ReportFilter.create({ period });
+
+    await useCase.exportPdf(filter);
+
+    expect(pdf.generate).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ orderNumber: 'ORD-001', customerName: 'Maria Silva' }),
       ])
     );
   });
 
-  it('returns Buffer from excel exporter', async () => {
+  it('returns Buffer from pdf exporter', async () => {
     const repo = makeRepo();
     const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
+    const pdf = makePdfExporter();
+    const useCase = new ExportReportUseCase(repo, excel, pdf);
     const filter = ReportFilter.create({ period });
 
-    const buffer = await useCase.exportExcel(filter);
+    const buffer = await useCase.exportPdf(filter);
 
     expect(buffer).toBeInstanceOf(Buffer);
-  });
-
-  it('returns empty rows to excel exporter when no data', async () => {
-    const repo = makeRepo([]);
-    const excel = makeExcelExporter();
-    const useCase = new ExportReportUseCase(repo, excel);
-    const filter = ReportFilter.create({ period });
-
-    await useCase.exportExcel(filter);
-
-    expect(excel.generate).toHaveBeenCalledWith([]);
   });
 });

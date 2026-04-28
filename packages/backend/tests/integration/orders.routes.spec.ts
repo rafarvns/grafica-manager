@@ -12,9 +12,13 @@ const prismaMock = {
     create: vi.fn(),
     update: vi.fn().mockResolvedValue({ id: '1', position: 10 }),
   },
-  orderFile: {
+  orderAttachment: {
     create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'file-1', ...data })),
     delete: vi.fn().mockResolvedValue({ id: 'file-1' }),
+    update: vi.fn().mockResolvedValue({ id: 'file-1', deletedAt: new Date() }),
+    upsert: vi.fn().mockImplementation(({ create }) => Promise.resolve({ id: 'file-1', ...create })),
+    findMany: vi.fn().mockResolvedValue([]),
+    findUnique: vi.fn().mockResolvedValue({ id: 'file-1', originalFilename: 'test.txt', mimeType: 'text/plain', filepath: 'path/1' }),
   },
   printJob: {
     findMany: vi.fn().mockResolvedValue([]),
@@ -57,14 +61,16 @@ describe('Order Routes', () => {
 
   describe('POST /api/v1/orders/:id/attachments', () => {
     it('deve adicionar um anexo ao pedido com status 201', async () => {
-      // Nota: Simulação de upload multipart em teste unitário de rota
       const response = await request(app)
         .post('/api/v1/orders/1/attachments')
-        .attach('file', Buffer.from('test'), 'test.txt');
+        .attach('file', Buffer.from('%PDF-1.4'), 'test.pdf');
       
+      if (response.status !== 201) {
+        console.log('Upload failed body:', response.body);
+      }
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('id');
-      expect(response.body).toHaveProperty('name', 'test.txt');
+      expect(response.body).toHaveProperty('originalFilename', 'test.pdf');
     });
   });
 

@@ -224,7 +224,7 @@ model Order {
   store             Store?             @relation(fields: [storeId], references: [id])
   paper             PaperType?         @relation(fields: [paperTypeId], references: [id])
   printJobs         PrintJob[]
-  files             OrderFile[]
+  attachments       OrderAttachment[]
   statusHistory     OrderStatusHistory[]
   webhookEvents     WebhookEvent[]
 
@@ -287,19 +287,40 @@ model PrintJob {
 
 // Módulo de Arquivo (Fase 6) — estrutura de dados definida agora,
 // lógica de auto-deleção e compactação implementada na Fase 6 (spec 0001 RNF4)
-model OrderFile {
-  id        String   @id @default(uuid())
-  orderId   String
-  name      String
-  path      String
-  // Tamanho em bytes
-  size      Int
-  mimeType  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+model OrderAttachment {
+  id               String    @id @default(uuid())
+  orderId          String
+  order            Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  filename         String    // Nome único no disco (ex: uuid.pdf)
+  originalFilename String    // Nome original enviado pelo usuário
+  filepath         String    @unique // Caminho relativo no disco
+  size             Int       // Tamanho em bytes
+  mimeType         String
+  uploadedAt       DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime? // Soft-delete (spec 0026)
 
   @@index([orderId])
-  @@map("order_files")
+  @@index([deletedAt])
+  @@map("order_attachments")
+}
+
+model SystemSettings {
+  id                 String   @id @default(uuid())
+  name               String
+  cnpj               String
+  phone              String
+  email              String
+  website            String?
+  address_street     String
+  address_number     String
+  address_complement String?
+  address_city       String
+  address_state      String
+  address_zip        String
+  logoPath           String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("system_settings")
 }

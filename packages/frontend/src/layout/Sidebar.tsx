@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { path: '/clientes', label: 'Clientes' },
   { path: '/impressoes', label: 'Impressões' },
   { path: '/relatorios', label: 'Relatórios' },
+  { path: '/shopee', label: 'Shopee' },
   { path: '/configuracoes', label: 'Configurações' },
 ];
 
