@@ -3,6 +3,7 @@ export interface CreatePaperTypeInput {
   weight: number;
   standardSize: string;
   color: string;
+  active?: boolean;
 }
 
 export interface CreatePaperTypeOutput {
@@ -11,5 +12,6 @@ export interface CreatePaperTypeOutput {
   weight: number;
   standardSize: string;
   color: string;
+  active: boolean;
   createdAt: Date;
 }

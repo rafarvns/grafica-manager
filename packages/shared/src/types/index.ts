@@ -19,6 +19,7 @@ export type ApiResponse<T> =
   | { success: false; error: string; details?: unknown };
 
 export * from './orders';
+export * from './settings';
 
 // Re-exportar seletivamente de print-jobs para evitar conflitos com tipos base
 export type {

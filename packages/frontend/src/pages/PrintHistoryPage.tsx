@@ -173,15 +173,13 @@ export function PrintHistoryPage() {
         ) : (
           <div role="tabpanel" id="prices-panel" aria-labelledby="prices-tab">
             <PriceTableManager
-              priceTable={priceTable}
-              onPricesUpdated={fetchPriceTable}
-              onCreate={createPriceEntry}
-              onUpdate={updatePriceEntry}
-              onDelete={deletePriceEntry}
-            />
-          </div>
+            priceTable={priceTable}
+            onPricesUpdated={fetchPriceTable}
+            onCreate={createPriceEntry}
+            onUpdate={updatePriceEntry}
+            onDelete={deletePriceEntry}
+          />
         )}
-
       </div>
 
       {selectedJob && (

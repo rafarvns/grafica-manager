@@ -1,16 +1,8 @@
 import { CreatePaperTypeInput, CreatePaperTypeOutput } from '@/application/dtos/CreatePaperTypeDTO';
-
-export interface IPaperTypeRepository {
-  create(data: any): Promise<CreatePaperTypeOutput>;
-  findByName(name: string): Promise<any>;
-  findAll(): Promise<any[]>;
-  findById(id: string): Promise<any>;
-  update(id: string, data: any): Promise<any>;
-  delete(id: string): Promise<boolean>;
-}
+import { PaperTypeRepository } from '@/domain/repositories/PaperTypeRepository';
 
 export class CreatePaperTypeUseCase {
-  constructor(private paperTypeRepository: IPaperTypeRepository) {}
+  constructor(private paperTypeRepository: PaperTypeRepository) {}
 
   async execute(input: CreatePaperTypeInput): Promise<CreatePaperTypeOutput> {
     // Validar campos obrigatórios
@@ -33,10 +25,19 @@ export class CreatePaperTypeUseCase {
     const paper = await this.paperTypeRepository.create({
       name,
       weight: input.weight,
-      standardSize: input.standardSize,
+      size: input.standardSize as any,
       color: input.color,
+      active: input.active ?? true,
     });
 
-    return paper;
+    return {
+      id: paper.id,
+      name: paper.name,
+      weight: paper.weight,
+      standardSize: paper.size,
+      color: paper.color,
+      active: paper.active,
+      createdAt: paper.createdAt,
+    };
   }
 }

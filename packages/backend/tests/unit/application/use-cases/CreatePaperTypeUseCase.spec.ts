@@ -26,19 +26,21 @@ describe('CreatePaperTypeUseCase', () => {
       weight: 150,
       standardSize: 'A4',
       color: 'Branco',
+      active: true,
     };
 
-    const expectedOutput: CreatePaperTypeOutput = {
+    const repoOutput: any = {
       id: '123',
       name: 'Couchê Brilhante',
       weight: 150,
-      standardSize: 'A4',
+      size: 'A4',
       color: 'Branco',
-      createdAt: expect.any(Date),
+      active: true,
+      createdAt: new Date(),
     };
 
     mockPaperTypeRepository.findByName.mockResolvedValue(null);
-    mockPaperTypeRepository.create.mockResolvedValue(expectedOutput);
+    mockPaperTypeRepository.create.mockResolvedValue(repoOutput);
 
     const result = await useCase.execute(input);
 
@@ -46,10 +48,20 @@ describe('CreatePaperTypeUseCase', () => {
     expect(mockPaperTypeRepository.create).toHaveBeenCalledWith({
       name: 'Couchê Brilhante',
       weight: 150,
-      standardSize: 'A4',
+      size: 'A4',
       color: 'Branco',
+      active: true,
     });
-    expect(result).toEqual(expectedOutput);
+    
+    expect(result).toEqual({
+      id: repoOutput.id,
+      name: repoOutput.name,
+      weight: repoOutput.weight,
+      standardSize: repoOutput.size,
+      color: repoOutput.color,
+      active: repoOutput.active,
+      createdAt: repoOutput.createdAt,
+    });
   });
 
   it('deve lançar erro se nome do papel estiver vazio', async () => {
@@ -116,8 +128,9 @@ describe('CreatePaperTypeUseCase', () => {
     expect(mockPaperTypeRepository.create).toHaveBeenCalledWith({
       name: 'Couchê Brilhante',
       weight: 150,
-      standardSize: 'A4',
+      size: 'A4',
       color: 'Branco',
+      active: true,
     });
   });
 });

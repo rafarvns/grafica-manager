@@ -9,6 +9,7 @@ import { createReportsRouter } from '@/infrastructure/http/routes/reports.routes
 import { createCustomersRouter } from '@/infrastructure/http/routes/customers.routes';
 import { createOrdersRouter } from '@/infrastructure/http/routes/orders.routes';
 import { createPrintJobsRouter } from '@/infrastructure/http/routes/print-jobs.routes';
+import { createSettingsRouter } from '@/infrastructure/http/routes/settings.routes';
 
 async function bootstrap() {
   try {
@@ -31,6 +32,7 @@ async function bootstrap() {
     protectedRouter.use('/customers', createCustomersRouter(prisma));
     protectedRouter.use('/orders', createOrdersRouter(prisma));
     protectedRouter.use('/print-jobs', createPrintJobsRouter(prisma));
+    protectedRouter.use('/settings', createSettingsRouter(prisma));
 
     app.use('/api/v1', protectedRouter);
 

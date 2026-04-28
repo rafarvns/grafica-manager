@@ -1,19 +1,24 @@
 export interface CreatePriceTableInput {
   paperTypeId: string;
-  quality: 'rascunho' | 'normal' | 'alta';
+  quality: string;
+  colors: string;
   unitPrice: number;
+  validUntil?: Date;
 }
 
 export interface UpdatePriceTableInput {
   id: string;
   unitPrice?: number;
+  validUntil?: Date;
 }
 
 export interface PriceTableOutput {
   id: string;
   paperTypeId: string;
-  quality: 'rascunho' | 'normal' | 'alta';
+  quality: string;
+  colors: string;
   unitPrice: number;
+  validUntil?: Date;
   createdAt: Date;
 }
 

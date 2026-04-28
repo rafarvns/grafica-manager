@@ -1,11 +1,4 @@
-export interface IPaperTypeRepository {
-  delete(id: string): Promise<boolean>;
-  findById(id: string): Promise<any>;
-}
-
-export interface IPrintPresetRepository {
-  findByPaperTypeId(paperTypeId: string): Promise<any[]>;
-}
+import { PaperTypeRepository } from '@/domain/repositories/PaperTypeRepository';
 
 export interface DeletePaperTypeOptions {
   force?: boolean;
@@ -19,8 +12,7 @@ export interface DeletePaperTypeOutput {
 
 export class DeletePaperTypeUseCase {
   constructor(
-    private paperTypeRepository: IPaperTypeRepository,
-    private printPresetRepository: IPrintPresetRepository
+    private paperTypeRepository: PaperTypeRepository
   ) {}
 
   async execute(
@@ -33,30 +25,32 @@ export class DeletePaperTypeUseCase {
       throw new Error('Tipo de papel não encontrado');
     }
 
-    // Verificar se está em uso
-    const presetsInUse = await this.printPresetRepository.findByPaperTypeId(paperId);
-    const presetsCount = presetsInUse.length;
+    // Verificar se está em uso em pedidos ativos (Spec 0022)
+    const activeOrdersCount = await this.paperTypeRepository.countActiveOrders(paperId);
 
-    if (presetsCount > 0 && !options.force) {
-      const noun = presetsCount === 1 ? 'preset' : 'presets';
+    if (activeOrdersCount > 0 && !options.force) {
       throw new Error(
-        `Este tipo de papel está em uso por ${presetsCount} ${noun}. ` +
-          'Para deletar mesmo assim, use a flag force=true.'
+        `Tipo de papel está em uso em ${activeOrdersCount} pedidos ativos. Desative ao invés de deletar.`
       );
     }
 
     // Deletar
     await this.paperTypeRepository.delete(paperId);
 
-    const result: DeletePaperTypeOutput = {
+    return {
       success: true,
       message: 'Tipo de papel deletado com sucesso',
     };
+  }
 
-    if (presetsCount > 0 && options.force) {
-      result.warning = `Tipo de papel estava em uso por ${presetsCount} preset(s)`;
+  async toggleActive(paperId: string, active: boolean): Promise<any> {
+    const paperType = await this.paperTypeRepository.findById(paperId);
+    if (!paperType) {
+      throw new Error('Tipo de papel não encontrado');
     }
 
-    return result;
+    // Usando softDelete do repositório (que na verdade é um update de status no caso de toggle)
+    // Se o repositório seguisse o nome do plano, seria softDelete.
+    return await this.paperTypeRepository.softDelete(paperId);
   }
 }

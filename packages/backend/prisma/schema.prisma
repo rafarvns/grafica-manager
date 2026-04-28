@@ -68,16 +68,22 @@ model Printer {
 }
 
 model PaperType {
-  id        String @id @default(uuid())
-  name      String // ex: "Sulfite A4", "Couchê 150g", etc.
-  gsm       Int?   // Gramatura em g/m²
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String    @id @default(uuid())
+  name         String    // ex: "Sulfite A4", "Couchê 150g", etc.
+  gsm          Int?      // Gramatura em g/m²
+  size         String?   // ex: "A4", "A3"
+  color        String?   // ex: "Branco", "Amarelo"
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime? // Soft-delete (spec 0022)
 
   printPresets PrintPreset[]
   printJobs    PrintJob[]
   orders       Order[]
+  priceEntries PriceTableEntry[]
 
+  @@index([deletedAt])
   @@map("paper_types")
 }
 
@@ -87,27 +93,37 @@ model PrintPreset {
   description  String?      @db.Text
   quality      PrintQuality
   colorProfile ColorProfile
+  colors       String?      // "P&B" ou "colorido" (spec 0022)
+  finish       String?      // "nenhum", "laminação", "encadernação" (spec 0022)
   paperTypeId  String?
-  paperType    String? // Fallback se paperTypeId não existir
+  paperType    String?      // Fallback se paperTypeId não existir
+  active       Boolean      @default(true)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?    // Soft-delete (spec 0022)
 
   paper     PaperType? @relation(fields: [paperTypeId], references: [id])
   printJobs PrintJob[]
 
   @@index([paperTypeId])
+  @@index([deletedAt])
   @@map("print_presets")
 }
 
 model PriceTableEntry {
   id              String   @id @default(uuid())
-  name            String   // ex: "Sulfite A4 PB Econômico"
-  description     String?  @db.Text
-  pricePerUnit    Decimal  @db.Decimal(12, 4) // Preço unitário
-  unit            String?  // "por página", "por impressão", etc. (informativo)
+  paperTypeId     String
+  quality         String   // "rascunho", "padrão", "premium"
+  colors          String   // "P&B", "colorido"
+  unitPrice       Decimal  @db.Decimal(12, 4)
+  validUntil      DateTime?
+  active          Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  paper PaperType @relation(fields: [paperTypeId], references: [id])
+
+  @@index([paperTypeId])
   @@map("price_table_entries")
 }
 

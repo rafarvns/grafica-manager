@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { path: '/clientes', label: 'Clientes' },
   { path: '/impressoes', label: 'Impressões' },
   { path: '/relatorios', label: 'Relatórios' },
+  { path: '/configuracoes', label: 'Configurações' },
 ];
 
 export function Sidebar() {

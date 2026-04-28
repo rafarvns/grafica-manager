@@ -4,17 +4,8 @@ import {
   PriceTableOutput,
   DeletePriceTableOutput,
 } from '@/application/dtos/ManagePriceTableDTO';
-
-const VALID_QUALITIES = ['rascunho', 'normal', 'alta'];
-
-export interface IPriceTableRepository {
-  create(data: any): Promise<PriceTableOutput>;
-  update(id: string, data: any): Promise<PriceTableOutput>;
-  delete(id: string): Promise<boolean>;
-  findById(id: string): Promise<any>;
-  findAll(): Promise<PriceTableOutput[]>;
-  findByPaperTypeAndQuality(paperTypeId: string, quality: string): Promise<any>;
-}
+import { PriceTableRepository } from '@/domain/repositories/PriceTableRepository';
+import { PrintQuality, ColorMode } from '@grafica/shared';
 
 export interface IPrintJobRepository {
   countByPriceTableEntry(priceTableEntryId: string): Promise<number>;
@@ -26,39 +17,48 @@ export interface DeleteOptions {
 
 export class ManagePriceTableUseCase {
   constructor(
-    private priceTableRepository: IPriceTableRepository,
+    private priceTableRepository: PriceTableRepository,
     private printJobRepository: IPrintJobRepository
   ) {}
 
   async createPrice(input: CreatePriceTableInput): Promise<PriceTableOutput> {
-    // Validar quality
-    if (!VALID_QUALITIES.includes(input.quality)) {
-      throw new Error(`Qualidade inválida. Aceitas: ${VALID_QUALITIES.join(', ')}`);
-    }
-
     // Validar unitPrice
     if (input.unitPrice <= 0) {
       throw new Error('Preço unitário deve ser > 0');
     }
 
+    const quality = input.quality as PrintQuality;
+    const colors = input.colors as ColorMode;
+
     // Verificar duplicação
-    const existing = await this.priceTableRepository.findByPaperTypeAndQuality(
+    const existing = await this.priceTableRepository.findByCombination(
       input.paperTypeId,
-      input.quality
+      quality,
+      colors
     );
 
     if (existing) {
-      throw new Error('Já existe um preço para este papel e qualidade');
+      throw new Error('Já existe um preço para esta combinação de papel, qualidade e cores');
     }
 
     // Criar
     const price = await this.priceTableRepository.create({
       paperTypeId: input.paperTypeId,
-      quality: input.quality,
+      quality,
+      colors,
       unitPrice: input.unitPrice,
+      validUntil: input.validUntil as any,
     });
 
-    return price;
+    return {
+      id: price.id,
+      paperTypeId: price.paperTypeId,
+      quality: price.quality,
+      colors: price.colors,
+      unitPrice: price.unitPrice,
+      validUntil: price.validUntil as any,
+      createdAt: price.createdAt,
+    };
   }
 
   async updatePrice(input: UpdatePriceTableInput): Promise<PriceTableOutput> {
@@ -73,12 +73,21 @@ export class ManagePriceTableUseCase {
       throw new Error('Preço unitário deve ser > 0');
     }
 
-    // Atualizar (mudanças futuras não afetam histórico)
+    // Atualizar
     const updated = await this.priceTableRepository.update(input.id, {
       ...(input.unitPrice !== undefined && { unitPrice: input.unitPrice }),
+      ...(input.validUntil !== undefined && { validUntil: input.validUntil }),
     });
 
-    return updated;
+    return {
+      id: updated.id,
+      paperTypeId: updated.paperTypeId,
+      quality: updated.quality,
+      colors: updated.colors,
+      unitPrice: updated.unitPrice,
+      validUntil: updated.validUntil as any,
+      createdAt: updated.createdAt,
+    };
   }
 
   async deletePrice(
@@ -117,6 +126,15 @@ export class ManagePriceTableUseCase {
   }
 
   async listPrices(): Promise<PriceTableOutput[]> {
-    return await this.priceTableRepository.findAll();
+    const prices = await this.priceTableRepository.findAll();
+    return prices.map(p => ({
+      id: p.id,
+      paperTypeId: p.paperTypeId,
+      quality: p.quality,
+      colors: p.colors,
+      unitPrice: p.unitPrice,
+      validUntil: p.validUntil as any,
+      createdAt: p.createdAt,
+    }));
   }
 }
