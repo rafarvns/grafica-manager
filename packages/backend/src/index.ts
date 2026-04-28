@@ -11,7 +11,9 @@ import { createOrdersRouter } from '@/infrastructure/http/routes/orders.routes';
 import { createPrintJobsRouter } from '@/infrastructure/http/routes/print-jobs.routes';
 import { createSettingsRouter } from '@/infrastructure/http/routes/settings.routes';
 import { createSystemSettingsRouter } from '@/infrastructure/http/routes/system-settings.routes';
+import { createNotificationsRouter } from '@/infrastructure/http/routes/notifications.routes';
 import { setupRetentionCleanup } from '@/infrastructure/jobs/RetentionCleanupJob';
+import { setupNotificationCleanup } from '@/infrastructure/jobs/NotificationCleanupJob';
 import IORedis from 'ioredis';
 
 async function bootstrap() {
@@ -28,6 +30,7 @@ async function bootstrap() {
     try {
       const redis = new IORedis(env.REDIS_URL, { maxRetriesPerRequest: null });
       setupRetentionCleanup(prisma, redis);
+      setupNotificationCleanup(prisma, redis);
       console.log(`[JOBS] Jobs inicializados com sucesso (Redis: ${env.REDIS_URL})`);
     } catch (redisError) {
       console.warn(`[JOBS] Falha ao conectar ao Redis, jobs em background podem não funcionar:`, redisError instanceof Error ? redisError.message : redisError);
@@ -46,6 +49,7 @@ async function bootstrap() {
     protectedRouter.use('/print-jobs', createPrintJobsRouter(prisma));
     protectedRouter.use('/settings', createSettingsRouter(prisma));
     protectedRouter.use('/system-settings', createSystemSettingsRouter(prisma));
+    protectedRouter.use('/notifications', createNotificationsRouter(prisma));
 
     app.use('/api/v1', protectedRouter);
 

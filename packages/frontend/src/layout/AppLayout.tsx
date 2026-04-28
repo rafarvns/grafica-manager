@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { ToastContainer } from '@/components/ui/Toast/Toast';
 import styles from './AppLayout.module.css';
 
 export function AppLayout({ children }: { children: ReactNode }) {
@@ -13,6 +14,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }

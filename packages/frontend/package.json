@@ -24,6 +24,8 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@grafica/shared": "workspace:*",
     "chart.js": "^4.5.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^1.12.0",
     "pdf-to-printer": "^5.8.0",
     "pdfjs-dist": "^4.0.0",
     "react": "^18.3.0",

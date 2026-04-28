@@ -2,6 +2,8 @@ import React from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/Button/Button';
 import { Breadcrumb } from '@/components/ui/Breadcrumb/Breadcrumb';
+import { NotificationIcon } from '@/components/ui/NotificationIcon/NotificationIcon';
+import { NotificationPanel } from '@/components/ui/NotificationPanel/NotificationPanel';
 import styles from './AppLayout.module.css';
 
 export function Header() {
@@ -16,13 +18,15 @@ export function Header() {
         <Breadcrumb />
       </div>
       <div className={styles.headerRight}>
+        <NotificationIcon />
         <Button
           variant="secondary"
           onClick={toggleTheme}
           aria-label={`Alternar tema (atual: ${theme})`}
         >
-          {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+          {theme === 'light' ? '🌙' : '☀️'}
         </Button>
+        <NotificationPanel />
       </div>
     </header>
   );

@@ -1,17 +1,12 @@
 import { CreateOrderInput, CreateOrderOutput } from '@/application/dtos/CreateOrderDTO';
-
-export interface ICustomerRepository {
-  findById(id: string): Promise<any>;
-}
-
-export interface IOrderRepository {
-  create(data: any): Promise<CreateOrderOutput>;
-}
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
+import { CustomerRepository } from '@/domain/repositories/CustomerRepository';
+import { Order } from '@/domain/entities/Order';
 
 export class CreateOrderUseCase {
   constructor(
-    private customerRepository: ICustomerRepository,
-    private orderRepository: IOrderRepository
+    private customerRepository: CustomerRepository,
+    private orderRepository: OrderRepository
   ) {}
 
   async execute(input: CreateOrderInput): Promise<CreateOrderOutput> {
@@ -41,8 +36,9 @@ export class CreateOrderUseCase {
       throw new Error('Cliente não encontrado');
     }
 
-    // Criar pedido com status draft por padrão
-    const order = await this.orderRepository.create({
+    // Criar pedido no domínio
+    const order = Order.create({
+      orderNumber: 'PENDING', // O repositório vai gerar o número real se necessário, ou passamos um temporário
       customerId: input.customerId,
       description: input.description.trim(),
       quantity: input.quantity,
@@ -56,6 +52,8 @@ export class CreateOrderUseCase {
       status: 'draft',
     });
 
-    return order;
+    const createdOrder = await this.orderRepository.create(order);
+
+    return createdOrder.toJSON() as any;
   }
 }

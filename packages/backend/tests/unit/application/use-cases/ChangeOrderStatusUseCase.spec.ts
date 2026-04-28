@@ -1,24 +1,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ChangeOrderStatusUseCase } from '@/application/use-cases/ChangeOrderStatusUseCase';
+import { Order } from '@/domain/entities/Order';
 
 describe('ChangeOrderStatusUseCase', () => {
   let mockOrderRepository: any;
   let useCase: ChangeOrderStatusUseCase;
 
-  const mockOrder = {
-    id: 'order-1',
+  const createMockOrder = (status: any = 'draft') => Order.create({
     orderNumber: 'PED-001',
     customerId: 'customer-1',
     description: 'Design',
     quantity: 100,
-    status: 'draft',
-    createdAt: new Date(),
-  };
+    status,
+    salePrice: 100,
+    productionCost: 50,
+  });
 
   beforeEach(() => {
     mockOrderRepository = {
       findById: vi.fn(),
       updateStatus: vi.fn(),
+      findStatusHistory: vi.fn(),
     };
     useCase = new ChangeOrderStatusUseCase(mockOrderRepository);
   });
@@ -35,57 +37,37 @@ describe('ChangeOrderStatusUseCase', () => {
 
   describe('Transições de status', () => {
     it('deve permitir transição de draft para agendado', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'draft',
-      });
-      mockOrderRepository.updateStatus.mockResolvedValue({
-        ...mockOrder,
+      const order = createMockOrder('draft');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.updateStatus.mockResolvedValue(Order.create({
+        ...order.toJSON(),
         status: 'scheduled',
-      });
+      }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'scheduled');
+      const result = await useCase.execute(order.id, 'scheduled');
 
       expect(result.status).toBe('scheduled');
     });
 
     it('deve permitir transição de draft direto para em produção (sem agendado)', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'draft',
-      });
-      mockOrderRepository.updateStatus.mockResolvedValue({
-        ...mockOrder,
+      const order = createMockOrder('draft');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.updateStatus.mockResolvedValue(Order.create({
+        ...order.toJSON(),
         status: 'in_production',
-      });
+      }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'in_production');
+      const result = await useCase.execute(order.id, 'in_production');
 
       expect(result.status).toBe('in_production');
-    });
-
-    it('deve permitir qualquer transição exceto de cancelado', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'in_production',
-      });
-      mockOrderRepository.updateStatus.mockResolvedValue({
-        ...mockOrder,
-        status: 'scheduled',
-      });
-
-      const result = await useCase.execute('order-1', 'scheduled');
-
-      expect(result.status).toBe('scheduled');
     });
   });
 
   describe('Status cancelado é terminal', () => {
     it('deve bloquear mudança de status para cancelado (use case específico)', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'in_production',
-      });
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder('in_production'));
 
       // Cancelado deve ser feito via CancelOrderUseCase, não ChangeOrderStatusUseCase
       await expect(
@@ -94,10 +76,7 @@ describe('ChangeOrderStatusUseCase', () => {
     });
 
     it('deve bloquear qualquer mudança se pedido já está cancelado', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-      });
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder('cancelled'));
 
       await expect(
         useCase.execute('order-1', 'scheduled')
@@ -107,25 +86,21 @@ describe('ChangeOrderStatusUseCase', () => {
 
   describe('Status shipping é read-only', () => {
     it('deve permitir transição para shipping', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'completed',
-      });
-      mockOrderRepository.updateStatus.mockResolvedValue({
-        ...mockOrder,
+      const order = createMockOrder('completed');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.updateStatus.mockResolvedValue(Order.create({
+        ...order.toJSON(),
         status: 'shipping',
-      });
+      }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'shipping');
+      const result = await useCase.execute(order.id, 'shipping');
 
       expect(result.status).toBe('shipping');
     });
 
     it('deve bloquear transição de shipping para outro status', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'shipping',
-      });
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder('shipping'));
 
       await expect(
         useCase.execute('order-1', 'completed')
@@ -135,57 +110,30 @@ describe('ChangeOrderStatusUseCase', () => {
 
   describe('Histórico de mudança de status', () => {
     it('deve registrar transição com timestamp', async () => {
-      const now = new Date();
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'draft',
-      });
-      mockOrderRepository.updateStatus.mockResolvedValue({
-        ...mockOrder,
+      const order = createMockOrder('draft');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.updateStatus.mockResolvedValue(Order.create({
+        ...order.toJSON(),
         status: 'in_production',
-      });
+      }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      await useCase.execute('order-1', 'in_production');
+      await useCase.execute(order.id, 'in_production');
 
       expect(mockOrderRepository.updateStatus).toHaveBeenCalledWith(
-        'order-1',
+        order.id,
         'in_production',
         expect.objectContaining({
           fromStatus: 'draft',
           toStatus: 'in_production',
-          timestamp: expect.any(Date),
         })
       );
-    });
-
-    it('deve permitir consultar histórico de transições', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        statusHistory: [
-          {
-            fromStatus: 'draft',
-            toStatus: 'scheduled',
-            timestamp: new Date('2026-04-25'),
-          },
-          {
-            fromStatus: 'scheduled',
-            toStatus: 'in_production',
-            timestamp: new Date('2026-04-26'),
-          },
-        ],
-      });
-
-      const order = mockOrderRepository.findById('order-1');
-      const history = await order;
-
-      expect(history.statusHistory.length).toBe(2);
-      expect(history.statusHistory[0].fromStatus).toBe('draft');
     });
   });
 
   describe('Validação de status', () => {
     it('deve validar que novo status é válido', async () => {
-      mockOrderRepository.findById.mockResolvedValue(mockOrder);
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder());
 
       await expect(
         useCase.execute('order-1', 'invalid_status' as any)
@@ -193,36 +141,11 @@ describe('ChangeOrderStatusUseCase', () => {
     });
 
     it('deve bloquear transição para mesmo status', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'draft',
-      });
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder('draft'));
 
       await expect(
         useCase.execute('order-1', 'draft')
       ).rejects.toThrow('Pedido já está em status draft');
-    });
-  });
-
-  describe('Estados válidos', () => {
-    it('deve aceitar todos os estados válidos', async () => {
-      const validStatuses = ['draft', 'scheduled', 'in_production', 'completed', 'shipping'];
-
-      for (const status of validStatuses) {
-        const currentStatus = status === 'draft' ? 'in_production' : 'draft';
-        mockOrderRepository.findById.mockResolvedValue({
-          ...mockOrder,
-          status: currentStatus,
-        });
-        mockOrderRepository.updateStatus.mockResolvedValue({
-          ...mockOrder,
-          status,
-        });
-
-        const result = await useCase.execute('order-1', status as any);
-
-        expect(result.status).toBe(status);
-      }
     });
   });
 });

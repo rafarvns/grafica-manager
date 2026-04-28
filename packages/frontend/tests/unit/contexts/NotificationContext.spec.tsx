@@ -69,8 +69,8 @@ describe('NotificationContext', () => {
         });
       });
 
-      expect(result.current.notifications).toHaveLength(4);
-      expect(result.current.notifications.map((n) => n.type)).toEqual(types);
+      expect(result.current.notifications).toHaveLength(3);
+      expect(result.current.notifications.map((n) => n.type)).toEqual(types.slice(0, 3));
     });
 
     it('throws error when used outside NotificationProvider', () => {

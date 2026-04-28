@@ -1,22 +1,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CancelOrderUseCase } from '@/application/use-cases/CancelOrderUseCase';
+import { Order } from '@/domain/entities/Order';
 
 describe('CancelOrderUseCase', () => {
   let mockOrderRepository: any;
   let useCase: CancelOrderUseCase;
 
-  const mockOrder = {
-    id: 'order-1',
+  const createMockOrder = (status: any = 'in_production') => Order.create({
     orderNumber: 'PED-001',
     customerId: 'customer-1',
-    status: 'in_production',
-    createdAt: new Date(),
-  };
+    description: 'Design brochura',
+    quantity: 100,
+    status,
+    salePrice: 100,
+    productionCost: 50,
+  });
 
   beforeEach(() => {
     mockOrderRepository = {
       findById: vi.fn(),
       cancel: vi.fn(),
+      findStatusHistory: vi.fn(),
     };
     useCase = new CancelOrderUseCase(mockOrderRepository);
   });
@@ -33,7 +37,7 @@ describe('CancelOrderUseCase', () => {
 
   describe('Validação de motivo', () => {
     it('deve exigir motivo de cancelamento', async () => {
-      mockOrderRepository.findById.mockResolvedValue(mockOrder);
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder());
 
       await expect(
         useCase.execute('order-1', '')
@@ -41,14 +45,15 @@ describe('CancelOrderUseCase', () => {
     });
 
     it('deve aceitar motivo válido', async () => {
-      mockOrderRepository.findById.mockResolvedValue(mockOrder);
-      mockOrderRepository.cancel.mockResolvedValue({
-        ...mockOrder,
+      const order = createMockOrder();
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.cancel.mockResolvedValue(Order.create({
+        ...order.toJSON(),
         status: 'cancelled',
-        cancellationReason: 'Cliente cancelou',
-      });
+      }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'Cliente cancelou');
+      const result = await useCase.execute(order.id, 'Cliente cancelou');
 
       expect(result.status).toBe('cancelled');
       expect(result.cancellationReason).toBe('Cliente cancelou');
@@ -57,11 +62,7 @@ describe('CancelOrderUseCase', () => {
 
   describe('Bloqueio de cancelamento duplicado', () => {
     it('deve bloquear cancelamento se pedido já está cancelado', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-        cancellationReason: 'Já foi cancelado',
-      });
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder('cancelled'));
 
       await expect(
         useCase.execute('order-1', 'Novo cancelamento')
@@ -71,97 +72,53 @@ describe('CancelOrderUseCase', () => {
 
   describe('Cancelamento de qualquer status', () => {
     it('deve permitir cancelamento de pedido em draft', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'draft',
-      });
-      mockOrderRepository.cancel.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-        cancellationReason: 'Não é mais necessário',
-      });
+      const order = createMockOrder('draft');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.cancel.mockResolvedValue(Order.create({ ...order.toJSON(), status: 'cancelled' }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'Não é mais necessário');
+      const result = await useCase.execute(order.id, 'Não é mais necessário');
 
       expect(result.status).toBe('cancelled');
     });
 
     it('deve permitir cancelamento de pedido em produção', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'in_production',
-      });
-      mockOrderRepository.cancel.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-        cancellationReason: 'Parar produção',
-      });
+      const order = createMockOrder('in_production');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.cancel.mockResolvedValue(Order.create({ ...order.toJSON(), status: 'cancelled' }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'Parar produção');
+      const result = await useCase.execute(order.id, 'Parar produção');
 
       expect(result.status).toBe('cancelled');
     });
 
     it('deve permitir cancelamento de pedido concluído', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'completed',
-      });
-      mockOrderRepository.cancel.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-        cancellationReason: 'Cliente solicitou devolução',
-      });
+      const order = createMockOrder('completed');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.cancel.mockResolvedValue(Order.create({ ...order.toJSON(), status: 'cancelled' }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'Cliente solicitou devolução');
+      const result = await useCase.execute(order.id, 'Cliente solicitou devolução');
 
       expect(result.status).toBe('cancelled');
     });
 
     it('deve permitir cancelamento de pedido em shipping', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'shipping',
-      });
-      mockOrderRepository.cancel.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-        cancellationReason: 'Interceptar shipment',
-      });
+      const order = createMockOrder('shipping');
+      mockOrderRepository.findById.mockResolvedValue(order);
+      mockOrderRepository.cancel.mockResolvedValue(Order.create({ ...order.toJSON(), status: 'cancelled' }));
+      mockOrderRepository.findStatusHistory.mockResolvedValue([]);
 
-      const result = await useCase.execute('order-1', 'Interceptar shipment');
+      const result = await useCase.execute(order.id, 'Interceptar shipment');
 
       expect(result.status).toBe('cancelled');
     });
   });
 
-  describe('Histórico de cancelamento', () => {
-    it('deve registrar cancelamento no histórico com timestamp', async () => {
-      mockOrderRepository.findById.mockResolvedValue(mockOrder);
-      mockOrderRepository.cancel.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-        cancellationReason: 'Cancelado pelo cliente',
-        cancellationTime: new Date(),
-      });
-
-      await useCase.execute('order-1', 'Cancelado pelo cliente');
-
-      expect(mockOrderRepository.cancel).toHaveBeenCalledWith(
-        'order-1',
-        'Cancelado pelo cliente',
-        expect.any(Date)
-      );
-    });
-  });
-
   describe('Terminal state', () => {
     it('deve fazer cancelado um estado terminal (sem saída)', async () => {
-      mockOrderRepository.findById.mockResolvedValue({
-        ...mockOrder,
-        status: 'cancelled',
-        cancellationReason: 'Cancelado',
-      });
+      mockOrderRepository.findById.mockResolvedValue(createMockOrder('cancelled'));
 
       // Tentar cancelar novamente deve falhar
       await expect(

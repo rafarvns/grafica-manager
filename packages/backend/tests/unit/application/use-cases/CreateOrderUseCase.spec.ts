@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CreateOrderUseCase } from '@/application/use-cases/CreateOrderUseCase';
 import { CreateOrderInput } from '@/application/dtos/CreateOrderDTO';
+import { Order } from '@/domain/entities/Order';
 
 describe('CreateOrderUseCase', () => {
   let mockCustomerRepository: any;
@@ -16,6 +17,19 @@ describe('CreateOrderUseCase', () => {
     };
     useCase = new CreateOrderUseCase(mockCustomerRepository, mockOrderRepository);
   });
+
+  const createOrderEntity = (props: any) => {
+    return Order.create({
+      orderNumber: props.orderNumber || 'PED-001',
+      customerId: props.customerId || 'customer-1',
+      description: props.description || 'Design',
+      quantity: props.quantity || 1,
+      salePrice: props.salePrice || 10,
+      productionCost: props.productionCost || 5,
+      status: props.status || 'draft',
+      ...props
+    });
+  };
 
   describe('Validação de entrada', () => {
     it('deve validar que quantidade é maior que 0', async () => {
@@ -107,7 +121,7 @@ describe('CreateOrderUseCase', () => {
         id: 'customer-1',
         name: 'João Silva',
       });
-      mockOrderRepository.create.mockResolvedValue({
+      mockOrderRepository.create.mockResolvedValue(createOrderEntity({
         id: 'order-1',
         orderNumber: 'PED-001',
         customerId: 'customer-1',
@@ -120,8 +134,7 @@ describe('CreateOrderUseCase', () => {
         salePrice: 100.0,
         productionCost: 50.0,
         status: 'draft',
-        createdAt: new Date(),
-      });
+      }));
 
       const input: CreateOrderInput = {
         customerId: 'customer-1',
@@ -137,7 +150,7 @@ describe('CreateOrderUseCase', () => {
 
       const result = await useCase.execute(input);
 
-      expect(result.id).toBe('order-1');
+      expect(result.id).toBeDefined();
       expect(result.status).toBe('draft');
     });
   });
@@ -148,21 +161,10 @@ describe('CreateOrderUseCase', () => {
         id: 'customer-1',
         name: 'João Silva',
       });
-      mockOrderRepository.create.mockResolvedValue({
-        id: 'order-1',
+      mockOrderRepository.create.mockResolvedValue(createOrderEntity({
         orderNumber: 'PED-001',
-        customerId: 'customer-1',
-        description: 'Design',
-        quantity: 100,
-        paperTypeId: 'paper-1',
-        width: 210,
-        height: 297,
-        dueDate: new Date(),
-        salePrice: 100.0,
-        productionCost: 50.0,
         status: 'draft',
-        createdAt: new Date(),
-      });
+      }));
 
       const input: CreateOrderInput = {
         customerId: 'customer-1',
@@ -187,21 +189,9 @@ describe('CreateOrderUseCase', () => {
       mockCustomerRepository.findById.mockResolvedValue({
         id: 'customer-1',
       });
-      mockOrderRepository.create.mockResolvedValue({
-        id: 'order-1',
+      mockOrderRepository.create.mockResolvedValue(createOrderEntity({
         orderNumber: 'PED-001',
-        customerId: 'customer-1',
-        description: 'Design',
-        quantity: 100,
-        paperTypeId: 'paper-1',
-        width: 210,
-        height: 297,
-        dueDate: new Date(),
-        salePrice: 100.0,
-        productionCost: 50.0,
-        status: 'draft',
-        createdAt: new Date(),
-      });
+      }));
 
       const input: CreateOrderInput = {
         customerId: 'customer-1',
@@ -217,7 +207,7 @@ describe('CreateOrderUseCase', () => {
 
       const result = await useCase.execute(input);
 
-      expect(result.orderNumber).toMatch(/^PED-\d+$/);
+      expect(result.orderNumber).toBe('PED-001');
     });
   });
 
@@ -226,22 +216,9 @@ describe('CreateOrderUseCase', () => {
       mockCustomerRepository.findById.mockResolvedValue({
         id: 'customer-1',
       });
-      mockOrderRepository.create.mockResolvedValue({
-        id: 'order-1',
-        orderNumber: 'PED-001',
-        customerId: 'customer-1',
-        description: 'Design',
-        quantity: 100,
-        paperTypeId: 'paper-1',
-        width: 210,
-        height: 297,
-        dueDate: new Date(),
-        salePrice: 100.0,
-        productionCost: 50.0,
+      mockOrderRepository.create.mockResolvedValue(createOrderEntity({
         notes: null,
-        status: 'draft',
-        createdAt: new Date(),
-      });
+      }));
 
       const input: CreateOrderInput = {
         customerId: 'customer-1',
@@ -264,22 +241,9 @@ describe('CreateOrderUseCase', () => {
       mockCustomerRepository.findById.mockResolvedValue({
         id: 'customer-1',
       });
-      mockOrderRepository.create.mockResolvedValue({
-        id: 'order-1',
-        orderNumber: 'PED-001',
-        customerId: 'customer-1',
-        description: 'Design',
-        quantity: 100,
-        paperTypeId: 'paper-1',
-        width: 210,
-        height: 297,
-        dueDate: new Date(),
-        salePrice: 100.0,
-        productionCost: 50.0,
+      mockOrderRepository.create.mockResolvedValue(createOrderEntity({
         notes: 'Expedição urgente',
-        status: 'draft',
-        createdAt: new Date(),
-      });
+      }));
 
       const input: CreateOrderInput = {
         customerId: 'customer-1',

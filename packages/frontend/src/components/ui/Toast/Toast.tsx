@@ -1,36 +1,40 @@
-import React, { useEffect } from 'react';
-import { Notification } from '@/contexts/NotificationContext';
+import React from 'react';
+import { useNotification, ToastNotification } from '@/contexts/NotificationContext';
 import styles from './Toast.module.css';
+import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-const AUTO_DISMISS_MS = 3000;
-
-interface ToastProps {
-  notification: Notification;
-  onDismiss: () => void;
-}
-
-export function Toast({ notification, onDismiss }: ToastProps) {
-  useEffect(() => {
-    const timer = setTimeout(onDismiss, AUTO_DISMISS_MS);
-    return () => clearTimeout(timer);
-  }, [onDismiss]);
-
-  const bgClass = {
-    success: styles.success,
-    error: styles.error,
-    warning: styles.warning,
-    info: styles.info,
-  }[notification.type];
+export function ToastContainer() {
+  const { notifications } = useNotification();
 
   return (
-    <div className={`${styles.toast} ${bgClass}`} role="alert">
+    <div className={styles.container}>
+      {notifications.map((notification) => (
+        <ToastItem key={notification.id} notification={notification} />
+      ))}
+    </div>
+  );
+}
+
+function ToastItem({ notification }: { notification: ToastNotification }) {
+  const { removeNotification } = useNotification();
+
+  const icons = {
+    success: <CheckCircle className={styles.icon} size={20} />,
+    error: <XCircle className={styles.icon} size={20} />,
+    warning: <AlertTriangle className={styles.icon} size={20} />,
+    info: <Info className={styles.icon} size={20} />,
+  };
+
+  return (
+    <div className={`${styles.toast} ${styles[notification.type]}`} role="alert">
+      {icons[notification.type]}
       <span className={styles.message}>{notification.message}</span>
-      <button
-        className={styles.close}
-        onClick={onDismiss}
-        aria-label="Fechar notificação"
+      <button 
+        className={styles.closeButton} 
+        onClick={() => removeNotification(notification.id)}
+        aria-label="Fechar"
       >
-        ✕
+        <X size={16} />
       </button>
     </div>
   );

@@ -1,71 +1,64 @@
 import { OrderStatus, ChangeStatusOutput } from '@/application/dtos/OrderStatusDTO';
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
+import { OrderStatusHistory } from '@/domain/entities/OrderStatusHistory';
 
-const VALID_STATUSES: OrderStatus[] = [
-  'draft',
-  'scheduled',
-  'in_production',
-  'completed',
-  'shipping',
-];
-
-export interface IOrderRepository {
-  findById(id: string): Promise<any>;
-  updateStatus(id: string, status: OrderStatus, historyEntry: any): Promise<any>;
+export interface INotificationService {
+  sendInfo(title: string, description: string, extras?: any): Promise<any>;
 }
 
 export class ChangeOrderStatusUseCase {
-  constructor(private orderRepository: IOrderRepository) {}
+  constructor(
+    private orderRepository: OrderRepository,
+    private notificationService?: INotificationService
+  ) {}
 
   async execute(orderId: string, newStatus: OrderStatus): Promise<ChangeStatusOutput> {
+    // Bloquear transição para cancelado (deve usar CancelOrderUseCase)
+    if (newStatus === 'cancelled') {
+      throw new Error('Use CancelOrderUseCase para cancelar pedidos');
+    }
+
     // Verificar se pedido existe
     const order = await this.orderRepository.findById(orderId);
     if (!order) {
       throw new Error('Pedido não encontrado');
     }
 
-    // Bloquear transição para cancelado (deve usar CancelOrderUseCase)
-    if (newStatus === 'cancelled') {
-      throw new Error('Use CancelOrderUseCase para cancelar pedidos');
-    }
+    const oldStatus = order.status;
 
-    // Validar status é válido
-    if (!VALID_STATUSES.includes(newStatus)) {
-      throw new Error('Status inválido');
-    }
-
-    // Bloquear mudança se pedido já está cancelado
-    if (order.status === 'cancelled') {
-      throw new Error('Pedido cancelado não pode mudar de status');
-    }
-
-    // Bloquear mudança de shipping para outro status
-    if (order.status === 'shipping') {
-      throw new Error('Pedido em shipping não pode mudar de status');
-    }
-
-    // Bloquear transição para mesmo status
-    if (order.status === newStatus) {
-      throw new Error(`Pedido já está em status ${newStatus}`);
-    }
+    // Aplicar mudança de status no domínio (valida regras)
+    order.changeStatus(newStatus);
 
     // Registrar mudança no histórico
-    const historyEntry = {
-      fromStatus: order.status,
+    const historyEntry = OrderStatusHistory.create({
+      orderId,
+      fromStatus: oldStatus,
       toStatus: newStatus,
-      timestamp: new Date(),
-    };
+    });
 
-    // Atualizar status
+    // Atualizar status no repositório (deve lidar com o histórico em transação se possível)
     const updatedOrder = await this.orderRepository.updateStatus(
       orderId,
       newStatus,
-      historyEntry
+      historyEntry.toJSON() as any
     );
+
+    // Notificar mudança de status
+    if (this.notificationService) {
+      await this.notificationService.sendInfo(
+        'Status do Pedido Atualizado',
+        `O pedido #${order.orderNumber} mudou de ${oldStatus} para ${newStatus}.`,
+        { orderId, actionUrl: `/orders/${orderId}` }
+      );
+    }
+
+    // Buscar histórico atualizado para o retorno
+    const history = await this.orderRepository.findStatusHistory(orderId);
 
     return {
       id: updatedOrder.id,
       status: updatedOrder.status,
-      statusHistory: updatedOrder.statusHistory,
+      statusHistory: history.map((h: any) => h.toJSON ? h.toJSON() : h),
     };
   }
 }

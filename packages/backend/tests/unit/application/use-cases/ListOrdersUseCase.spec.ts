@@ -1,30 +1,31 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ListOrdersUseCase } from '@/application/use-cases/ListOrdersUseCase';
 import { ListOrdersInput } from '@/application/dtos/ListOrdersDTO';
+import { Order } from '@/domain/entities/Order';
 
 describe('ListOrdersUseCase', () => {
   let mockOrderRepository: any;
   let useCase: ListOrdersUseCase;
 
   const mockOrders = [
-    {
-      id: 'order-1',
+    Order.create({
       orderNumber: 'PED-001',
       customerId: 'customer-1',
       description: 'Design A',
       quantity: 100,
       status: 'draft',
-      createdAt: new Date('2026-04-25'),
-    },
-    {
-      id: 'order-2',
+      salePrice: 100,
+      productionCost: 50,
+    }),
+    Order.create({
       orderNumber: 'PED-002',
       customerId: 'customer-2',
       description: 'Design B',
       quantity: 200,
       status: 'in_production',
-      createdAt: new Date('2026-04-26'),
-    },
+      salePrice: 200,
+      productionCost: 100,
+    }),
   ];
 
   beforeEach(() => {

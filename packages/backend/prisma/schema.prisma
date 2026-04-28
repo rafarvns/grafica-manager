@@ -227,6 +227,7 @@ model Order {
   attachments       OrderAttachment[]
   statusHistory     OrderStatusHistory[]
   webhookEvents     WebhookEvent[]
+  notifications     Notification[]
 
   @@index([status])
   @@index([customerId])
@@ -323,4 +324,30 @@ model SystemSettings {
   updatedAt          DateTime @updatedAt
 
   @@map("system_settings")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  type        String   // 'webhook_failed' | 'order_deadline' | 'printer_offline' | 'shopee_sync_failed' | 'disk_full'
+  category    String   // 'critical' | 'warning' | 'info'
+  read        Boolean  @default(false)
+  dismissedAt DateTime?
+
+  // Links opcionais para contexto
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id])
+  webhookId   String?
+
+  actionUrl   String?  // ex: '/shopee' ou '/orders/ORD-001'
+  actionLabel String?  // ex: 'Reprocessar' ou 'Ver Pedido'
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([read])
+  @@index([dismissedAt])
+  @@index([createdAt])
+  @@map("notifications")
 }

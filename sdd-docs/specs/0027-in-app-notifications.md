@@ -1,6 +1,6 @@
 # Feature: Notificações In-App (Toast + Painel)
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `concluded` · Autor: rafarvns · Data: 2026-04-28
 
 ## Contexto
 

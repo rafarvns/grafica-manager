@@ -1,37 +1,35 @@
 import { GetOrderOutput } from '@/application/dtos/OrderStatusDTO';
-
-export interface IOrderRepository {
-  findById(id: string): Promise<any>;
-}
+import { OrderRepository } from '@/domain/repositories/OrderRepository';
 
 export class GetOrderUseCase {
-  constructor(private orderRepository: IOrderRepository) {}
+  constructor(private orderRepository: OrderRepository) {}
 
   async execute(orderId: string): Promise<GetOrderOutput> {
-    // Buscar pedido por ID
     const order = await this.orderRepository.findById(orderId);
     if (!order) {
       throw new Error('Pedido não encontrado');
     }
 
+    const history = await this.orderRepository.findStatusHistory(orderId);
+
+    const data = order.toJSON();
+
     return {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      customerId: order.customerId,
-      description: order.description,
-      quantity: order.quantity,
-      paperTypeId: order.paperTypeId,
-      width: order.width,
-      height: order.height,
-      dueDate: order.dueDate,
-      salePrice: order.salePrice,
-      productionCost: order.productionCost,
-      status: order.status,
-      notes: order.notes,
-      statusHistory: order.statusHistory || [],
-      cancellationReason: order.cancellationReason,
-      cancellationTime: order.cancellationTime,
-      createdAt: order.createdAt,
-    };
+      id: data.id,
+      orderNumber: data.orderNumber,
+      customerId: data.customerId ?? undefined,
+      description: data.description,
+      quantity: data.quantity,
+      paperTypeId: data.paperTypeId ?? undefined,
+      width: data.width ?? undefined,
+      height: data.height ?? undefined,
+      dueDate: data.dueDate ?? undefined,
+      salePrice: data.salePrice,
+      productionCost: data.productionCost,
+      status: data.status,
+      notes: data.notes ?? undefined,
+      statusHistory: history.map((h: any) => h.toJSON ? h.toJSON() : h),
+      createdAt: data.createdAt,
+    } as GetOrderOutput;
   }
 }
