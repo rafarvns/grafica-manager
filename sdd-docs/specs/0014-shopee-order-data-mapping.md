@@ -1,6 +1,6 @@
 # Feature: Shopee Order Data Mapping
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,21 +8,21 @@ Implementar lógica de transformação de dados do webhook Shopee para o modelo 
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Mapear dados básicos do pedido Shopee → Order interna (id, data, total em BRL)
-- [ ] RF2 — Mapear dados do comprador Shopee → Customer interno (nome, email se disponível)
-- [ ] RF3 — Mapear itens do pedido Shopee → descrição do pedido (texto livre, sem parsing de specs de impressão)
-- [ ] RF4 — Aplicar defaults quando campos obrigatórios estão ausentes (ex.: email gerado automaticamente)
-- [ ] RF5 — Converter status Shopee → status interno usando tabela de mapeamento (placeholder por enquanto)
-- [ ] RF6 — Armazenar `shopee_order_id` e `shopee_shop_id` no pedido interno para rastreamento
-- [ ] RF7 — Gerar número de pedido interno no formato `ORD-SHOPEE-<shopee_order_id>`
-- [ ] RF8 — Registrar avisos de mapeamento (campos ausentes, defaults aplicados) no `WebhookEvent`
+- [x] RF1 — Mapear dados básicos do pedido Shopee → Order interna (id, data, total em BRL)
+- [x] RF2 — Mapear dados do comprador Shopee → Customer interno (nome, email se disponível)
+- [x] RF3 — Mapear itens do pedido Shopee → descrição do pedido (texto livre, sem parsing de specs de impressão)
+- [x] RF4 — Aplicar defaults quando campos obrigatórios estão ausentes (ex.: email gerado automaticamente)
+- [x] RF5 — Converter status Shopee → status interno usando tabela de mapeamento (placeholder por enquanto)
+- [x] RF6 — Armazenar `shopee_order_id` e `shopee_shop_id` no pedido interno para rastreamento
+- [x] RF7 — Gerar número de pedido interno no formato `ORD-SHOPEE-<shopee_order_id>`
+- [x] RF8 — Registrar avisos de mapeamento (campos ausentes, defaults aplicados) no `WebhookEvent`
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Mapeamento encapsulado em classe `ShopeeOrderMapper` — testável isoladamente
-- [ ] RNF2 — Erro de mapeamento é registrado como aviso; não interrompe o fluxo se campo for opcional
-- [ ] RNF3 — Campo obrigatório ausente (ex.: nome do comprador) resulta em erro que envia para retry
-- [ ] RNF4 — Moeda: todos os valores monetários da Shopee são tratados em BRL
+- [x] RNF1 — Mapeamento encapsulado em classe `ShopeeOrderMapper` — testável isoladamente
+- [x] RNF2 — Erro de mapeamento é registrado como aviso; não interrompe o fluxo se campo for opcional
+- [x] RNF3 — Campo obrigatório ausente (ex.: nome do comprador) resulta em erro que envia para retry
+- [x] RNF4 — Moeda: todos os valores monetários da Shopee são tratados em BRL
 
 ## Critérios de Aceite
 

@@ -1,6 +1,6 @@
 # Feature: Customer CRUD
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,20 +8,20 @@ Implementar operações completas de gerenciamento de clientes (criar, ler, atua
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Criar cliente com campos obrigatórios: nome e email; campos opcionais: telefone, endereço, cidade, estado, CEP, observações
-- [ ] RF2 — Listar clientes com paginação e filtros (nome, email, cidade)
-- [ ] RF3 — Buscar cliente por ID com todos os dados e resumo de pedidos
-- [ ] RF4 — Atualizar dados de cliente
-- [ ] RF5 — Deletar cliente — bloqueado se houver pedidos ativos; permitido apenas se não tiver pedidos ou se todos estiverem cancelados/concluídos
-- [ ] RF6 — Restaurar cliente deletado (soft-delete reversa)
+- [x] RF1 — Criar cliente com campos obrigatórios: nome e email; campos opcionais: telefone, endereço, cidade, estado, CEP, observações
+- [x] RF2 — Listar clientes com paginação e filtros (nome, email, cidade)
+- [x] RF3 — Buscar cliente por ID com todos os dados e resumo de pedidos
+- [x] RF4 — Atualizar dados de cliente
+- [x] RF5 — Deletar cliente — bloqueado se houver pedidos ativos; permitido apenas se não tiver pedidos ou se todos estiverem cancelados/concluídos
+- [x] RF6 — Restaurar cliente deletado (soft-delete reversa)
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Email único por cliente (unique constraint no banco + validação na application)
-- [ ] RNF2 — Validação de email (formato RFC)
-- [ ] RNF3 — Telefone opcional; sem validação de formato obrigatória (aceitar qualquer string)
-- [ ] RNF4 — Paginação eficiente com índices (suporta 10000+ clientes)
-- [ ] RNF5 — Soft-delete: cliente deletado não aparece em listagens, mas mantém histórico de pedidos
+- [x] RNF1 — Email único por cliente (unique constraint no banco + validação na application)
+- [x] RNF2 — Validação de email (formato RFC)
+- [x] RNF3 — Telefone opcional; sem validação de formato obrigatória (aceitar qualquer string)
+- [x] RNF4 — Paginação eficiente com índices (suporta 10000+ clientes)
+- [x] RNF5 — Soft-delete: cliente deletado não aparece em listagens, mas mantém histórico de pedidos
 
 ## Critérios de Aceite
 

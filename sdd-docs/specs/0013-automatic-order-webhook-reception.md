@@ -1,6 +1,6 @@
 # Feature: Automatic Order Webhook Reception
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,26 +8,26 @@ Implementar a infraestrutura genérica de recebimento, validação, enfileiramen
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Receber webhook de pedido via HTTP POST com identificação da plataforma de origem
-- [ ] RF2 — Validar assinatura HMAC antes de qualquer processamento (rejeitar se inválida)
-- [ ] RF3 — Responder 202 imediatamente e enfileirar processamento em background (Bull + Redis)
-- [ ] RF4 — Deduplicar por `shopee_order_id` (MVP Shopee) — mesmo ID nunca gera dois pedidos
-- [ ] RF5 — Transformar payload da plataforma para modelo interno (Order, Customer)
-- [ ] RF6 — Criar cliente automaticamente se não existir
-- [ ] RF7 — Criar pedido vinculado ao cliente
-- [ ] RF8 — Persistir payload original do webhook para auditoria (imutável)
-- [ ] RF9 — Registrar status de cada webhook: pendente, processado, erro, descartado
-- [ ] RF10 — Retry automático com backoff exponencial (3 tentativas) em caso de erro transitório
-- [ ] RF11 — Marcar como "falha permanente" após esgotar tentativas; disponibilizar para reprocessamento manual
+- [x] RF1 — Receber webhook de pedido via HTTP POST com identificação da plataforma de origem
+- [x] RF2 — Validar assinatura HMAC antes de qualquer processamento (rejeitar se inválida)
+- [x] RF3 — Responder 202 imediatamente e enfileirar processamento em background (Bull + Redis)
+- [x] RF4 — Deduplicar por `shopee_order_id` (MVP Shopee) — mesmo ID nunca gera dois pedidos
+- [x] RF5 — Transformar payload da plataforma para modelo interno (Order, Customer)
+- [x] RF6 — Criar cliente automaticamente se não existir
+- [x] RF7 — Criar pedido vinculado ao cliente
+- [x] RF8 — Persistir payload original do webhook para auditoria (imutável)
+- [x] RF9 — Registrar status de cada webhook: pendente, processado, erro, descartado
+- [x] RF10 — Retry automático com backoff exponencial (3 tentativas) em caso de erro transitório
+- [x] RF11 — Marcar como "falha permanente" após esgotar tentativas; disponibilizar para reprocessamento manual
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Validação HMAC obrigatória (sem exceções); rejeitar qualquer webhook sem assinatura válida
-- [ ] RNF2 — Idempotência garantida: processar mesmo webhook 100x = resultado igual a 1x
-- [ ] RNF3 — Webhook responde em < 500ms (apenas valida HMAC e enfileira)
-- [ ] RNF4 — Payload original persistido em coluna JSON (auditoria completa)
-- [ ] RNF5 — Retry com backoff: 30s → 5min → 30min
-- [ ] RNF6 — Processar 1000 webhooks/dia sem degradação (Bull + Redis suporta com folga)
+- [x] RNF1 — Validação HMAC obrigatória (sem exceções); rejeitar qualquer webhook sem assinatura válida
+- [x] RNF2 — Idempotência garantida: processar mesmo webhook 100x = resultado igual a 1x
+- [x] RNF3 — Webhook responde em < 500ms (apenas valida HMAC e enfileira)
+- [x] RNF4 — Payload original persistido em coluna JSON (auditoria completa)
+- [x] RNF5 — Retry com backoff: 30s → 5min → 30min
+- [x] RNF6 — Processar 1000 webhooks/dia sem degradação (Bull + Redis suporta com folga)
 
 ## Critérios de Aceite
 

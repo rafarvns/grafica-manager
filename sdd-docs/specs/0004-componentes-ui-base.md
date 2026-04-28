@@ -8,20 +8,20 @@ Complementar a biblioteca de primitivas visuais do frontend ("Arquitetura Leve")
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — **Table**: Suporte a colunas dinâmicas, header fixo e paginação visual (sem lógica acoplada).
-- [ ] RF2 — **Select**: Dropdown customizado ou estilização nativa focada em clareza, suportando `disabled` e estado de erro.
-- [ ] RF3 — **Checkbox/Radio**: Elementos de formulário padronizados, com suporte a *indeterminate* (checkbox) e *focus-visible*.
-- [ ] RF4 — **Card**: Container versátil com seções de cabeçalho, corpo e rodapé para exibir blocos de informação.
-- [ ] RF5 — **Tabs**: Navegação em abas para alternar conteúdo na mesma visão de forma semântica.
-- [ ] RF6 — **Textarea**: Campo de texto longo, com auto-resize opcional e suporte a *error states* (similar ao Input).
-- [ ] RF7 — **Tooltip**: Componente acessível focado em exibir contexto adicional ao passar o mouse ou dar foco.
+- [x] RF1 — **Table**: Suporte a colunas dinâmicas, header fixo e paginação visual (sem lógica acoplada).
+- [x] RF2 — **Select**: Dropdown customizado ou estilização nativa focada em clareza, suportando `disabled` e estado de erro.
+- [x] RF3 — **Checkbox/Radio**: Elementos de formulário padronizados, com suporte a *indeterminate* (checkbox) e *focus-visible*.
+- [x] RF4 — **Card**: Container versátil com seções de cabeçalho, corpo e rodapé para exibir blocos de informação.
+- [x] RF5 — **Tabs**: Navegação em abas para alternar conteúdo na mesma visão de forma semântica.
+- [x] RF6 — **Textarea**: Campo de texto longo, com auto-resize opcional e suporte a *error states* (similar ao Input).
+- [x] RF7 — **Tooltip**: Componente acessível focado em exibir contexto adicional ao passar o mouse ou dar foco.
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Todos os componentes devem utilizar **apenas CSS Modules**, sem bibliotecas pesadas externas (ex: MUI, Radix).
-- [ ] RNF2 — Conformidade total com WCAG 2.1 AA (Acessibilidade): uso correto de tags ARIA, suporte completo a navegação por teclado e testes com `vitest-axe`.
-- [ ] RNF3 — Alta performance: zero re-renderizações desnecessárias, componentes funcionais puros sempre que possível para rodar liso em PC com 4GB RAM.
-- [ ] RNF4 — Suporte automático ao Dark Mode via variáveis CSS definidas na base do projeto (`index.css`).
+- [x] RNF1 — Todos os componentes devem utilizar **apenas CSS Modules**, sem bibliotecas pesadas externas (ex: MUI, Radix).
+- [x] RNF2 — Conformidade total com WCAG 2.1 AA (Acessibilidade): uso correto de tags ARIA, suporte completo a navegação por teclado e testes com `vitest-axe`.
+- [x] RNF3 — Alta performance: zero re-renderizações desnecessárias, componentes funcionais puros sempre que possível para rodar liso em PC com 4GB RAM.
+- [x] RNF4 — Suporte automático ao Dark Mode via variáveis CSS definidas na base do projeto (`index.css`).
 
 ## Critérios de Aceite
 

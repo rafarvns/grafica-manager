@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/Button/Button';
+import { Breadcrumb } from '@/components/ui/Breadcrumb/Breadcrumb';
 import styles from './AppLayout.module.css';
 
 export function Header() {
@@ -11,9 +12,12 @@ export function Header() {
       <div className={styles.headerLeft}>
         <h1 className={styles.brandTitle}>Gráfica Manager</h1>
       </div>
+      <div className={styles.headerCenter}>
+        <Breadcrumb />
+      </div>
       <div className={styles.headerRight}>
-        <Button 
-          variant="secondary" 
+        <Button
+          variant="secondary"
           onClick={toggleTheme}
           aria-label={`Alternar tema (atual: ${theme})`}
         >

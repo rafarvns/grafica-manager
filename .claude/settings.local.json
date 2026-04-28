@@ -24,7 +24,11 @@
       "Bash(pnpm -C packages/backend test:unit)",
       "Bash(pnpm -C packages/backend vitest run tests/unit/application/use-cases/ValidateCustomerDeletionUseCase.spec.ts tests/unit/application/use-cases/ValidateOrderDeletionUseCase.spec.ts)",
       "Bash(grep -E \"\\(\\\\.ts$|test|spec\\)\")",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(npx tsc *)",
+      "Bash(npx prisma *)",
+      "Bash(pnpm --filter @grafica/backend test:unit -- tests/unit/domain/value-objects/ReportFilter.spec.ts tests/unit/domain/services/MarginCalculator.spec.ts tests/unit/application/use-cases/GenerateReportUseCase.spec.ts tests/unit/application/use-cases/ExportReportUseCase.spec.ts)",
+      "Bash(npm run *)"
     ]
   }
 }

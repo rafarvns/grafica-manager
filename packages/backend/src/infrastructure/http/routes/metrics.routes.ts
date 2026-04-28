@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PeriodFilter } from '@/domain/value-objects/PeriodFilter';
 import { GetDashboardMetricsUseCase } from '@/application/use-cases/GetDashboardMetricsUseCase';
 import { GetTopCustomersUseCase } from '@/application/use-cases/GetTopCustomersUseCase';
@@ -114,8 +114,8 @@ function buildMetricsRepository(prisma: PrismaClient) {
       });
       const byDate: Record<string, number> = {};
       for (const job of jobs) {
-        const key = job.printedAt.toISOString().split('T')[0];
-        byDate[key] = (byDate[key] ?? 0) + 1;
+        const key = job.printedAt.toISOString().split('T')[0] ?? '';
+        if (key) byDate[key] = (byDate[key] ?? 0) + 1;
       }
       return Object.entries(byDate)
         .map(([date, count]) => ({ date, count }))

@@ -1,6 +1,6 @@
 # Feature: Print Parameters Configuration
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,21 +8,21 @@ Permitir que usuários configurem parâmetros técnicos de impressão (modelo de
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Selecionar modelo de cor (CMYK, RGB, escala de cinza)
-- [ ] RF2 — Escolher tipo de papel a partir de lista cadastrada pelo usuário
-- [ ] RF3 — Definir qualidade de impressão (rascunho, normal, alta)
-- [ ] RF4 — Configurar DPI/resolução (150, 300, 600)
-- [ ] RF5 — Salvar presets de configuração reutilizáveis com nome
-- [ ] RF6 — Carregar e aplicar preset salvo
-- [ ] RF7 — Deletar preset salvo
-- [ ] RF8 — CRUD de tipos de papel (cadastrar, editar, deletar tipos disponíveis no sistema)
+- [x] RF1 — Selecionar modelo de cor (CMYK, RGB, escala de cinza)
+- [x] RF2 — Escolher tipo de papel a partir de lista cadastrada pelo usuário
+- [x] RF3 — Definir qualidade de impressão (rascunho, normal, alta)
+- [x] RF4 — Configurar DPI/resolução (150, 300, 600)
+- [x] RF5 — Salvar presets de configuração reutilizáveis com nome
+- [x] RF6 — Carregar e aplicar preset salvo
+- [x] RF7 — Deletar preset salvo
+- [x] RF8 — CRUD de tipos de papel (cadastrar, editar, deletar tipos disponíveis no sistema)
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Presets persistidos localmente no banco de dados da aplicação (não sincronizados entre máquinas)
-- [ ] RNF2 — Tipos de papel persistidos no banco de dados local (cadastro permanente)
-- [ ] RNF3 — Sem matriz de incompatibilidade — todas as combinações de parâmetros são permitidas
-- [ ] RNF4 — Interface compacta (formulário não pode ocupar espaço excessivo em tela pequena)
+- [x] RNF1 — Presets persistidos localmente no banco de dados da aplicação (não sincronizados entre máquinas)
+- [x] RNF2 — Tipos de papel persistidos no banco de dados local (cadastro permanente)
+- [x] RNF3 — Sem matriz de incompatibilidade — todas as combinações de parâmetros são permitidas
+- [x] RNF4 — Interface compacta (formulário não pode ocupar espaço excessivo em tela pequena)
 
 ## Critérios de Aceite
 

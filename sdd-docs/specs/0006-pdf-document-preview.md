@@ -1,6 +1,6 @@
 # Feature: PDF Document Preview
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,20 +8,20 @@ Permitir que usuários visualizem documentos PDF antes de enviar para impressão
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Abrir preview de PDF no modal dentro da aplicação
-- [ ] RF2 — Navegar entre páginas (anterior, próxima, ir para página N)
-- [ ] RF3 — Aplicar zoom (in, out, fit-width, fit-page)
-- [ ] RF4 — Exibir informações da página (página atual / total de páginas)
-- [ ] RF5 — Abrir PDF a partir de arquivo local no sistema de arquivos (via Electron dialog)
-- [ ] RF6 — Quando PDF chegar via webhook, exibir botão para o usuário localizar o arquivo no sistema local
-- [ ] RF7 — Quando servidor de arquivos de clientes for implementado (spec futura), salvar e servir o PDF a partir dele também
+- [x] RF1 — Abrir preview de PDF no modal dentro da aplicação
+- [x] RF2 — Navegar entre páginas (anterior, próxima, ir para página N)
+- [x] RF3 — Aplicar zoom (in, out, fit-width, fit-page)
+- [x] RF4 — Exibir informações da página (página atual / total de páginas)
+- [x] RF5 — Abrir PDF a partir de arquivo local no sistema de arquivos (via Electron dialog)
+- [x] RF6 — Quando PDF chegar via webhook, exibir botão para o usuário localizar o arquivo no sistema local
+- [x] RF7 — Quando servidor de arquivos de clientes for implementado (spec futura), salvar e servir o PDF a partir dele também
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Carregamento progressivo de PDF (streaming/chunking via pdf.js, jamais carregar inteiro em memória)
-- [ ] RNF2 — Render fluido sem travar UI (target: 4GB RAM / dual-core)
-- [ ] RNF3 — Suportar PDFs grandes (>50MB) sem degradação perceptível
-- [ ] RNF4 — Liberar recursos de canvas ao fechar o modal (evitar memory leak)
+- [x] RNF1 — Carregamento progressivo de PDF (streaming/chunking via pdf.js, jamais carregar inteiro em memória)
+- [x] RNF2 — Render fluido sem travar UI (target: 4GB RAM / dual-core)
+- [x] RNF3 — Suportar PDFs grandes (>50MB) sem degradação perceptível
+- [x] RNF4 — Liberar recursos de canvas ao fechar o modal (evitar memory leak)
 
 ## Critérios de Aceite
 

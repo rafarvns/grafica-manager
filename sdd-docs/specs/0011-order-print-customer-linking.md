@@ -1,6 +1,6 @@
 # Feature: Order-Print-Customer Linking
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,20 +8,20 @@ Estabelecer e gerenciar relacionamentos entre clientes, pedidos e impressões, p
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Vincular impressão a um pedido específico (1 pedido → N impressões)
-- [ ] RF2 — Vincular pedido a um cliente (1 cliente → N pedidos)
-- [ ] RF3 — Visualizar todas as impressões de um pedido com custo individual e total
-- [ ] RF4 — Visualizar todos os pedidos de um cliente com custo acumulado
-- [ ] RF5 — Calcular custo total do pedido: soma dos custos de impressão registrados no momento de cada impressão
-- [ ] RF6 — Rastrear cadeia completa: cliente → pedido → impressões
-- [ ] RF7 — Relatório consolidado por cliente (pedidos, impressões, custos, saldo)
+- [x] RF1 — Vincular impressão a um pedido específico (1 pedido → N impressões)
+- [x] RF2 — Vincular pedido a um cliente (1 cliente → N pedidos)
+- [x] RF3 — Visualizar todas as impressões de um pedido com custo individual e total
+- [x] RF4 — Visualizar todos os pedidos de um cliente com custo acumulado
+- [x] RF5 — Calcular custo total do pedido: soma dos custos de impressão registrados no momento de cada impressão
+- [x] RF6 — Rastrear cadeia completa: cliente → pedido → impressões
+- [x] RF7 — Relatório consolidado por cliente (pedidos, impressões, custos, saldo)
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Deleção de cliente bloqueada se houver pedidos ativos (não cancelados e não concluídos)
-- [ ] RNF2 — Deleção de pedido bloqueada se houver impressões em andamento
-- [ ] RNF3 — Queries com JOIN otimizadas (sem N+1) para exibir cadeia completa
-- [ ] RNF4 — Custo de impressão congelado no momento do registro — agregação soma valores históricos imutáveis
+- [x] RNF1 — Deleção de cliente bloqueada se houver pedidos ativos (não cancelados e não concluídos)
+- [x] RNF2 — Deleção de pedido bloqueada se houver impressões em andamento
+- [x] RNF3 — Queries com JOIN otimizadas (sem N+1) para exibir cadeia completa
+- [x] RNF4 — Custo de impressão congelado no momento do registro — agregação soma valores históricos imutáveis
 
 ## Critérios de Aceite
 

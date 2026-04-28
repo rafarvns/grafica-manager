@@ -52,29 +52,31 @@ export function useDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<PeriodRange>({ preset: 'thisMonth' });
 
-  const refresh = useCallback(async (p?: PeriodRange) => {
-    const target = p ?? period;
-    setLoading(true);
-    setError(null);
-    try {
-      const params: Record<string, string> = { preset: target.preset };
-      if (target.preset === 'custom' && target.from && target.to) {
-        params.from = target.from;
-        params.to = target.to;
+  const refresh = useCallback(
+    async (p?: PeriodRange) => {
+      const target = p ?? period;
+      setLoading(true);
+      setError(null);
+      try {
+        const qs = new URLSearchParams({ preset: target.preset });
+        if (target.preset === 'custom' && target.from && target.to) {
+          qs.set('from', target.from);
+          qs.set('to', target.to);
+        }
+        const resp = await apiClient.get<{ data: DashboardData }>(
+          `/v1/metrics/dashboard?${qs}`
+        );
+        setData(resp.data.data);
+        if (p) setPeriod(p);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erro ao carregar dashboard';
+        setError(message);
+      } finally {
+        setLoading(false);
       }
-      const response = await apiClient.get<{ data: DashboardData }>(
-        '/metrics/dashboard',
-        { params }
-      );
-      setData(response.data.data);
-      if (p) setPeriod(p);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao carregar dashboard';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [period]);
+    },
+    [period]
+  );
 
   return { data, loading, error, period, setPeriod, refresh };
 }

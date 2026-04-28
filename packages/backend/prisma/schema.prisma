@@ -164,7 +164,6 @@ model Customer {
 
   store            Store?            @relation(fields: [storeId], references: [id])
   orders           Order[]
-  webhookEvents    WebhookEvent[]
 
   @@index([externalId])
   @@index([storeId])

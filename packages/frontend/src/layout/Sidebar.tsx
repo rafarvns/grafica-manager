@@ -2,20 +2,22 @@ import React from 'react';
 import { useRouter } from '@/router/HashRouter';
 import styles from './AppLayout.module.css';
 
+const NAV_LINKS = [
+  { path: '/', label: 'Dashboard' },
+  { path: '/pedidos', label: 'Pedidos' },
+  { path: '/clientes', label: 'Clientes' },
+  { path: '/impressoes', label: 'Impressões' },
+  { path: '/relatorios', label: 'Relatórios' },
+];
+
 export function Sidebar() {
   const { currentPath, navigate } = useRouter();
 
-  const links = [
-    { path: '/', label: 'Dashboard' },
-    { path: '/pdv', label: 'PDV' },
-    { path: '/estoque', label: 'Estoque' },
-  ];
-
   return (
     <aside className={styles.sidebar}>
-      <nav>
+      <nav aria-label="Navegação principal">
         <ul className={styles.navList}>
-          {links.map((link) => (
+          {NAV_LINKS.map((link) => (
             <li key={link.path}>
               <a
                 href={`#${link.path}`}

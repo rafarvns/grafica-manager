@@ -1,6 +1,6 @@
 # Feature: Print Recording and Accounting
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,21 +8,21 @@ Registrar automaticamente todos os eventos de impressão (data, hora, documento,
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Registrar cada impressão com timestamp, documento, parâmetros (papel, qualidade, CMYK, DPI) e pedido vinculado
-- [ ] RF2 — Capturar status de impressão (sucesso, erro, cancelada)
-- [ ] RF3 — Calcular e registrar custo no momento da impressão com base na tabela de preços unitários configurada pelo usuário
-- [ ] RF4 — Custo registrado é imutável — mudanças futuras na tabela de preços não retroagem
-- [ ] RF5 — Listar histórico de impressões com filtros (período, documento, pedido, status)
-- [ ] RF6 — Armazenar informações de erro para troubleshooting posterior
-- [ ] RF7 — CRUD da tabela de preços unitários (ex.: "Sulfite A4 PB econômico = R$ 0,30/pág")
+- [x] RF1 — Registrar cada impressão com timestamp, documento, parâmetros (papel, qualidade, CMYK, DPI) e pedido vinculado
+- [x] RF2 — Capturar status de impressão (sucesso, erro, cancelada)
+- [x] RF3 — Calcular e registrar custo no momento da impressão com base na tabela de preços unitários configurada pelo usuário
+- [x] RF4 — Custo registrado é imutável — mudanças futuras na tabela de preços não retroagem
+- [x] RF5 — Listar histórico de impressões com filtros (período, documento, pedido, status)
+- [x] RF6 — Armazenar informações de erro para troubleshooting posterior
+- [x] RF7 — CRUD da tabela de preços unitários (ex.: "Sulfite A4 PB econômico = R$ 0,30/pág")
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Registro assíncrono (não bloqueia o fluxo de impressão)
-- [ ] RNF2 — Histórico de impressões mantido indefinidamente (sem expiração)
-- [ ] RNF3 — Registros são imutáveis após criação (auditoria — sem UPDATE, sem DELETE)
-- [ ] RNF4 — Query de histórico otimizada com índices (suporta filtros múltiplos sem timeout)
-- [ ] RNF5 — Arquivos do cliente (PDFs) disponíveis enquanto o pedido estiver ativo; quando o servidor de arquivos os expirar, o registro de impressão permanece, mas sem o arquivo
+- [x] RNF1 — Registro assíncrono (não bloqueia o fluxo de impressão)
+- [x] RNF2 — Histórico de impressões mantido indefinidamente (sem expiração)
+- [x] RNF3 — Registros são imutáveis após criação (auditoria — sem UPDATE, sem DELETE)
+- [x] RNF4 — Query de histórico otimizada com índices (suporta filtros múltiplos sem timeout)
+- [x] RNF5 — Arquivos do cliente (PDFs) disponíveis enquanto o pedido estiver ativo; quando o servidor de arquivos os expirar, o registro de impressão permanece, mas sem o arquivo
 
 ## Critérios de Aceite
 

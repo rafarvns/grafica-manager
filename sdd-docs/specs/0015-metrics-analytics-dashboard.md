@@ -1,6 +1,6 @@
 # Feature: Metrics and Analytics Dashboard
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,14 +8,14 @@ Implementar um dashboard com visualizações de KPIs do negócio (impressões, p
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Exibir 7 KPIs principais (ver lista abaixo)
-- [ ] RF2 — Gráfico de tendência de impressões (últimos 7 dias)
-- [ ] RF3 — Gráfico de distribuição de pedidos por origem (Shopee vs. manual)
-- [ ] RF4 — Tabela de top 5 clientes por faturamento no período selecionado
-- [ ] RF5 — Análise de custos e margem bruta do período
-- [ ] RF6 — Filtro de período (hoje, semana, mês, período customizado)
-- [ ] RF7 — Botão "Atualizar" para recarregar dados sob demanda (sem polling automático)
-- [ ] RF8 — Export do dashboard como PDF (snapshot dos gráficos e tabelas)
+- [x] RF1 — Exibir 7 KPIs principais (ver lista abaixo)
+- [x] RF2 — Gráfico de tendência de impressões (últimos 7 dias)
+- [x] RF3 — Gráfico de distribuição de pedidos por origem (Shopee vs. manual)
+- [x] RF4 — Tabela de top 5 clientes por faturamento no período selecionado
+- [x] RF5 — Análise de custos e margem bruta do período
+- [x] RF6 — Filtro de período (hoje, semana, mês, período customizado)
+- [x] RF7 — Botão "Atualizar" para recarregar dados sob demanda (sem polling automático)
+- [x] RF8 — Export do dashboard como PDF (snapshot dos gráficos e tabelas)
 
 **KPIs definidos:**
 1. Total de impressões hoje
@@ -28,11 +28,11 @@ Implementar um dashboard com visualizações de KPIs do negócio (impressões, p
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Dados carregados apenas quando usuário clica "Atualizar" (sem polling/refresh automático)
-- [ ] RNF2 — Carregar dashboard em < 3 segundos após clique em "Atualizar" (10k+ registros)
-- [ ] RNF3 — Biblioteca de gráficos: Chart.js (leve, ~50KB gzipped)
-- [ ] RNF4 — Queries com índices e aggregate pushdown (sem N+1)
-- [ ] RNF5 — Sem sistema de cache — dados são calculados frescos a cada "Atualizar"
+- [x] RNF1 — Dados carregados apenas quando usuário clica "Atualizar" (sem polling/refresh automático)
+- [x] RNF2 — Carregar dashboard em < 3 segundos após clique em "Atualizar" (10k+ registros)
+- [x] RNF3 — Biblioteca de gráficos: Chart.js (leve, ~50KB gzipped)
+- [x] RNF4 — Queries com índices e aggregate pushdown (sem N+1)
+- [x] RNF5 — Sem sistema de cache — dados são calculados frescos a cada "Atualizar"
 
 ## Critérios de Aceite
 

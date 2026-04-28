@@ -8,21 +8,21 @@ Estabelecer a fundação do servidor Express — conexão com MySQL via Prisma, 
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — O servidor Express deve iniciar na porta definida em `PORT` (`.env`), respondendo com `200` em `GET /health`.
-- [ ] RF2 — A conexão com o banco MySQL via Prisma deve ser estabelecida na inicialização; falha de conexão deve encerrar o processo com log de erro.
-- [ ] RF3 — Todas as variáveis de ambiente obrigatórias (`DATABASE_URL`, `API_TOKEN`, `PORT`) devem ser lidas, validadas e cacheadas uma única vez ao iniciar (usando Zod ou similar).
-- [ ] RF4 — O sistema de rotas deve registrar um prefixo `/api/v1` e suportar versionamento futuro sem reescrita de rotas existentes.
-- [ ] RF5 — Um middleware de autenticação deve proteger todas as rotas sob `/api/v1`, comparando o header `Authorization: Bearer <token>` com o valor de `API_TOKEN` lido da env.
-- [ ] RF6 — A única rota pública (sem autenticação) é `GET /health`.
-- [ ] RF7 — Erros de autenticação (token ausente ou incorreto) devem retornar `401` com body `{ "error": "string" }`.
-- [ ] RF8 — Suíte de testes unitários cobrindo: validação de env vars, middleware de autenticação.
+- [x] RF1 — O servidor Express deve iniciar na porta definida em `PORT` (`.env`), respondendo com `200` em `GET /health`.
+- [x] RF2 — A conexão com o banco MySQL via Prisma deve ser estabelecida na inicialização; falha de conexão deve encerrar o processo com log de erro.
+- [x] RF3 — Todas as variáveis de ambiente obrigatórias (`DATABASE_URL`, `API_TOKEN`, `PORT`) devem ser lidas, validadas e cacheadas uma única vez ao iniciar (usando Zod ou similar).
+- [x] RF4 — O sistema de rotas deve registrar um prefixo `/api/v1` e suportar versionamento futuro sem reescrita de rotas existentes.
+- [x] RF5 — Um middleware de autenticação deve proteger todas as rotas sob `/api/v1`, comparando o header `Authorization: Bearer <token>` com o valor de `API_TOKEN` lido da env.
+- [x] RF6 — A única rota pública (sem autenticação) é `GET /health`.
+- [x] RF7 — Erros de autenticação (token ausente ou incorreto) devem retornar `401` com body `{ "error": "string" }`.
+- [x] RF8 — Suíte de testes unitários cobrindo: validação de env vars, middleware de autenticação.
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — (performance) Inicialização completa (boot + conexão DB) deve ocorrer em < 3 s em PC com 4 GB RAM / dual-core; variáveis de ambiente não devem ser relidas a cada request.
-- [ ] RNF2 — (segurança) `API_TOKEN` com no mínimo 32 caracteres; validação rejeitada na inicialização se abaixo do mínimo. Comparação de token deve usar comparação em tempo constante (`timingSafeEqual`) para evitar timing attacks.
-- [ ] RNF3 — (resiliência) Falha de conexão ao banco na inicialização deve logar a causa raiz e fazer `process.exit(1)`; não deve tentar servir requests sem DB.
-- [ ] RNF4 — (manutenibilidade) Zero `any` no TypeScript; `strict: true` habilitado; imports absolutos via `@/`.
+- [x] RNF1 — (performance) Inicialização completa (boot + conexão DB) deve ocorrer em < 3 s em PC com 4 GB RAM / dual-core; variáveis de ambiente não devem ser relidas a cada request.
+- [x] RNF2 — (segurança) `API_TOKEN` com no mínimo 32 caracteres; validação rejeitada na inicialização se abaixo do mínimo. Comparação de token deve usar comparação em tempo constante (`timingSafeEqual`) para evitar timing attacks.
+- [x] RNF3 — (resiliência) Falha de conexão ao banco na inicialização deve logar a causa raiz e fazer `process.exit(1)`; não deve tentar servir requests sem DB.
+- [x] RNF4 — (manutenibilidade) Zero `any` no TypeScript; `strict: true` habilitado; imports absolutos via `@/`.
 
 ## Critérios de Aceite
 

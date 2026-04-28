@@ -1,6 +1,6 @@
 # Feature: Manual Order CRUD
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,22 +8,22 @@ Implementar operações de gerenciamento de pedidos criados manualmente, permiti
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Criar pedido com: cliente (seleção), descrição, quantidade, tipo de papel, dimensões, data limite, preço de venda, custo de produção estimado
-- [ ] RF2 — Listar pedidos com filtros (cliente, status, período, número do pedido)
-- [ ] RF3 — Visualizar detalhe completo do pedido com histórico de mudanças de status
-- [ ] RF4 — Editar pedido — qualquer campo editável exceto quando status for "shipping"
-- [ ] RF5 — Mudar status do pedido livremente entre: rascunho, agendado, em produção, concluído, enviado (shipping), cancelado
-- [ ] RF6 — Cancelar pedido com motivo obrigatório
-- [ ] RF7 — Associar arquivos ao pedido (PDF, imagens) — armazenados em disco local da aplicação
-- [ ] RF8 — Remover arquivo associado ao pedido
+- [x] RF1 — Criar pedido com: cliente (seleção), descrição, quantidade, tipo de papel, dimensões, data limite, preço de venda, custo de produção estimado
+- [x] RF2 — Listar pedidos com filtros (cliente, status, período, número do pedido)
+- [x] RF3 — Visualizar detalhe completo do pedido com histórico de mudanças de status
+- [x] RF4 — Editar pedido — qualquer campo editável exceto quando status for "shipping"
+- [x] RF5 — Mudar status do pedido livremente entre: rascunho, agendado, em produção, concluído, enviado (shipping), cancelado
+- [x] RF6 — Cancelar pedido com motivo obrigatório
+- [x] RF7 — Associar arquivos ao pedido (PDF, imagens) — armazenados em disco local da aplicação
+- [x] RF8 — Remover arquivo associado ao pedido
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Pedido em status "shipping" é read-only (sem edição de nenhum campo)
-- [ ] RNF2 — Transições de status são livres (pode ir de qualquer estado para qualquer outro, exceto: pedido cancelado não pode mudar de status)
-- [ ] RNF3 — Histórico de mudanças de status imutável (quem, quando, de qual para qual)
-- [ ] RNF4 — Paginação eficiente com índices (suporta milhares de pedidos)
-- [ ] RNF5 — Validação: quantidade > 0, preço ≥ 0, custo ≥ 0, cliente existente
+- [x] RNF1 — Pedido em status "shipping" é read-only (sem edição de nenhum campo)
+- [x] RNF2 — Transições de status são livres (pode ir de qualquer estado para qualquer outro, exceto: pedido cancelado não pode mudar de status)
+- [x] RNF3 — Histórico de mudanças de status imutável (quem, quando, de qual para qual)
+- [x] RNF4 — Paginação eficiente com índices (suporta milhares de pedidos)
+- [x] RNF5 — Validação: quantidade > 0, preço ≥ 0, custo ≥ 0, cliente existente
 
 ## Critérios de Aceite
 

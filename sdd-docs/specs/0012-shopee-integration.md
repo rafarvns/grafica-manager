@@ -1,6 +1,6 @@
 # Feature: Shopee Integration (Webhook + API)
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,22 +8,22 @@ Integrar com a plataforma Shopee para receber pedidos automaticamente via webhoo
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Autenticar com Shopee API usando token estático configurado em `.env` (sem OAuth)
-- [ ] RF2 — Receber webhook de novo pedido Shopee e criar pedido interno automaticamente
-- [ ] RF3 — Criar cliente automaticamente se o comprador Shopee ainda não existir no sistema
-- [ ] RF4 — Receber webhook de cancelamento Shopee e mudar status do pedido interno para "cancelado"
-- [ ] RF5 — Atualizar status de entrega na Shopee quando pedido interno muda para "shipping"
-- [ ] RF6 — Registrar todos os webhooks recebidos como eventos auditáveis no banco
-- [ ] RF7 — Sincronização manual de pedidos (catch-up) via endpoint acionado pelo usuário
+- [x] RF1 — Autenticar com Shopee API usando token estático configurado em `.env` (sem OAuth)
+- [x] RF2 — Receber webhook de novo pedido Shopee e criar pedido interno automaticamente
+- [x] RF3 — Criar cliente automaticamente se o comprador Shopee ainda não existir no sistema
+- [x] RF4 — Receber webhook de cancelamento Shopee e mudar status do pedido interno para "cancelado"
+- [x] RF5 — Atualizar status de entrega na Shopee quando pedido interno muda para "shipping"
+- [x] RF6 — Registrar todos os webhooks recebidos como eventos auditáveis no banco
+- [x] RF7 — Sincronização manual de pedidos (catch-up) via endpoint acionado pelo usuário
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Token Shopee armazenado exclusivamente em `.env`, nunca em código ou logs
-- [ ] RNF2 — Validação HMAC de todo webhook recebido antes de qualquer processamento
-- [ ] RNF3 — Idempotência: processar o mesmo webhook N vezes = resultado igual a 1 vez
-- [ ] RNF4 — Processamento assíncrono via Bull + Redis (webhook responde 202 imediatamente)
-- [ ] RNF5 — Retry automático com backoff exponencial (3 tentativas) para falhas de API Shopee
-- [ ] RNF6 — Rate limit da API Shopee respeitado pela fila de jobs
+- [x] RNF1 — Token Shopee armazenado exclusivamente em `.env`, nunca em código ou logs
+- [x] RNF2 — Validação HMAC de todo webhook recebido antes de qualquer processamento
+- [x] RNF3 — Idempotência: processar o mesmo webhook N vezes = resultado igual a 1 vez
+- [x] RNF4 — Processamento assíncrono via Bull + Redis (webhook responde 202 imediatamente)
+- [x] RNF5 — Retry automático com backoff exponencial (3 tentativas) para falhas de API Shopee
+- [x] RNF6 — Rate limit da API Shopee respeitado pela fila de jobs
 
 ## Critérios de Aceite
 

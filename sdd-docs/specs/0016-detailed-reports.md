@@ -1,6 +1,6 @@
 # Feature: Detailed Reports
 
-> Status: `draft` · Autor: rafarvns · Data: 2026-04-27
+> Status: `implemented` · Autor: rafarvns · Data: 2026-04-27
 
 ## Contexto
 
@@ -8,27 +8,27 @@ Implementar sistema de relatórios detalhados por múltiplas dimensões (períod
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Relatório por período (dia, semana, mês, trimestre, ano, período customizado) — **período é obrigatório**
-- [ ] RF2 — Filtro por cliente (opcional)
-- [ ] RF3 — Filtro por origem do pedido (Shopee, manual, ou todos)
-- [ ] RF4 — Filtro por tipo de papel (opcional)
-- [ ] RF5 — Agrupamento customizável (agrupar por cliente / papel / origem / período)
-- [ ] RF6 — Colunas sempre exibidas: quantidade de impressões, custo total, receita total, margem bruta (%)
-- [ ] RF7 — Ordenação por qualquer coluna (ASC/DESC)
-- [ ] RF8 — Paginação de resultados (25, 50, 100 linhas por página)
-- [ ] RF9 — Export em PDF: download direto (não armazenado no servidor)
-- [ ] RF10 — Export em CSV: download direto
-- [ ] RF11 — Export em Excel (.xlsx): download direto
-- [ ] RF12 — Relatório de margens por cliente: receita, custo, margem bruta (%), margem líquida (%)
+- [x] RF1 — Relatório por período (dia, semana, mês, trimestre, ano, período customizado) — **período é obrigatório**
+- [x] RF2 — Filtro por cliente (opcional)
+- [x] RF3 — Filtro por origem do pedido (Shopee, manual, ou todos)
+- [x] RF4 — Filtro por tipo de papel (opcional)
+- [x] RF5 — Agrupamento customizável (agrupar por cliente / papel / origem / período)
+- [x] RF6 — Colunas sempre exibidas: quantidade de impressões, custo total, receita total, margem bruta (%)
+- [x] RF7 — Ordenação por qualquer coluna (ASC/DESC)
+- [x] RF8 — Paginação de resultados (25, 50, 100 linhas por página)
+- [x] RF9 — Export em PDF: download direto (não armazenado no servidor)
+- [x] RF10 — Export em CSV: download direto
+- [x] RF11 — Export em Excel (.xlsx): download direto
+- [x] RF12 — Relatório de margens por cliente: receita, custo, margem bruta (%), margem líquida (%)
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — Período obrigatório em todos os relatórios (sem relatório "de tudo sem filtro de data")
-- [ ] RNF2 — Geração sem bloqueio de UI (background job para datasets grandes; download quando pronto)
-- [ ] RNF3 — Sem limite de linhas para export — usar streaming para arquivos grandes
-- [ ] RNF4 — Relatórios não são armazenados no servidor — disponibilizados para download imediato e descartados
-- [ ] RNF5 — Queries otimizadas com índices compostos (período + cliente + origem)
-- [ ] RNF6 — Sem agendamento automático de relatórios (out of scope)
+- [x] RNF1 — Período obrigatório em todos os relatórios (sem relatório "de tudo sem filtro de data")
+- [x] RNF2 — Geração sem bloqueio de UI (background job para datasets grandes; download quando pronto)
+- [x] RNF3 — Sem limite de linhas para export — usar streaming para arquivos grandes
+- [x] RNF4 — Relatórios não são armazenados no servidor — disponibilizados para download imediato e descartados
+- [x] RNF5 — Queries otimizadas com índices compostos (período + cliente + origem)
+- [x] RNF6 — Sem agendamento automático de relatórios (out of scope)
 
 ## Critérios de Aceite
 

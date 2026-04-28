@@ -12,29 +12,29 @@ O frontend roda dentro do Electron com `contextIsolation: true` e `nodeIntegrati
 
 ## Requisitos Funcionais
 
-- [ ] RF1 — Implementar um router SPA leve e próprio (sem `react-router-dom`) baseado em `History API` ou estado interno, capaz de renderizar páginas via `lazy()` + `Suspense`.
-- [ ] RF2 — O layout base deve compor três zonas fixas: `Sidebar` (navegação principal), `Header` (breadcrumb + ações globais) e `Main` (área de conteúdo da página ativa).
-- [ ] RF3 — A `Sidebar` deve exibir os módulos disponíveis (Dashboard, Clientes, Pedidos, Impressão) com indicação visual da rota ativa; novos módulos devem ser adicionáveis via simples declaração em uma tabela de rotas (`ROUTES`), sem alterar o componente.
-- [ ] RF4 — Todas as páginas (`pages/`) devem ser carregadas via `React.lazy()` com fallback de `Suspense` para evitar bundle monolítico.
-- [ ] RF5 — A camada `services/` deve expor um `apiClient` (fetch wrapper) que injeta automaticamente o header `Authorization: Bearer <token>` lido de `window.env` ou de uma variável de ambiente Vite (`import.meta.env.VITE_API_TOKEN`).
-- [ ] RF6 — A camada IPC deve expor um módulo `ipcBridge.ts` em `services/` que encapsula todas as chamadas a `window.electronAPI`, com tipos derivados da interface declarada em `preload.ts`.
-- [ ] RF7 — Deve existir um `AppProvider` em `contexts/` que compõe todos os contextos globais (ex.: `ThemeContext`, `NotificationContext`) e é renderizado uma única vez em `main.tsx`, envolvendo o router e o layout.
-- [ ] RF8 — Deve existir um `ThemeContext` que persiste a preferência light/dark no `localStorage` e aplica a variante via atributo `data-theme` no `<html>`, alterando os CSS tokens sem rerender desnecessário.
-- [ ] RF9 — Deve existir um `NotificationContext` que expõe `notify(message, type)` para exibir toasts não-bloqueantes, gerenciados internamente por fila (sem dependência de biblioteca externa).
-- [ ] RF10 — Primitivos UI (`Button`, `Input`, `Select`, `Modal`, `Spinner`, `Badge`) devem ser criados em `components/ui/` com suporte completo a teclado, `aria-*` e foco visível.
+- [x] RF1 — Implementar um router SPA leve e próprio (sem `react-router-dom`) baseado em `History API` ou estado interno, capaz de renderizar páginas via `lazy()` + `Suspense`.
+- [x] RF2 — O layout base deve compor três zonas fixas: `Sidebar` (navegação principal), `Header` (breadcrumb + ações globais) e `Main` (área de conteúdo da página ativa).
+- [x] RF3 — A `Sidebar` deve exibir os módulos disponíveis (Dashboard, Clientes, Pedidos, Impressão) com indicação visual da rota ativa; novos módulos devem ser adicionáveis via simples declaração em uma tabela de rotas (`ROUTES`), sem alterar o componente.
+- [x] RF4 — Todas as páginas (`pages/`) devem ser carregadas via `React.lazy()` com fallback de `Suspense` para evitar bundle monolítico.
+- [x] RF5 — A camada `services/` deve expor um `apiClient` (fetch wrapper) que injeta automaticamente o header `Authorization: Bearer <token>` lido de `window.env` ou de uma variável de ambiente Vite (`import.meta.env.VITE_API_TOKEN`).
+- [x] RF6 — A camada IPC deve expor um módulo `ipcBridge.ts` em `services/` que encapsula todas as chamadas a `window.electronAPI`, com tipos derivados da interface declarada em `preload.ts`.
+- [x] RF7 — Deve existir um `AppProvider` em `contexts/` que compõe todos os contextos globais (ex.: `ThemeContext`, `NotificationContext`) e é renderizado uma única vez em `main.tsx`, envolvendo o router e o layout.
+- [x] RF8 — Deve existir um `ThemeContext` que persiste a preferência light/dark no `localStorage` e aplica a variante via atributo `data-theme` no `<html>`, alterando os CSS tokens sem rerender desnecessário.
+- [x] RF9 — Deve existir um `NotificationContext` que expõe `notify(message, type)` para exibir toasts não-bloqueantes, gerenciados internamente por fila (sem dependência de biblioteca externa).
+- [x] RF10 — Primitivos UI (`Button`, `Input`, `Select`, `Modal`, `Spinner`, `Badge`) devem ser criados em `components/ui/` com suporte completo a teclado, `aria-*` e foco visível.
 
 ---
 
 ## Requisitos Não-Funcionais
 
-- [ ] RNF1 — (performance) O bundle inicial (chunk carregado antes de qualquer lazy page) deve ser inferior a **150 KB gzip**. Medir com `vite build --report` ou `rollup-plugin-visualizer`.
-- [ ] RNF2 — (performance) Cada página lazy carregada individualmente não deve exceder **80 KB gzip** no respectivo chunk de página.
-- [ ] RNF3 — (performance / memória) Em PC com 4 GB RAM e dual-core, a janela Electron deve atingir o estado interativo (TTI) em menos de **2 s** a partir do boot do processo renderer. Zero animações CSS com `@keyframes` pesadas no caminho crítico de renderização.
-- [ ] RNF4 — (escalabilidade) Adicionar um novo módulo (ex.: `Estoque`) deve exigir apenas: (1) criar `pages/Estoque/` com o componente lazy, (2) inserir uma entrada na tabela `ROUTES`. Nenhuma outra alteração estrutural deve ser necessária.
-- [ ] RNF5 — (type-safety) Zero `any` em toda a camada `services/`, `contexts/` e `hooks/`. `strict: true` e `noUncheckedIndexedAccess: true` habilitados no `tsconfig.json` do frontend.
-- [ ] RNF6 — (acessibilidade) Todos os primitivos UI devem passar no teste automatizado de acessibilidade com `axe-core` (via Vitest). Foco visível obrigatório em todos os elementos interativos.
-- [ ] RNF7 — (manutenibilidade) CSS tokens globais definidos exclusivamente em `src/index.css` via variáveis CSS (`--color-*`, `--space-*`, `--font-*`). Módulos de componente apenas referenciam tokens; nunca duplicam valores de cor ou espaçamento.
-- [ ] RNF8 — (segurança) O `API_TOKEN` **nunca** deve aparecer no bundle de produção como string literal. O renderer deve recebê-lo via variável de ambiente Vite (`VITE_API_TOKEN`) ou via IPC Bridge solicitando ao main process.
+- [x] RNF1 — (performance) O bundle inicial (chunk carregado antes de qualquer lazy page) deve ser inferior a **150 KB gzip**. Medir com `vite build --report` ou `rollup-plugin-visualizer`.
+- [x] RNF2 — (performance) Cada página lazy carregada individualmente não deve exceder **80 KB gzip** no respectivo chunk de página.
+- [x] RNF3 — (performance / memória) Em PC com 4 GB RAM e dual-core, a janela Electron deve atingir o estado interativo (TTI) em menos de **2 s** a partir do boot do processo renderer. Zero animações CSS com `@keyframes` pesadas no caminho crítico de renderização.
+- [x] RNF4 — (escalabilidade) Adicionar um novo módulo (ex.: `Estoque`) deve exigir apenas: (1) criar `pages/Estoque/` com o componente lazy, (2) inserir uma entrada na tabela `ROUTES`. Nenhuma outra alteração estrutural deve ser necessária.
+- [x] RNF5 — (type-safety) Zero `any` em toda a camada `services/`, `contexts/` e `hooks/`. `strict: true` e `noUncheckedIndexedAccess: true` habilitados no `tsconfig.json` do frontend.
+- [x] RNF6 — (acessibilidade) Todos os primitivos UI devem passar no teste automatizado de acessibilidade com `axe-core` (via Vitest). Foco visível obrigatório em todos os elementos interativos.
+- [x] RNF7 — (manutenibilidade) CSS tokens globais definidos exclusivamente em `src/index.css` via variáveis CSS (`--color-*`, `--space-*`, `--font-*`). Módulos de componente apenas referenciam tokens; nunca duplicam valores de cor ou espaçamento.
+- [x] RNF8 — (segurança) O `API_TOKEN` **nunca** deve aparecer no bundle de produção como string literal. O renderer deve recebê-lo via variável de ambiente Vite (`VITE_API_TOKEN`) ou via IPC Bridge solicitando ao main process.
 
 ---
 
