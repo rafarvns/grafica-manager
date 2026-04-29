@@ -1,0 +1,136 @@
+/**
+ * Arte Papel — Gráfica Manager
+ * Design Tokens: Colors & Typography
+ * Source: packages/frontend/src/index.css (rafarvns/grafica-manager)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ─── Brand Colors (from logo) ─── */
+  --brand-rose:    #d97b8a;   /* primary pink/rose — logo "papel" text */
+  --brand-lavender:#9b7ec8;   /* purple — logo "ar" */
+  --brand-amber:   #e8a84a;   /* gold/amber — logo "t" */
+  --brand-sage:    #7ab5a0;   /* sage green — logo "e" */
+  --brand-cream:   #faf3ec;   /* off-white background of logo badge */
+
+  /* ─── Primary (App blue) ─── */
+  --color-primary:       #1a56db;
+  --color-primary-dark:  #1e429f;
+  --color-primary-hover: #1648c2;
+  --color-primary-light: rgba(26, 86, 219, 0.15);
+
+  /* ─── Semantic ─── */
+  --color-success:       #0e9f6e;
+  --color-success-light: #d1fae5;
+  --color-warning:       #c27803;
+  --color-warning-light: #fef3c7;
+  --color-danger:        #e02424;
+  --color-danger-light:  #fee2e2;
+  --color-error:         #e02424;
+  --color-error-light:   #fee2e2;
+
+  /* ─── Neutrals ─── */
+  --color-secondary:     #6b7280;
+  --color-bg:            #f3f4f6;
+  --color-surface:       #ffffff;
+  --color-surface-hover: #f9fafb;
+  --color-border:        #e5e7eb;
+  --color-text:          #111827;
+  --color-text-muted:    #6b7280;
+
+  /* ─── Sidebar ─── */
+  --color-sidebar-bg:        #1e2433;
+  --color-sidebar-text:      #c9d1e0;
+  --color-sidebar-active:    #ffffff;
+  --color-sidebar-active-bg: #1a56db;
+
+  /* ─── Chart Palette ─── */
+  --chart-orange: #f97316;
+  --chart-blue:   #3b82f6;
+  --chart-green:  #22c55e;
+  --chart-purple: #a855f7;
+
+  /* ─── Layout ─── */
+  --sidebar-width: 240px;
+  --header-height: 56px;
+
+  /* ─── Spacing ─── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ─── Typography ─── */
+  /* NOTE: The app uses system-ui. DM Sans is substituted here as a
+     close match — warm, neutral, geometric sans with good legibility
+     at small sizes. Flag: replace with original font if available. */
+  --font-family:   'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:     'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --font-size-xs:   0.75rem;   /* 12px */
+  --font-size-sm:   0.875rem;  /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-md:   1rem;
+  --font-size-lg:   1.125rem;  /* 18px */
+  --font-size-xl:   1.25rem;   /* 20px */
+  --font-size-2xl:  1.5rem;    /* 24px */
+  --font-size-3xl:  1.875rem;  /* 30px */
+
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  --line-height-tight: 1.25;
+  --line-height-base:  1.5;
+
+  /* ─── Semantic Type ─── */
+  --h1-size:   var(--font-size-3xl);
+  --h1-weight: var(--font-weight-bold);
+  --h2-size:   var(--font-size-2xl);
+  --h2-weight: var(--font-weight-bold);
+  --h3-size:   var(--font-size-xl);
+  --h3-weight: var(--font-weight-semibold);
+  --h4-size:   var(--font-size-lg);
+  --h4-weight: var(--font-weight-semibold);
+  --body-size: var(--font-size-base);
+  --body-weight: var(--font-weight-normal);
+  --caption-size: var(--font-size-xs);
+  --label-size: var(--font-size-sm);
+  --label-weight: var(--font-weight-medium);
+
+  /* ─── Border Radius ─── */
+  --radius-xs:   2px;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  /* ─── Shadows ─── */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* ─── Z-index ─── */
+  --z-base:     0;
+  --z-raised:   10;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-modal:    1000;
+  --z-toast:    9999;
+
+  /* ─── Transitions ─── */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+}

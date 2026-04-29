@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: white; font-family: var(--font-family); padding: 20px 24px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .label { font-size: 11px; color: #9ca3af; width: 60px; }
+  button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 6px 14px; font-family: inherit; font-size: 0.875rem; font-weight: 500;
+    border-radius: 8px; border: 1px solid transparent; cursor: pointer; transition: all 150ms ease;
+  }
+  .primary { background: #1a56db; color: white; border-color: #1a56db; }
+  .primary:hover { background: #1648c2; }
+  .secondary { background: white; color: #111827; border-color: #e5e7eb; }
+  .secondary:hover { background: #f9fafb; }
+  .ghost { background: transparent; color: #6b7280; border-color: transparent; }
+  .ghost:hover { background: #f9fafb; color: #111827; }
+  .danger { background: #e02424; color: white; border-color: #e02424; }
+  .success { background: #0e9f6e; color: white; border-color: #0e9f6e; }
+  .disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="label">primary</div>
+    <button class="primary">Atualizar</button>
+    <button class="primary disabled" disabled>Desabilitado</button>
+  </div>
+  <div class="row">
+    <div class="label">secondary</div>
+    <button class="secondary">Exportar PDF</button>
+    <button class="secondary disabled" disabled>Desabilitado</button>
+  </div>
+  <div class="row">
+    <div class="label">ghost</div>
+    <button class="ghost">Cancelar</button>
+  </div>
+  <div class="row">
+    <div class="label">danger</div>
+    <button class="danger">Excluir</button>
+  </div>
+  <div class="row">
+    <div class="label">success</div>
+    <button class="success">Confirmar</button>
+  </div>
+</body>
+</html>

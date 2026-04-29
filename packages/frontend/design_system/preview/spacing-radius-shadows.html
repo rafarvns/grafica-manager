@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: #f3f4f6; font-family: var(--font-family); padding: 20px 24px; display: flex; gap: 32px; }
+  .group { display: flex; flex-direction: column; gap: 10px; }
+  .title { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .radius-row { display: flex; gap: 10px; align-items: center; }
+  .r-box { width: 40px; height: 40px; background: #1a56db; }
+  .r-label { font-size: 11px; color: #6b7280; }
+  .shadow-box { background: white; width: 60px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 10px; color: #6b7280; }
+</style>
+</head>
+<body>
+  <div class="group">
+    <div class="title">Border Radius</div>
+    <div class="radius-row"><div class="r-box" style="border-radius:2px;"></div><div class="r-label">xs — 2px</div></div>
+    <div class="radius-row"><div class="r-box" style="border-radius:4px;"></div><div class="r-label">sm — 4px</div></div>
+    <div class="radius-row"><div class="r-box" style="border-radius:8px;"></div><div class="r-label">md — 8px</div></div>
+    <div class="radius-row"><div class="r-box" style="border-radius:12px;"></div><div class="r-label">lg — 12px</div></div>
+    <div class="radius-row"><div class="r-box" style="border-radius:16px;"></div><div class="r-label">xl — 16px</div></div>
+    <div class="radius-row"><div class="r-box" style="border-radius:9999px;width:60px;"></div><div class="r-label">full</div></div>
+  </div>
+  <div class="group">
+    <div class="title">Shadows</div>
+    <div class="shadow-box" style="box-shadow:0 1px 2px 0 rgb(0 0 0/0.05);">xs</div>
+    <div class="shadow-box" style="box-shadow:0 1px 3px 0 rgb(0 0 0/0.1),0 1px 2px -1px rgb(0 0 0/0.1);">sm</div>
+    <div class="shadow-box" style="box-shadow:0 4px 6px -1px rgb(0 0 0/0.1),0 2px 4px -2px rgb(0 0 0/0.1);">md</div>
+    <div class="shadow-box" style="box-shadow:0 10px 15px -3px rgb(0 0 0/0.1),0 4px 6px -4px rgb(0 0 0/0.1);">lg</div>
+    <div class="shadow-box" style="box-shadow:0 20px 25px -5px rgb(0 0 0/0.1),0 8px 10px -6px rgb(0 0 0/0.1);">xl</div>
+  </div>
+</body>
+</html>

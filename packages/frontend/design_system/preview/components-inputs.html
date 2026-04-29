@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: white; font-family: var(--font-family); padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 0.875rem; font-weight: 500; color: #111827; }
+  input, select, textarea {
+    width: 260px; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
+    font-family: inherit; font-size: 1rem; color: #111827; background: white;
+    outline: none; transition: border-color 150ms, box-shadow 150ms; box-sizing: border-box;
+  }
+  input:focus, select:focus { border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,0.15); }
+  .error-input { border-color: #e02424; }
+  .error-msg { font-size: 0.875rem; color: #e02424; }
+  textarea { height: 72px; resize: none; }
+</style>
+</head>
+<body>
+  <div class="field">
+    <label>Nome do cliente</label>
+    <input type="text" placeholder="Ex: Maria Souza" />
+  </div>
+  <div class="field">
+    <label>Origem do pedido</label>
+    <select><option>Shopee</option><option>Mercado Livre</option><option>Manual</option></select>
+  </div>
+  <div class="field">
+    <label>Observações</label>
+    <textarea placeholder="Notas internas..."></textarea>
+  </div>
+  <div class="field">
+    <label>E-mail</label>
+    <input type="email" class="error-input" value="email-invalido" />
+    <span class="error-msg">E-mail inválido</span>
+  </div>
+</body>
+</html>

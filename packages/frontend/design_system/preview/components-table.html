@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: white; font-family: var(--font-family); padding: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  th { padding: 10px 14px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb; }
+  td { padding: 10px 14px; border-bottom: 1px solid #e5e7eb; color: #111827; }
+  tr:hover td { background: #f9fafb; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+  .success { background: #d1fae5; color: #0e9f6e; }
+  .warning { background: #fef3c7; color: #c27803; }
+  .primary { background: rgba(26,86,219,0.15); color: #1e429f; }
+</style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Cliente</th><th>Origem</th><th>Status</th><th>Valor</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1042</td><td>Maria Souza</td><td>Shopee</td><td><span class="badge primary">Em Produção</span></td><td>R$ 240,00</td></tr>
+      <tr><td>1041</td><td>João Lima</td><td>Manual</td><td><span class="badge success">Concluído</span></td><td>R$ 180,00</td></tr>
+      <tr><td>1040</td><td>Ana Costa</td><td>Mercado Livre</td><td><span class="badge warning">Aguardando</span></td><td>R$ 95,00</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>

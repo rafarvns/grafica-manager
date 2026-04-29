@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: var(--color-bg); font-family: var(--font-family); padding: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch { border-radius: 8px; overflow: hidden; flex: 1; min-width: 80px; }
+  .color-block { height: 64px; }
+  .label { padding: 6px 8px; background: white; border: 1px solid #e5e7eb; border-top: none; }
+  .name { font-size: 11px; font-weight: 600; color: #111827; }
+  .hex  { font-size: 10px; color: #6b7280; }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="swatch">
+    <div class="color-block" style="background:#d97b8a;"></div>
+    <div class="label"><div class="name">Rose</div><div class="hex">#d97b8a</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#9b7ec8;"></div>
+    <div class="label"><div class="name">Lavender</div><div class="hex">#9b7ec8</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#e8a84a;"></div>
+    <div class="label"><div class="name">Amber</div><div class="hex">#e8a84a</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#7ab5a0;"></div>
+    <div class="label"><div class="name">Sage</div><div class="hex">#7ab5a0</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#faf3ec;border:1px solid #e5e7eb;"></div>
+    <div class="label"><div class="name">Cream</div><div class="hex">#faf3ec</div></div>
+  </div>
+</div>
+</body>
+</html>

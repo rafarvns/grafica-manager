@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: #e5e7eb; font-family: var(--font-family); padding: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch { border-radius: 8px; overflow: hidden; flex: 1; min-width: 70px; border: 1px solid #d1d5db; }
+  .color-block { height: 64px; }
+  .label { padding: 6px 8px; background: white; border-top: 1px solid #e5e7eb; }
+  .name { font-size: 11px; font-weight: 600; color: #111827; }
+  .hex  { font-size: 10px; color: #6b7280; }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="swatch">
+    <div class="color-block" style="background:#111827;"></div>
+    <div class="label"><div class="name">Text</div><div class="hex">#111827</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#6b7280;"></div>
+    <div class="label"><div class="name">Muted</div><div class="hex">#6b7280</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#e5e7eb;"></div>
+    <div class="label"><div class="name">Border</div><div class="hex">#e5e7eb</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#f3f4f6;"></div>
+    <div class="label"><div class="name">BG</div><div class="hex">#f3f4f6</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#f9fafb;"></div>
+    <div class="label"><div class="name">Surf Hover</div><div class="hex">#f9fafb</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#ffffff;"></div>
+    <div class="label"><div class="name">Surface</div><div class="hex">#ffffff</div></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: var(--color-bg); font-family: var(--font-family); padding: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch { border-radius: 8px; overflow: hidden; flex: 1; min-width: 80px; }
+  .color-block { height: 64px; }
+  .label { padding: 6px 8px; background: white; border: 1px solid #e5e7eb; border-top: none; }
+  .name { font-size: 11px; font-weight: 600; color: #111827; }
+  .hex  { font-size: 10px; color: #6b7280; }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="swatch">
+    <div class="color-block" style="background:#1a56db;"></div>
+    <div class="label"><div class="name">Primary</div><div class="hex">#1a56db</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#1648c2;"></div>
+    <div class="label"><div class="name">Hover</div><div class="hex">#1648c2</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:#1e429f;"></div>
+    <div class="label"><div class="name">Dark</div><div class="hex">#1e429f</div></div>
+  </div>
+  <div class="swatch">
+    <div class="color-block" style="background:rgba(26,86,219,0.15);"></div>
+    <div class="label"><div class="name">Light</div><div class="hex">rgba 15%</div></div>
+  </div>
+</div>
+</body>
+</html>

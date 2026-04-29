@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: #f3f4f6; font-family: var(--font-family); padding: 20px 24px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px 0 rgb(0 0 0/0.1); width: 220px; overflow: hidden; }
+  .card-header { padding: 14px 16px; border-bottom: 1px solid #e5e7eb; }
+  .card-title { font-size: 1rem; font-weight: 700; color: #111827; margin: 0; }
+  .card-body { padding: 14px 16px; }
+  .card-body p { font-size: 0.875rem; color: #6b7280; margin: 0; }
+  .card-footer { padding: 10px 16px; background: #f9fafb; border-top: 1px solid #e5e7eb; font-size: 0.75rem; color: #9ca3af; }
+  .kpi { background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px 0 rgb(0 0 0/0.1); padding: 16px; width: 160px; }
+  .kpi-label { font-size: 0.75rem; color: #6b7280; margin-bottom: 6px; }
+  .kpi-value { font-size: 1.5rem; font-weight: 700; color: #111827; }
+  .kpi-sub { font-size: 0.75rem; color: #9ca3af; margin-top: 4px; }
+  .kpi.highlight .kpi-value { color: #1a56db; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header"><h3 class="card-title">Pedido #1042</h3></div>
+    <div class="card-body"><p>Impressão A4 CMYK — 500 unidades<br>Cliente: Maria Souza</p></div>
+    <div class="card-footer">Criado em 28/04/2026</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Faturamento</div>
+    <div class="kpi-value highlight" style="color:#1a56db;">R$ 12.400</div>
+    <div class="kpi-sub">Este mês</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Pedidos em aberto</div>
+    <div class="kpi-value">37</div>
+    <div class="kpi-sub">Shopee: 22 · Manual: 15</div>
+  </div>
+</body>
+</html>

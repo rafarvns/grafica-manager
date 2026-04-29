@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: white; font-family: var(--font-family); padding: 20px 24px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .badge {
+    display: inline-flex; align-items: center; padding: 2px 8px;
+    border-radius: 4px; font-size: 0.75rem; font-weight: 500; line-height: 1.25;
+  }
+  .default { background: #e5e7eb; color: #6b7280; }
+  .success { background: #d1fae5; color: #0e9f6e; }
+  .warning { background: #fef3c7; color: #c27803; }
+  .danger  { background: #fee2e2; color: #e02424; }
+  .primary { background: rgba(26,86,219,0.15); color: #1e429f; }
+  .label-title { font-size: 11px; color: #9ca3af; width: 100%; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+  <div class="label-title">Status Badges</div>
+  <div class="row">
+    <span class="badge default">Rascunho</span>
+    <span class="badge primary">Em Produção</span>
+    <span class="badge warning">Aguardando</span>
+    <span class="badge success">Concluído</span>
+    <span class="badge danger">Cancelado</span>
+  </div>
+  <div class="label-title">Ordem / Pedidos</div>
+  <div class="row">
+    <span class="badge default">Manual</span>
+    <span class="badge warning">Shopee</span>
+    <span class="badge primary">Mercado Livre</span>
+    <span class="badge success">Entregue</span>
+  </div>
+</body>
+</html>

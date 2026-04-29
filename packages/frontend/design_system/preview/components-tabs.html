@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; background: white; font-family: var(--font-family); padding: 20px 24px; }
+  .nav { display: flex; gap: 2px; border-bottom: 2px solid #e5e7eb; margin-bottom: 16px; }
+  .tab { padding: 8px 16px; font-size: 0.875rem; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; transition: all 150ms; }
+  .tab.active { color: #1a56db; border-bottom-color: #1a56db; }
+  .tab:hover:not(.active) { color: #111827; }
+  .period-nav { display: flex; gap: 2px; background: #f3f4f6; border-radius: 8px; padding: 4px; }
+  .period-btn { background: transparent; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.875rem; color: #6b7280; cursor: pointer; }
+  .period-btn.active { background: white; color: #1a56db; font-weight: 500; box-shadow: 0 1px 3px rgb(0 0 0/0.1); }
+  .section { margin-top: 16px; }
+  .title { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+  <div class="section">
+    <div class="title">Tabs</div>
+    <div class="nav">
+      <div class="tab active">Detalhes</div>
+      <div class="tab">Arquivos</div>
+      <div class="tab">Impressões</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="title">Period Selector</div>
+    <div class="period-nav">
+      <button class="period-btn">Hoje</button>
+      <button class="period-btn active">Últimos 7 dias</button>
+      <button class="period-btn">Esta semana</button>
+      <button class="period-btn">Este mês</button>
+    </div>
+  </div>
+</body>
+</html>
