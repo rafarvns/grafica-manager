@@ -1,18 +1,20 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { AppLayout } from '@/layout/AppLayout';
 import { AppProvider } from '@/contexts/AppContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import { RouterProvider } from '@/router/HashRouter';
 
-// Para testar adequadamente o layout com seus provedores dependentes
 const renderWithProviders = (ui: React.ReactElement) => {
   return render(
-    <AppProvider>
-      <RouterProvider>
-        {ui}
-      </RouterProvider>
-    </AppProvider>
+    <NotificationProvider>
+      <AppProvider>
+        <RouterProvider>
+          {ui}
+        </RouterProvider>
+      </AppProvider>
+    </NotificationProvider>
   );
 };
 
@@ -24,10 +26,8 @@ describe('AppLayout', () => {
       </AppLayout>
     );
 
-    // Header Title
     expect(screen.getByText('Gráfica Manager')).toBeInTheDocument();
-    
-    // Toggle Button (baseado no aria-label para acessibilidade)
+
     const toggleBtn = screen.getByRole('button', { name: /alternar tema/i });
     expect(toggleBtn).toBeInTheDocument();
   });
@@ -39,10 +39,9 @@ describe('AppLayout', () => {
       </AppLayout>
     );
 
-    // Navigation links na Sidebar
     expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /pdv/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /estoque/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /pedidos/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /clientes/i })).toBeInTheDocument();
   });
 
   it('renderiza o conteúdo principal passado como children e sem violações a11y', () => {

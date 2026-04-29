@@ -9,6 +9,7 @@ describe('apiClient', () => {
   beforeEach(() => {
     mockFetch = vi.fn();
     global.fetch = mockFetch;
+    apiClient.setToken(null);
   });
 
   afterEach(() => {
@@ -24,8 +25,8 @@ describe('apiClient', () => {
     });
 
     const result = await apiClient.get<{ id: number; name: string }>('/users');
-    
-    expect(mockFetch).toHaveBeenCalledWith('/users', {
+
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3333/api/v1/users', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -43,7 +44,7 @@ describe('apiClient', () => {
 
     await apiClient.get('/protected');
 
-    expect(mockFetch).toHaveBeenCalledWith('/protected', {
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3333/api/v1/protected', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ describe('apiClient', () => {
     const payload = { name: 'Novo' };
     await apiClient.post('/create', payload);
 
-    expect(mockFetch).toHaveBeenCalledWith('/create', {
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3333/api/v1/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +79,7 @@ describe('apiClient', () => {
     });
 
     await expect(apiClient.get('/missing')).rejects.toThrowError(ApiError);
-    
+
     try {
       await apiClient.get('/missing');
     } catch (error) {

@@ -6,6 +6,17 @@ import * as pdfjsLib from 'pdfjs-dist';
 // Mock pdfjs-dist
 vi.mock('pdfjs-dist', () => ({
   getDocument: vi.fn(),
+  GlobalWorkerOptions: {
+    workerSrc: '',
+  },
+  version: '3.11.174',
+}));
+
+// Mock ipcBridge — readFile reads PDF bytes via Electron IPC, unavailable in jsdom
+vi.mock('@/services/ipcBridge', () => ({
+  ipcBridge: {
+    readFile: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
+  },
 }));
 
 describe('usePdfPreview', () => {
@@ -48,12 +59,13 @@ describe('usePdfPreview', () => {
       promise: Promise.resolve(mockPdfDocument),
     } as any);
 
-    // Mock HTMLCanvasElement
+    // Mock HTMLCanvasElement — use original implementation for non-canvas elements
+    const originalCreateElement = document.createElement.bind(document);
     vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return mockCanvas as any;
       }
-      return document.createElement(tag);
+      return originalCreateElement(tag);
     });
   });
 
@@ -92,9 +104,8 @@ describe('usePdfPreview', () => {
       const filePath = '/invalid/path.pdf';
       const errorMessage = 'Failed to load PDF';
 
-      vi.mocked(pdfjsLib.getDocument).mockReturnValue({
-        promise: Promise.reject(new Error(errorMessage)),
-      } as any);
+      const { ipcBridge } = await import('@/services/ipcBridge');
+      vi.mocked(ipcBridge.readFile).mockRejectedValueOnce(new Error(errorMessage));
 
       const { result } = renderHook(() => usePdfPreview());
 

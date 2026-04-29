@@ -1,69 +1,74 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ipcMain } from 'electron';
-import ptp from 'pdf-to-printer';
-import { setupPrinterHandlers } from '../../../../electron/ipc/printer';
 import { PrinterStatus } from '../../../../src/types/printer';
 
-// Mock electron
-vi.mock('electron', () => {
-  return {
-    ipcMain: {
-      handle: vi.fn(),
-    },
-    BrowserWindow: {
-      getAllWindows: vi.fn(() => [{
-        webContents: {
-          getPrintersAsync: vi.fn().mockResolvedValue([
-            {
-              name: 'Microsoft Print to PDF',
-              displayName: 'Microsoft Print to PDF',
-              description: 'Local Printer',
-              status: 0,
-              isDefault: true,
-              options: {},
-            },
-            {
-              name: 'Epson L3150',
-              displayName: 'Epson L3150 Series',
-              description: 'Network Printer',
-              status: 8, // PAPER_JAM
-              isDefault: false,
-              options: {},
-            }
-          ])
-        }
-      }])
-    }
+// vi.hoisted ensures these values are created BEFORE vi.mock factories run
+const {
+  ipcHandlers,
+  ipcMainMock,
+  getPrintersAsync,
+  BrowserWindowMock,
+  ptpPrint,
+} = vi.hoisted(() => {
+  const ipcHandlers: Record<string, (...args: unknown[]) => unknown> = {};
+  const ipcMainMock = {
+    handle: vi.fn((channel: string, handler: (...args: unknown[]) => unknown) => {
+      ipcHandlers[channel] = handler;
+    }),
   };
+  const getPrintersAsync = vi.fn().mockResolvedValue([
+    { name: 'Microsoft Print to PDF', displayName: 'Microsoft Print to PDF', status: 0, isDefault: true, options: {} },
+    { name: 'Epson L3150', displayName: 'Epson L3150 Series', status: 8, isDefault: false, options: {} },
+  ]);
+  const BrowserWindowMock = {
+    getAllWindows: vi.fn(() => [{ webContents: { getPrintersAsync } }]),
+  };
+  const ptpPrint = vi.fn().mockResolvedValue(undefined);
+  return { ipcHandlers, ipcMainMock, getPrintersAsync, BrowserWindowMock, ptpPrint };
 });
 
-// Mock pdf-to-printer
-vi.mock('pdf-to-printer', () => {
-  return {
-    default: {
-      print: vi.fn().mockResolvedValue(undefined),
-    }
-  };
-});
+vi.mock('electron', () => ({
+  ipcMain: ipcMainMock,
+  BrowserWindow: BrowserWindowMock,
+}));
+
+vi.mock('pdf-to-printer', () => ({
+  default: { print: ptpPrint },
+}));
+
+vi.mock('fs', () => ({
+  default: { existsSync: vi.fn().mockReturnValue(true) },
+  existsSync: vi.fn().mockReturnValue(true),
+}));
+
+import { setupPrinterHandlers } from '../../../../electron/ipc/printer';
 
 describe('Printer IPC Handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    delete ipcHandlers['printer:get-list'];
+    delete ipcHandlers['printer:print-pdf'];
+    ipcMainMock.handle.mockImplementation((channel: string, handler: (...args: unknown[]) => unknown) => {
+      ipcHandlers[channel] = handler;
+    });
+    getPrintersAsync.mockResolvedValue([
+      { name: 'Microsoft Print to PDF', displayName: 'Microsoft Print to PDF', status: 0, isDefault: true, options: {} },
+      { name: 'Epson L3150', displayName: 'Epson L3150 Series', status: 8, isDefault: false, options: {} },
+    ]);
+    ptpPrint.mockResolvedValue(undefined);
   });
 
   it('should register IPC handlers', () => {
     setupPrinterHandlers();
-    expect(ipcMain.handle).toHaveBeenCalledWith('printer:get-list', expect.any(Function));
-    expect(ipcMain.handle).toHaveBeenCalledWith('printer:print-pdf', expect.any(Function));
+    expect(ipcMainMock.handle).toHaveBeenCalledWith('printer:get-list', expect.any(Function));
+    expect(ipcMainMock.handle).toHaveBeenCalledWith('printer:print-pdf', expect.any(Function));
   });
 
   it('should fetch printers from webContents', async () => {
     setupPrinterHandlers();
-    const getPrintersHandler = vi.mocked(ipcMain.handle).mock.calls.find(call => call[0] === 'printer:get-list')?.[1];
-    
-    expect(getPrintersHandler).toBeDefined();
-    if (getPrintersHandler) {
-      const printers = await getPrintersHandler({} as any);
+    const handler = ipcHandlers['printer:get-list'];
+    expect(handler).toBeDefined();
+    if (handler) {
+      const printers = await handler({}) as Array<Record<string, unknown>>;
       expect(printers).toHaveLength(2);
       expect(printers[0].name).toBe('Microsoft Print to PDF');
       expect(printers[1].status).toBe(PrinterStatus.PAPER_JAM);
@@ -72,23 +77,21 @@ describe('Printer IPC Handlers', () => {
 
   it('should call pdf-to-printer to print a file', async () => {
     setupPrinterHandlers();
-    const printPdfHandler = vi.mocked(ipcMain.handle).mock.calls.find(call => call[0] === 'printer:print-pdf')?.[1];
-    
-    expect(printPdfHandler).toBeDefined();
-    if (printPdfHandler) {
-      const result = await printPdfHandler({} as any, 'C:\\test.pdf', { printer: 'Epson L3150', copies: 2 });
+    const handler = ipcHandlers['printer:print-pdf'];
+    expect(handler).toBeDefined();
+    if (handler) {
+      const result = await handler({}, 'C:\\test.pdf', { printer: 'Epson L3150', copies: 2 });
       expect(result).toBe(true);
-      expect(ptp.print).toHaveBeenCalledWith('C:\\test.pdf', { printer: 'Epson L3150', copies: 2 });
+      expect(ptpPrint).toHaveBeenCalledWith('C:\\test.pdf', { printer: 'Epson L3150', copies: 2 });
     }
   });
 
   it('should return false if print throws an error', async () => {
-    vi.mocked(ptp.print).mockRejectedValueOnce(new Error('Printer not found'));
+    ptpPrint.mockRejectedValueOnce(new Error('Printer not found'));
     setupPrinterHandlers();
-    const printPdfHandler = vi.mocked(ipcMain.handle).mock.calls.find(call => call[0] === 'printer:print-pdf')?.[1];
-    
-    if (printPdfHandler) {
-      const result = await printPdfHandler({} as any, 'C:\\test.pdf', { printer: 'Invalid' });
+    const handler = ipcHandlers['printer:print-pdf'];
+    if (handler) {
+      const result = await handler({}, 'C:\\test.pdf', { printer: 'Invalid' });
       expect(result).toBe(false);
     }
   });

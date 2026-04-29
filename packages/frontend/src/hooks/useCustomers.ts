@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { apiClient } from '@/services/apiClient';
 
 export interface Customer {
@@ -240,6 +240,10 @@ export function useCustomers(): UseCustomersReturn {
     },
     []
   );
+
+  useEffect(() => {
+    listCustomers();
+  }, [listCustomers]);
 
   return {
     customers,

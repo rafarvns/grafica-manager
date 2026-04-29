@@ -188,7 +188,7 @@ describe('usePrintConfiguration', () => {
       });
 
       expect(result.current.presets).toContainEqual(
-        expect.objectMatching({ id: 'preset-new', name: 'Novo Preset' })
+        expect.objectContaining({ id: 'preset-new', name: 'Novo Preset' })
       );
     });
 

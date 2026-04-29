@@ -24,8 +24,9 @@ export function useCustomerForm(
     zipCode: initialValues?.zipCode ?? '',
   });
 
+  const formRef = useRef<CustomerFormData>(form);
   const [errors, setErrors] = useState<Partial<Record<keyof CustomerFormData, string>>>({});
-  const debounceTimer = useRef<NodeJS.Timeout>();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
   const lastCheckedEmail = useRef<string>('');
 
   const updateField = useCallback(
@@ -35,9 +36,9 @@ export function useCustomerForm(
         trimmedValue = value.trim();
       }
 
-      setForm((prev) => ({ ...prev, [field]: trimmedValue }));
+      formRef.current = { ...formRef.current, [field]: trimmedValue };
+      setForm(formRef.current);
 
-      // Email uniqueness check with debounce
       if (field === 'email' && trimmedValue !== lastCheckedEmail.current) {
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
@@ -62,19 +63,20 @@ export function useCustomerForm(
   );
 
   const validate = () => {
+    const currentForm = formRef.current;
     const newErrors: Partial<Record<keyof CustomerFormData, string>> = {};
 
-    if (!form.name) {
+    if (!currentForm.name) {
       newErrors.name = 'Nome é obrigatório';
     }
 
-    if (!form.email) {
+    if (!currentForm.email) {
       newErrors.email = 'Email é obrigatório';
-    } else if (!isValidEmail(form.email)) {
+    } else if (!isValidEmail(currentForm.email)) {
       newErrors.email = 'Email inválido';
     }
 
-    if (form.zipCode && !isValidZipCode(form.zipCode)) {
+    if (currentForm.zipCode && !isValidZipCode(currentForm.zipCode)) {
       newErrors.zipCode = 'CEP deve estar no formato 00000-000';
     }
 
@@ -82,10 +84,14 @@ export function useCustomerForm(
     return Object.keys(newErrors).length === 0;
   };
 
-  const isValid = Boolean(form.name && form.email && isValidEmail(form.email));
+  const isValid = Boolean(
+    formRef.current.name &&
+    formRef.current.email &&
+    isValidEmail(formRef.current.email)
+  );
 
   const reset = useCallback(() => {
-    setForm({
+    const empty: CustomerFormData = {
       name: '',
       email: '',
       phone: '',
@@ -93,7 +99,9 @@ export function useCustomerForm(
       city: '',
       state: '',
       zipCode: '',
-    });
+    };
+    setForm(empty);
+    formRef.current = empty;
     setErrors({});
     lastCheckedEmail.current = '';
   }, []);

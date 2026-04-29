@@ -32,7 +32,14 @@
       "Bash(pnpm dev:desktop)",
       "Bash(pnpm --filter @grafica/backend run test:unit)",
       "Bash(pnpm --filter @grafica/backend run test:unit -- --reporter=verbose)",
-      "Bash(pnpm --filter @grafica/frontend run test:unit)"
+      "Bash(pnpm --filter @grafica/frontend run test:unit)",
+      "Bash(python3 -c ' *)",
+      "Bash(pnpm --filter backend test)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(pnpm --filter backend run test:unit)",
+      "Bash(pnpm --filter frontend run test:unit)",
+      "Bash(pnpm --filter frontend run test:unit -- --reporter=verbose)",
+      "Bash(pnpm --filter frontend test:unit)"
     ]
   }
 }

@@ -97,7 +97,7 @@ describe('useCustomers', () => {
       });
 
       expect(apiClient.apiClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('name=João')
+        expect.stringContaining('name=Jo%C3%A3o')
       );
       expect(result.current.customers.length).toBe(1);
     });
@@ -119,7 +119,7 @@ describe('useCustomers', () => {
       });
 
       expect(apiClient.apiClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('city=São Paulo')
+        expect.stringContaining('city=S%C3%A3o+Paulo')
       );
     });
 
@@ -140,10 +140,10 @@ describe('useCustomers', () => {
       });
 
       expect(apiClient.apiClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('name=João')
+        expect.stringContaining('name=Jo%C3%A3o')
       );
       expect(apiClient.apiClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('city=São Paulo')
+        expect.stringContaining('city=S%C3%A3o+Paulo')
       );
     });
   });

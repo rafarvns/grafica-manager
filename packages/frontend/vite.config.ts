@@ -9,6 +9,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
       '@grafica/shared': resolve(__dirname, '../shared/src/index.ts'),
     },
+    extensions: ['.ts', '.tsx', '.mts', '.mjs', '.js', '.jsx', '.json'],
   },
   build: {
     outDir: 'dist/renderer',
@@ -28,6 +29,11 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src'),
       '@grafica/shared': resolve(__dirname, '../shared/src/index.ts'),
+    },
+    server: {
+      deps: {
+        inline: ['electron'],
+      },
     },
     coverage: {
       provider: 'v8',

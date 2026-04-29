@@ -15,8 +15,10 @@ export function ToastContainer() {
       {notifications.map((notification) => (
         <Toast
           key={notification.id}
-          notification={notification}
-          onDismiss={() => removeNotification(notification.id)}
+          id={notification.id}
+          message={notification.message}
+          type={notification.type}
+          onClose={() => removeNotification(notification.id)}
         />
       ))}
     </div>
