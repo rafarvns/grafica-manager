@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { printJobService } from '@/services/printJobService';
 import { priceTableService } from '@/services/priceTableService';
+import { paperTypeService, PaperType } from '@/services/paperTypeService';
 import type {
   PrintJobDTO,
   PrintJobDetailDTO,
@@ -58,10 +59,12 @@ interface UsePrintHistoryReturn {
 
   // Tabela de preços (mantido para compatibilidade)
   priceTable: PriceTableEntry[];
+  paperTypes: PaperType[];
   createPriceEntry: (paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
   updatePriceEntry: (id: string, data: UpdatePriceTableEntryDTO) => Promise<void>;
   deletePriceEntry: (id: string) => Promise<void>;
   fetchPriceTable: () => Promise<void>;
+  fetchPaperTypes: () => Promise<void>;
   getPriceForPaperTypeAndQuality: (paperTypeId: string, quality: string, colors: string) => PriceTableEntry | null;
 }
 
@@ -102,6 +105,7 @@ export function usePrintHistory(): UsePrintHistoryReturn {
 
   // Tabela de preços (mantido para compatibilidade)
   const [priceTable, setPriceTable] = useState<PriceTableEntry[]>([]);
+  const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
 
   // Debounce timer
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -215,7 +219,7 @@ export function usePrintHistory(): UsePrintHistoryReturn {
 
   // Filtros
   const setFilters = useCallback((newFilters: Partial<PrintJobFilters>) => {
-    setFiltersState((prev) => ({ ...prev, ...newFilters }));
+    setFiltersState((prev: PrintJobFilters) => ({ ...prev, ...newFilters }));
   }, []);
 
   const applyFilters = useCallback(async () => {
@@ -302,6 +306,17 @@ export function usePrintHistory(): UsePrintHistoryReturn {
     }
   }, []);
 
+  const fetchPaperTypes = useCallback(async () => {
+    try {
+      setError(null);
+      const types = await paperTypeService.listPaperTypes({ activeOnly: true });
+      setPaperTypes(types);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar tipos de papel';
+      setError(errorMessage);
+    }
+  }, []);
+
   const getPriceForPaperTypeAndQuality = useCallback((paperTypeId: string, quality: string, colors: string): PriceTableEntry | null => {
     return priceTable.find((entry) => entry.paperTypeId === paperTypeId && entry.quality === quality && entry.colors === colors) || null;
   }, [priceTable]);
@@ -335,6 +350,8 @@ export function usePrintHistory(): UsePrintHistoryReturn {
     updatePriceEntry,
     deletePriceEntry,
     fetchPriceTable,
+    paperTypes,
+    fetchPaperTypes,
     getPriceForPaperTypeAndQuality,
   };
 }

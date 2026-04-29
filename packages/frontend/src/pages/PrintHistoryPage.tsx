@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePrintHistory } from '@/hooks/usePrintHistory';
 import { PrintHistoryFilters } from '@/components/domain/PrintHistoryFilters';
 import { PrintHistoryTable } from '@/components/domain/PrintHistoryTable';
@@ -33,16 +33,27 @@ export function PrintHistoryPage() {
     exportJobs,
     stats,
     priceTable,
+    paperTypes,
     createPriceEntry,
     updatePriceEntry,
     deletePriceEntry,
     fetchPriceTable,
-    getPriceForPaperTypeAndQuality,
+    fetchPaperTypes,
+    fetchStats,
   } = usePrintHistory();
 
   const [activeTab, setActiveTab] = useState<'history' | 'prices'>('history');
   const [showReprocessModal, setShowReprocessModal] = useState(false);
   const [reprocessJobId, setReprocessJobId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (activeTab === 'prices') {
+      fetchPriceTable();
+      fetchPaperTypes();
+    } else {
+      fetchStats();
+    }
+  }, [activeTab, fetchPriceTable, fetchPaperTypes, fetchStats]);
 
   const handleJobClick = async (job: PrintJobDTO) => {
     await fetchPrintJobDetail(job.id);
@@ -173,12 +184,13 @@ export function PrintHistoryPage() {
         ) : (
           <div role="tabpanel" id="prices-panel" aria-labelledby="prices-tab">
             <PriceTableManager
-            priceTable={priceTable}
-            onPricesUpdated={fetchPriceTable}
-            onCreate={createPriceEntry}
-            onUpdate={updatePriceEntry}
-            onDelete={deletePriceEntry}
-          />
+              priceTable={priceTable}
+              paperTypes={paperTypes}
+              onPricesUpdated={fetchPriceTable}
+              onCreate={createPriceEntry}
+              onUpdate={updatePriceEntry}
+              onDelete={deletePriceEntry}
+            />
           </div>
         )}
       </div>

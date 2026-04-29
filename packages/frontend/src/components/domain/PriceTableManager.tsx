@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { PriceTableEntry } from '@/hooks/usePrintHistory';
+import { PaperType } from '@/services/paperTypeService';
 import type { ColorMode } from '@grafica/shared/types';
 import styles from './PriceTableManager.module.css';
 
 interface PriceTableManagerProps {
   priceTable: PriceTableEntry[];
+  paperTypes: PaperType[];
   onPricesUpdated: () => void;
   onCreate: (paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
   onUpdate: (id: string, unitPrice: number) => Promise<void>;
@@ -16,6 +18,7 @@ const COLORS: ColorMode[] = ['P&B', 'colorido'];
 
 export function PriceTableManager({
   priceTable,
+  paperTypes,
   onPricesUpdated,
   onCreate,
   onUpdate,
@@ -144,17 +147,22 @@ export function PriceTableManager({
         <form className={styles.createForm} onSubmit={handleCreateSubmit}>
           <div className={styles.formField}>
             <label htmlFor="paper-type">Tipo de Papel:</label>
-            <input
+            <select
               id="paper-type"
-              type="text"
               data-testid="new-price-paper-type"
-              placeholder="ex: paper-001"
               value={newPrice.paperTypeId}
               onChange={(e) =>
                 setNewPrice({ ...newPrice, paperTypeId: e.target.value })
               }
               disabled={loading}
-            />
+            >
+              <option value="">Selecione o papel</option>
+              {paperTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name} ({type.size || 'N/A'})
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.formField}>
@@ -254,7 +262,9 @@ export function PriceTableManager({
             ) : (
               priceTable.map((entry) => (
                 <tr key={entry.id}>
-                  <td>{entry.paperTypeId}</td>
+                  <td>
+                    {paperTypes.find(t => t.id === entry.paperTypeId)?.name || entry.paperTypeId}
+                  </td>
                   <td className={styles.quality}>
                     {entry.quality.charAt(0).toUpperCase() + entry.quality.slice(1)}
                   </td>
