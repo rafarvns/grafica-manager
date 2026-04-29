@@ -19,7 +19,7 @@ const renderWithProviders = (ui: React.ReactElement) => {
 };
 
 describe('AppLayout', () => {
-  it('renderiza o header com título do sistema e toggle de tema', () => {
+  it('renderiza o header com título do sistema', () => {
     renderWithProviders(
       <AppLayout>
         <div>Conteúdo Principal</div>
@@ -27,9 +27,6 @@ describe('AppLayout', () => {
     );
 
     expect(screen.getByText('Gráfica Manager')).toBeInTheDocument();
-
-    const toggleBtn = screen.getByRole('button', { name: /alternar tema/i });
-    expect(toggleBtn).toBeInTheDocument();
   });
 
   it('renderiza a sidebar com os links de navegação principais', () => {

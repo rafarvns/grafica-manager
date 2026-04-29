@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { OrdersPage as Orders } from '@/pages/OrdersPage';
 import { useOrders } from '@/hooks/useOrders';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { RouterProvider } from '@/router/HashRouter';
 
 vi.mock('@/hooks/useOrders', () => ({
   useOrders: vi.fn(),
@@ -29,7 +30,9 @@ describe('Orders Page', () => {
   const renderPage = () => {
     return render(
       <NotificationProvider>
-        <Orders />
+        <RouterProvider>
+          <Orders />
+        </RouterProvider>
       </NotificationProvider>
     );
   };
