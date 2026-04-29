@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { PriceTableEntry } from '@/hooks/usePrintHistory';
+import type { ColorMode } from '@grafica/shared/types';
 import styles from './PriceTableManager.module.css';
 
 interface PriceTableManagerProps {
   priceTable: PriceTableEntry[];
   onPricesUpdated: () => void;
-  onCreate: (paperTypeId: string, quality: string, unitPrice: number) => Promise<void>;
+  onCreate: (paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
   onUpdate: (id: string, unitPrice: number) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
-const QUALITIES = ['rascunho', 'normal', 'alta'];
+const QUALITIES = ['rascunho', 'padrão', 'premium'];
+const COLORS: ColorMode[] = ['P&B', 'colorido'];
 
 export function PriceTableManager({
   priceTable,
@@ -27,19 +29,20 @@ export function PriceTableManager({
 
   const [newPrice, setNewPrice] = useState({
     paperTypeId: '',
-    quality: 'normal',
+    quality: 'rascunho',
+    colors: 'P&B' as ColorMode,
     unitPrice: '',
   });
 
   const handleCreateClick = () => {
     setShowCreateForm(true);
-    setNewPrice({ paperTypeId: '', quality: 'normal', unitPrice: '' });
+    setNewPrice({ paperTypeId: '', quality: 'rascunho', colors: 'P&B', unitPrice: '' });
   };
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!newPrice.paperTypeId || !newPrice.unitPrice) {
+    if (!newPrice.paperTypeId || !newPrice.unitPrice || !newPrice.colors) {
       setMessage({ type: 'error', text: 'Preencha todos os campos.' });
       return;
     }
@@ -52,7 +55,7 @@ export function PriceTableManager({
 
     try {
       setLoading(true);
-      await onCreate(newPrice.paperTypeId, newPrice.quality, unitPrice);
+      await onCreate(newPrice.paperTypeId, newPrice.quality, newPrice.colors, unitPrice);
       setMessage({ type: 'success', text: 'Preço criado com sucesso!' });
       setShowCreateForm(false);
       onPricesUpdated();
@@ -174,6 +177,25 @@ export function PriceTableManager({
           </div>
 
           <div className={styles.formField}>
+            <label htmlFor="colors">Tipo de Cor:</label>
+            <select
+              id="colors"
+              data-testid="new-price-colors"
+              value={newPrice.colors}
+              onChange={(e) =>
+                setNewPrice({ ...newPrice, colors: e.target.value as ColorMode })
+              }
+              disabled={loading}
+            >
+              {COLORS.map((c) => (
+                <option key={c} value={c}>
+                  {c === 'P&B' ? 'P&B' : 'Colorido'}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.formField}>
             <label htmlFor="unit-price">Preço Unitário (R$):</label>
             <input
               id="unit-price"
@@ -217,6 +239,7 @@ export function PriceTableManager({
             <tr>
               <th>Tipo de Papel</th>
               <th>Qualidade</th>
+              <th>Tipo de Cor</th>
               <th>Preço Unitário</th>
               <th>Ações</th>
             </tr>
@@ -224,7 +247,7 @@ export function PriceTableManager({
           <tbody>
             {priceTable.length === 0 ? (
               <tr>
-                <td colSpan={4} className={styles.emptyCell}>
+                <td colSpan={5} className={styles.emptyCell}>
                   Nenhuma entrada de preço configurada.
                 </td>
               </tr>
@@ -234,6 +257,9 @@ export function PriceTableManager({
                   <td>{entry.paperTypeId}</td>
                   <td className={styles.quality}>
                     {entry.quality.charAt(0).toUpperCase() + entry.quality.slice(1)}
+                  </td>
+                  <td>
+                    {entry.colors === 'P&B' ? 'P&B' : 'Colorido'}
                   </td>
                   <td>
                     {editingId === entry.id ? (

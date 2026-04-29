@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { PriceTableManager } from '@/components/domain/PriceTableManager';
+import { usePriceTable } from '@/hooks/usePriceTable';
 import styles from './SettingsPage.module.css';
 
 type SettingsTab = 'paper' | 'prices' | 'presets';
 
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('paper');
+  const { prices, createPrice, updatePrice, deletePrice, fetchPrices } = usePriceTable();
 
   return (
     <div className={styles.container}>
@@ -43,8 +46,13 @@ export function SettingsPage() {
         )}
         {activeTab === 'prices' && (
           <section>
-            <h2>Tabela de Preços</h2>
-            <p>Em breve: Configuração de preços por combinação.</p>
+            <PriceTableManager
+              priceTable={prices}
+              onPricesUpdated={fetchPrices}
+              onCreate={createPrice}
+              onUpdate={updatePrice}
+              onDelete={deletePrice}
+            />
           </section>
         )}
         {activeTab === 'presets' && (

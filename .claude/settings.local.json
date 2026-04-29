@@ -43,7 +43,10 @@
       "Bash(git add *)",
       "Bash(git reset *)",
       "Bash(git commit -m ' *)",
-      "Bash(pnpm --filter frontend test:unit --reporter=verbose)"
+      "Bash(pnpm --filter frontend test:unit --reporter=verbose)",
+      "Bash(pnpm --filter frontend test tests/unit/components/domain/PriceTableManager.spec.tsx)",
+      "Bash(rm -rf .vitest)",
+      "Bash(pnpm --filter frontend test:unit tests/unit/components/domain/PriceTableManager.spec.tsx)"
     ]
   }
 }

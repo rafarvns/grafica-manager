@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { printJobService } from '@/services/printJobService';
+import { priceTableService } from '@/services/priceTableService';
 import type {
   PrintJobDTO,
   PrintJobDetailDTO,
@@ -9,6 +10,8 @@ import type {
   SortOrder,
   PaginatedPrintJobs,
   ExportFormat,
+  CreatePriceTableEntryDTO,
+  UpdatePriceTableEntryDTO,
 } from '@grafica/shared/types';
 
 export type { PrintJobDTO as PrintJob, PrintJobDetailDTO as PrintJobDetail, PrintJobFilters, PrintJobSortField, SortOrder };
@@ -55,20 +58,14 @@ interface UsePrintHistoryReturn {
 
   // Tabela de preços (mantido para compatibilidade)
   priceTable: PriceTableEntry[];
-  createPriceEntry: (paperTypeId: string, quality: string, unitPrice: number) => Promise<void>;
-  updatePriceEntry: (id: string, unitPrice: number) => Promise<void>;
+  createPriceEntry: (paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
+  updatePriceEntry: (id: string, data: UpdatePriceTableEntryDTO) => Promise<void>;
   deletePriceEntry: (id: string) => Promise<void>;
   fetchPriceTable: () => Promise<void>;
-  getPriceForPaperTypeAndQuality: (paperTypeId: string, quality: string) => PriceTableEntry | null;
+  getPriceForPaperTypeAndQuality: (paperTypeId: string, quality: string, colors: string) => PriceTableEntry | null;
 }
 
-export interface PriceTableEntry {
-  id: string;
-  paperTypeId: string;
-  quality: 'rascunho' | 'normal' | 'alta';
-  unitPrice: number;
-  createdAt: Date;
-}
+export type PriceTableEntry = import('@grafica/shared/types').PriceTableEntry;
 
 const DEFAULT_FILTERS: PrintJobFilters = {
   page: 1,
@@ -260,30 +257,20 @@ export function usePrintHistory(): UsePrintHistoryReturn {
   const fetchPriceTable = useCallback(async () => {
     try {
       setError(null);
-      const response = await fetch('/api/v1/price-table');
-      if (!response.ok) throw new Error('Erro ao carregar tabela de preços');
-      const entries = await response.json();
-      setPriceTable(entries.map((entry: any) => ({
-        ...entry,
-        createdAt: new Date(entry.createdAt),
-      })));
+      const entries = await priceTableService.getPrices();
+      setPriceTable(entries);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar tabela de preços';
       setError(errorMessage);
     }
   }, []);
 
-  const createPriceEntry = useCallback(async (paperTypeId: string, quality: string, unitPrice: number) => {
+  const createPriceEntry = useCallback(async (paperTypeId: string, quality: string, colors: string, unitPrice: number) => {
     try {
       setError(null);
-      const response = await fetch('/api/v1/price-table', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paperTypeId, quality, unitPrice }),
-      });
-      if (!response.ok) throw new Error('Erro ao criar preço');
-      const newEntry = await response.json();
-      setPriceTable((prev) => [...prev, { ...newEntry, createdAt: new Date(newEntry.createdAt) }]);
+      const data: CreatePriceTableEntryDTO = { paperTypeId, quality, colors, unitPrice };
+      const newEntry = await priceTableService.createPrice(data);
+      setPriceTable((prev) => [...prev, newEntry]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao criar preço';
       setError(errorMessage);
@@ -291,17 +278,11 @@ export function usePrintHistory(): UsePrintHistoryReturn {
     }
   }, []);
 
-  const updatePriceEntry = useCallback(async (id: string, unitPrice: number) => {
+  const updatePriceEntry = useCallback(async (id: string, data: UpdatePriceTableEntryDTO) => {
     try {
       setError(null);
-      const response = await fetch(`/api/v1/price-table/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ unitPrice }),
-      });
-      if (!response.ok) throw new Error('Erro ao atualizar preço');
-      const updated = await response.json();
-      setPriceTable((prev) => prev.map((entry) => (entry.id === id ? { ...updated, createdAt: new Date(updated.createdAt) } : entry)));
+      const updated = await priceTableService.updatePrice(id, data);
+      setPriceTable((prev) => prev.map((entry) => (entry.id === id ? updated : entry)));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao atualizar preço';
       setError(errorMessage);
@@ -312,8 +293,7 @@ export function usePrintHistory(): UsePrintHistoryReturn {
   const deletePriceEntry = useCallback(async (id: string) => {
     try {
       setError(null);
-      const response = await fetch(`/api/v1/price-table/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Erro ao deletar preço');
+      await priceTableService.deletePrice(id);
       setPriceTable((prev) => prev.filter((entry) => entry.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao deletar preço';
@@ -322,8 +302,8 @@ export function usePrintHistory(): UsePrintHistoryReturn {
     }
   }, []);
 
-  const getPriceForPaperTypeAndQuality = useCallback((paperTypeId: string, quality: string): PriceTableEntry | null => {
-    return priceTable.find((entry) => entry.paperTypeId === paperTypeId && entry.quality === quality) || null;
+  const getPriceForPaperTypeAndQuality = useCallback((paperTypeId: string, quality: string, colors: string): PriceTableEntry | null => {
+    return priceTable.find((entry) => entry.paperTypeId === paperTypeId && entry.quality === quality && entry.colors === colors) || null;
   }, [priceTable]);
 
   return {
