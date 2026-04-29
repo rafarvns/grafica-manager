@@ -8,23 +8,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease-out;
+  z-index: var(--z-modal);
+  animation: fadeIn var(--transition-fast) ease-out;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .modal {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   width: 90%;
@@ -37,67 +33,67 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
 }
 
 .closeButton {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: var(--font-size-2xl);
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-muted);
   padding: 0;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s, color 0.2s;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .closeButton:hover {
-  background-color: #f0f0f0;
-  color: #000;
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
-  gap: 20px;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  gap: var(--space-5);
 }
 
 .navigationControls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .navigationControls button {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s, border-color 0.2s;
+  font-size: var(--font-size-sm);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .navigationControls button:hover:not(:disabled) {
-  background-color: #e8e8e8;
-  border-color: #999;
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-text-muted);
 }
 
 .navigationControls button:disabled {
@@ -106,8 +102,8 @@
 }
 
 .pageInfo {
-  font-size: 14px;
-  color: #666;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   min-width: 60px;
   text-align: center;
 }
@@ -115,9 +111,9 @@
 .pageInput {
   width: 50px;
   padding: 6px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
   text-align: center;
 }
 
@@ -129,22 +125,22 @@
 .zoomControls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .zoomControls button {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   width: 40px;
-  transition: background-color 0.2s;
+  transition: background-color var(--transition-fast);
 }
 
 .zoomControls button:hover:not(:disabled) {
-  background-color: #e8e8e8;
+  background-color: var(--color-surface-hover);
 }
 
 .zoomControls button:disabled {
@@ -153,8 +149,8 @@
 }
 
 .zoomLevel {
-  font-size: 14px;
-  color: #666;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   min-width: 45px;
   text-align: center;
 }
@@ -172,11 +168,11 @@
 .content {
   flex: 1;
   overflow: auto;
-  background-color: #fafafa;
+  background-color: var(--color-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: var(--space-4);
 }
 
 .canvasContainer {
@@ -190,55 +186,53 @@
 .canvas {
   max-width: 100%;
   max-height: 100%;
-  border: 1px solid #ddd;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .spinner {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
-  font-size: 16px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
 }
 
 .spinner::before {
   content: '';
   width: 30px;
   height: 30px;
-  margin-right: 12px;
-  border: 3px solid #f0f0f0;
-  border-top-color: #333;
+  margin-right: var(--space-3);
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-text);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .error {
-  color: #d32f2f;
-  padding: 16px;
-  background-color: #ffebee;
-  border-radius: 4px;
+  color: var(--color-danger);
+  padding: var(--space-4);
+  background-color: var(--color-danger-light);
+  border-radius: var(--radius-sm);
   text-align: center;
 }
 
 .footer {
-  padding: 12px 16px;
-  border-top: 1px solid #e0e0e0;
-  background-color: #f8f9fa;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg);
   text-align: center;
 }
 
 .footerText {
   margin: 0;
-  font-size: 12px;
-  color: #999;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 /* Responsividade */
@@ -250,7 +244,7 @@
 
   .toolbar {
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-3);
   }
 
   .navigationControls {

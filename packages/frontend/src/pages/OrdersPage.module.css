@@ -1,5 +1,5 @@
 .container {
-  padding: 2rem;
+  padding: var(--space-8);
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -8,97 +8,97 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-8);
 }
 
 .titleSection h1 {
   margin: 0;
-  font-size: 1.875rem;
-  font-weight: 800;
-  color: var(--text-primary, #111827);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
   letter-spacing: -0.025em;
 }
 
 .titleSection p {
-  margin: 0.25rem 0 0 0;
-  color: var(--text-secondary, #6b7280);
+  margin: var(--space-1) 0 0 0;
+  color: var(--color-text-muted);
 }
 
 .createButton {
-  background: var(--primary-color, #3b82f6);
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-surface);
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.875rem;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
-  transition: all 0.2s;
+  gap: var(--space-2);
+  box-shadow: var(--shadow-md);
+  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .createButton:hover {
-  background: var(--primary-hover, #2563eb);
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-lg);
 }
 
 .plus {
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
   line-height: 1;
 }
 
 .toolbar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .viewToggle {
-  background: var(--bg-secondary, #f3f4f6);
-  padding: 0.25rem;
-  border-radius: 8px;
+  background: var(--color-bg);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
   display: flex;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .toggleButton {
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   background: transparent;
-  color: var(--text-secondary, #6b7280);
-  transition: all 0.2s;
+  color: var(--color-text-muted);
+  transition: background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .toggleButton.active {
-  background: #ffffff;
-  color: var(--text-primary, #111827);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-xs);
 }
 
 .main {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 .loader {
   text-align: center;
-  padding: 4rem;
-  color: var(--text-secondary, #6b7280);
-  font-weight: 500;
+  padding: var(--space-16);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
 }
 
 .error {
-  background: #fef2f2;
-  border: 1px solid #fee2e2;
-  color: #b91c1c;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
+  background: var(--color-danger-light);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-6);
 }

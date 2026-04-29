@@ -65,10 +65,10 @@ export function OrderList({ orders, onEdit, onMoveOrder }: OrderListProps) {
               <td>
                 <button 
                   onClick={() => onEdit(order)} 
-                  className={styles.editButton}
+                  className={styles.detailsButton}
                   disabled={order.status === 'shipping'}
                 >
-                  Editar
+                  Detalhes
                 </button>
               </td>
             </tr>

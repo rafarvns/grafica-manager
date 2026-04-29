@@ -1,61 +1,61 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .label {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .value {
-  font-size: 1.1rem;
-  color: #fff;
-  font-weight: 500;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
 }
 
 .price {
-  color: #10b981;
+  color: var(--color-success);
 }
 
 .displayRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .editButton {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--color-text-muted);
   cursor: pointer;
-  font-size: 1rem;
-  transition: color 0.2s;
+  font-size: var(--font-size-base);
+  transition: color var(--transition-fast);
 }
 
 .editButton:hover {
-  color: var(--primary-color, #3b82f6);
+  color: var(--color-primary);
 }
 
 .editRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   width: 100%;
 }
 
@@ -63,7 +63,7 @@
   .grid {
     grid-template-columns: 1fr;
   }
-  
+
   .editRow {
     flex-direction: column;
     align-items: flex-start;

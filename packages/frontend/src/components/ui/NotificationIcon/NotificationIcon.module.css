@@ -1,40 +1,40 @@
 .button {
   background: none;
   border: none;
-  color: var(--text-primary);
+  color: var(--color-text);
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: background 0.2s;
+  transition: background var(--transition-fast);
 }
 
 .button:hover {
-  background: var(--bg-hover);
+  background: var(--color-surface-hover);
 }
 
 .active {
-  background: var(--bg-hover);
-  color: var(--primary-color);
+  background: var(--color-surface-hover);
+  color: var(--color-primary);
 }
 
 .badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #ef4444;
-  color: white;
-  font-size: 0.65rem;
-  font-weight: bold;
+  top: var(--space-1);
+  right: var(--space-1);
+  background: var(--color-danger);
+  color: var(--color-surface);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   padding: 2px 5px;
-  border-radius: 10px;
+  border-radius: var(--radius-full);
   min-width: 18px;
   height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--bg-card);
+  border: 2px solid var(--color-surface);
 }

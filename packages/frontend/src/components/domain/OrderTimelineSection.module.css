@@ -3,14 +3,14 @@
 }
 
 .empty {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-muted);
   text-align: center;
-  padding: 32px;
+  padding: var(--space-8);
 }
 
 .timeline {
   position: relative;
-  padding-left: 24px;
+  padding-left: var(--space-6);
 }
 
 .timeline::before {
@@ -20,12 +20,12 @@
   top: 8px;
   bottom: 8px;
   width: 2px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border);
 }
 
 .item {
   position: relative;
-  padding-bottom: 24px;
+  padding-bottom: var(--space-6);
 }
 
 .item:last-child {
@@ -34,42 +34,42 @@
 
 .dot {
   position: absolute;
-  left: -24px;
+  left: calc(var(--space-6) * -1);
   top: 6px;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--primary-color, #3b82f6);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  background: var(--color-primary);
+  box-shadow: 0 0 10px rgba(26, 86, 219, 0.4);
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .action {
-  font-weight: 500;
-  color: #fff;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
 }
 
 .date {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .reason {
-  margin: 4px 0 0;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
   font-style: italic;
 }
 
@@ -77,6 +77,6 @@
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: var(--space-1);
   }
 }

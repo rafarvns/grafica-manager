@@ -1,13 +1,13 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--space-1);
   width: 100%;
 }
 
 .label {
   font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: var(--color-text);
 }
 
@@ -19,16 +19,16 @@
 
 .select {
   width: 100%;
-  appearance: none; /* Remove seta nativa para usarmos a nossa */
-  padding: var(--spacing-sm) var(--spacing-md);
-  padding-right: calc(var(--spacing-md) * 2 + 12px); /* Espaço para o chevron */
-  font-size: var(--font-size-md);
+  appearance: none;
+  padding: var(--space-2) var(--space-3);
+  padding-right: calc(var(--space-3) * 2 + 12px);
+  font-size: var(--font-size-base);
   color: var(--color-text);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   font-family: inherit;
   cursor: pointer;
 }
@@ -39,7 +39,7 @@
 }
 
 .select:disabled {
-  background-color: var(--color-background);
+  background-color: var(--color-bg);
   color: var(--color-text-muted);
   cursor: not-allowed;
 }
@@ -49,13 +49,13 @@
 }
 
 .select.hasError:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 3px var(--color-danger-light);
 }
 
 .chevron {
   position: absolute;
-  right: var(--spacing-md);
-  pointer-events: none; /* Deixa o clique passar para o select nativo */
+  right: var(--space-3);
+  pointer-events: none;
   color: var(--color-text-muted);
   display: flex;
   align-items: center;

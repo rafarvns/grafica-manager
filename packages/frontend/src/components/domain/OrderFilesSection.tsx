@@ -8,9 +8,10 @@ interface OrderFilesSectionProps {
   order: Order;
   onUpload: (file: File) => Promise<void>;
   onDownload: (fileId: string, filename: string) => Promise<void>;
+  onPrint: (fileId: string, filename: string) => void;
 }
 
-export function OrderFilesSection({ order, onUpload, onDownload }: OrderFilesSectionProps) {
+export function OrderFilesSection({ order, onUpload, onDownload, onPrint }: OrderFilesSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -69,6 +70,12 @@ export function OrderFilesSection({ order, onUpload, onDownload }: OrderFilesSec
                   <span className={styles.fileSize}>{formatSize(file.size)}</span>
                 </div>
                 <div className={styles.fileActions}>
+                  <button 
+                    onClick={() => onPrint(file.id, file.originalFilename)} 
+                    className={styles.printButton}
+                  >
+                    Imprimir
+                  </button>
                   <button 
                     onClick={() => onDownload(file.id, file.originalFilename)} 
                     className={styles.actionButton}
