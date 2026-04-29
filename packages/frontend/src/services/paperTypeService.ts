@@ -13,9 +13,9 @@ export interface PaperType {
 
 export interface CreatePaperTypeDTO {
   name: string;
-  gsm?: number;
-  size?: string;
-  color?: string;
+  weight: number;
+  standardSize: string;
+  color: string;
 }
 
 class PaperTypeService {

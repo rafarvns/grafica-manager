@@ -83,18 +83,19 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
       setError(null);
 
       const [paperTypesRes, presetsRes] = await Promise.all([
-        apiClient.get('/api/paper-types'),
-        apiClient.get('/api/print-presets'),
+        apiClient.get<PaperType[]>('/settings/paper-types'),
+        apiClient.get<PrintPreset[]>('/settings/presets'),
       ]);
 
       setPaperTypes(paperTypesRes.data || []);
       setPresets(presetsRes.data || []);
 
       // Se houver paper types, seleciona o primeiro por padrão
-      if (paperTypesRes.data && paperTypesRes.data.length > 0) {
+      if (Array.isArray(paperTypesRes.data) && paperTypesRes.data.length > 0) {
+        const firstId = paperTypesRes.data[0].id;
         setConfiguration((prev) => ({
           ...prev,
-          paperTypeId: paperTypesRes.data[0].id,
+          paperTypeId: firstId,
         }));
       }
     } catch (err) {
@@ -137,7 +138,7 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
     async (name: string) => {
       try {
         setError(null);
-        const response = await apiClient.post('/api/print-presets', {
+        const response = await apiClient.post<PrintPreset>('/settings/presets', {
           name,
           ...configuration,
         });
@@ -168,7 +169,7 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
   const deletePreset = useCallback(async (presetId: string) => {
     try {
       setError(null);
-      await apiClient.delete(`/api/print-presets/${presetId}`);
+      await apiClient.delete(`/settings/presets/${presetId}`);
       setPresets((prev) => prev.filter((p) => p.id !== presetId));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao deletar preset';
@@ -181,7 +182,7 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
     async (name: string, weight: number, size: string, color: string) => {
       try {
         setError(null);
-        const response = await apiClient.post('/api/paper-types', {
+        const response = await apiClient.post<PaperType>('/settings/paper-types', {
           name,
           weight,
           standardSize: size,
@@ -210,7 +211,7 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
   const deletePaperType = useCallback(async (paperTypeId: string) => {
     try {
       setError(null);
-      await apiClient.delete(`/api/paper-types/${paperTypeId}`);
+      await apiClient.delete(`/settings/paper-types/${paperTypeId}`);
       setPaperTypes((prev) => prev.filter((p) => p.id !== paperTypeId));
 
       // Se foi o selecionado, seleciona outro
