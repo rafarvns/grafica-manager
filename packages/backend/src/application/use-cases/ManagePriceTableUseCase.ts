@@ -43,6 +43,9 @@ export class ManagePriceTableUseCase {
 
     // Criar
     const price = await this.priceTableRepository.create({
+      name: input.name,
+      description: input.description,
+      friendlyCode: input.friendlyCode!,
       paperTypeId: input.paperTypeId,
       quality,
       colors,
@@ -52,6 +55,9 @@ export class ManagePriceTableUseCase {
 
     return {
       id: price.id,
+      name: price.name,
+      description: price.description,
+      friendlyCode: price.friendlyCode,
       paperTypeId: price.paperTypeId,
       quality: price.quality,
       colors: price.colors,
@@ -75,12 +81,17 @@ export class ManagePriceTableUseCase {
 
     // Atualizar
     const updated = await this.priceTableRepository.update(input.id, {
+      ...(input.name !== undefined && { name: input.name }),
+      ...(input.description !== undefined && { description: input.description }),
       ...(input.unitPrice !== undefined && { unitPrice: input.unitPrice }),
       ...(input.validUntil !== undefined && { validUntil: input.validUntil }),
     });
 
     return {
       id: updated.id,
+      name: updated.name,
+      description: updated.description,
+      friendlyCode: updated.friendlyCode,
       paperTypeId: updated.paperTypeId,
       quality: updated.quality,
       colors: updated.colors,
@@ -129,6 +140,9 @@ export class ManagePriceTableUseCase {
     const prices = await this.priceTableRepository.findAll();
     return prices.map(p => ({
       id: p.id,
+      name: p.name,
+      description: p.description,
+      friendlyCode: p.friendlyCode,
       paperTypeId: p.paperTypeId,
       quality: p.quality,
       colors: p.colors,

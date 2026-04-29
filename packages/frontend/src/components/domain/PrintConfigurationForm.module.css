@@ -235,8 +235,16 @@
 
 .presetInfo small {
   display: block;
+  font-size: 14px;
+  color: var(--color-text);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.helpText {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-muted);
+  margin-top: 4px;
 }
 
 .presetActions {

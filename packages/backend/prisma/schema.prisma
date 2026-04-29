@@ -112,6 +112,9 @@ model PrintPreset {
 
 model PriceTableEntry {
   id              String   @id @default(uuid())
+  name            String?
+  description     String?  @db.Text
+  friendlyCode    String?  @unique
   paperTypeId     String
   quality         String   // "rascunho", "padrão", "premium"
   colors          String   // "P&B", "colorido"

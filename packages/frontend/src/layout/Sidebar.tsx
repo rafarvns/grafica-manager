@@ -7,6 +7,8 @@ const NAV_LINKS = [
   { path: '/pedidos', label: 'Pedidos' },
   { path: '/clientes', label: 'Clientes' },
   { path: '/impressoes', label: 'Impressões' },
+  { path: '/papeis', label: 'Papéis' },
+  { path: '/produtos', label: 'Produtos' },
   { path: '/relatorios', label: 'Relatórios' },
   { path: '/shopee', label: 'Shopee' },
   { path: '/configuracoes', label: 'Configurações' },

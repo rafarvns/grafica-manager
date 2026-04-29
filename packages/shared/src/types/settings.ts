@@ -33,6 +33,9 @@ export interface PrintPreset {
 
 export interface PriceTableEntry {
   id: ID;
+  name?: string | null | undefined;
+  description?: string | null | undefined;
+  friendlyCode: string;
   paperTypeId: ID;
   paperTypeName?: string;
   quality: PrintQuality;
@@ -67,6 +70,9 @@ export interface CreatePrintPresetDTO {
 export interface UpdatePrintPresetDTO extends Partial<CreatePrintPresetDTO> {}
 
 export interface CreatePriceTableEntryDTO {
+  name?: string | undefined;
+  description?: string | undefined;
+  friendlyCode: string;
   paperTypeId: ID;
   quality: PrintQuality;
   colors: ColorMode;

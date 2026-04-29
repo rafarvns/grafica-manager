@@ -14,11 +14,13 @@ export function PrintConfigurationForm({
   const {
     configuration,
     paperTypes,
+    priceTable,
     presets,
     loading,
     error,
     setColorMode,
     setPaperType,
+    setProduct,
     setQuality,
     setDPI,
     saveAsPreset,
@@ -78,6 +80,29 @@ export function PrintConfigurationForm({
         {/* Formulário de Configuração */}
         <form className={styles.form}>
           <h2 className={styles.title}>Configuração de Impressão</h2>
+
+          {/* Seleção de Produto */}
+          <div className={styles.formGroup}>
+            <label htmlFor="product" className={styles.label}>
+              Produto / Serviço
+            </label>
+            <select
+              id="product"
+              defaultValue=""
+              onChange={(e) => setProduct(e.target.value)}
+              className={styles.select}
+            >
+              <option value="" disabled>Selecione um produto...</option>
+              {priceTable.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.friendlyCode} - {product.name || 'Sem nome'}
+                </option>
+              ))}
+            </select>
+            <p className={styles.helpText}>
+              Ao selecionar um produto, as configurações abaixo serão preenchidas automaticamente.
+            </p>
+          </div>
 
           {/* Color Mode */}
           <div className={styles.formGroup}>

@@ -3,8 +3,8 @@ import { apiClient } from './apiClient';
 export interface PaperType {
   id: string;
   name: string;
-  gsm?: number;
-  size?: string;
+  weight: number;
+  size: string;
   color?: string;
   active: boolean;
   createdAt: string;

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/services/apiClient';
+import { PriceTableEntry } from '@grafica/shared';
 
 export type ColorMode = 'CMYK' | 'RGB' | 'GRAYSCALE';
 export type Quality = 'rascunho' | 'normal' | 'alta';
@@ -35,6 +36,7 @@ interface UsePrintConfigurationReturn {
   // Estados
   configuration: PrintConfiguration;
   paperTypes: PaperType[];
+  priceTable: PriceTableEntry[];
   presets: PrintPreset[];
   loading: boolean;
   error: string | null;
@@ -42,6 +44,7 @@ interface UsePrintConfigurationReturn {
   // Configurações
   setColorMode: (mode: ColorMode) => void;
   setPaperType: (paperTypeId: string) => void;
+  setProduct: (productId: string) => void;
   setQuality: (quality: Quality) => void;
   setDPI: (dpi: DPI) => void;
 
@@ -68,6 +71,7 @@ const DEFAULT_CONFIGURATION: PrintConfiguration = {
 export function usePrintConfiguration(): UsePrintConfigurationReturn {
   const [configuration, setConfiguration] = useState<PrintConfiguration>(DEFAULT_CONFIGURATION);
   const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
+  const [priceTable, setPriceTable] = useState<PriceTableEntry[]>([]);
   const [presets, setPresets] = useState<PrintPreset[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,16 +86,18 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
       setLoading(true);
       setError(null);
 
-      const [paperTypesRes, presetsRes] = await Promise.all([
+      const [paperTypesRes, presetsRes, pricesRes] = await Promise.all([
         apiClient.get<PaperType[]>('/settings/paper-types'),
         apiClient.get<PrintPreset[]>('/settings/presets'),
+        apiClient.get<PriceTableEntry[]>('/settings/prices'),
       ]);
 
-      setPaperTypes(paperTypesRes.data || []);
-      setPresets(presetsRes.data || []);
+      setPaperTypes(paperTypesRes?.data || []);
+      setPresets(presetsRes?.data || []);
+      setPriceTable(pricesRes?.data || []);
 
       // Se houver paper types, seleciona o primeiro por padrão
-      if (Array.isArray(paperTypesRes.data) && paperTypesRes.data.length > 0) {
+      if (paperTypesRes?.data && Array.isArray(paperTypesRes.data) && paperTypesRes.data.length > 0) {
         const firstId = paperTypesRes.data[0].id;
         setConfiguration((prev) => ({
           ...prev,
@@ -119,6 +125,18 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
       paperTypeId,
     }));
   }, []);
+
+  const setProduct = useCallback((productId: string) => {
+    const product = priceTable.find(p => p.id === productId);
+    if (product) {
+      setConfiguration((prev) => ({
+        ...prev,
+        paperTypeId: product.paperTypeId,
+        quality: product.quality as Quality,
+        colorMode: product.colors === 'P&B' ? 'GRAYSCALE' : 'CMYK',
+      }));
+    }
+  }, [priceTable]);
 
   const setQuality = useCallback((quality: Quality) => {
     setConfiguration((prev) => ({
@@ -242,11 +260,13 @@ export function usePrintConfiguration(): UsePrintConfigurationReturn {
   return {
     configuration,
     paperTypes,
+    priceTable,
     presets,
     loading,
     error,
     setColorMode,
     setPaperType,
+    setProduct,
     setQuality,
     setDPI,
     saveAsPreset,

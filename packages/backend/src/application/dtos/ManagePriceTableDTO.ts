@@ -1,4 +1,7 @@
 export interface CreatePriceTableInput {
+  name?: string;
+  description?: string;
+  friendlyCode?: string;
   paperTypeId: string;
   quality: string;
   colors: string;
@@ -8,12 +11,17 @@ export interface CreatePriceTableInput {
 
 export interface UpdatePriceTableInput {
   id: string;
+  name?: string;
+  description?: string;
   unitPrice?: number;
   validUntil?: Date;
 }
 
 export interface PriceTableOutput {
   id: string;
+  name?: string | null | undefined;
+  description?: string | null | undefined;
+  friendlyCode: string;
   paperTypeId: string;
   quality: string;
   colors: string;

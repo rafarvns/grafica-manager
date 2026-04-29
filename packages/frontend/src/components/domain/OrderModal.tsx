@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './OrderModal.module.css';
 import { useOrderForm } from '@/hooks/useOrderForm';
 import { useCustomers } from '@/hooks/useCustomers';
+import { usePrintConfiguration } from '@/hooks/usePrintConfiguration';
 import { useNotification } from '@/contexts/NotificationContext';
 import { Order, OrderAttachment } from '@grafica/shared';
 import { OrderFileUpload } from './OrderFileUpload';
@@ -33,6 +34,16 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
   }});
 
   const { customers, listCustomers } = useCustomers();
+  const { priceTable } = usePrintConfiguration();
+
+  const handleProductSelect = (productId: string) => {
+    const product = priceTable.find(p => p.id === productId);
+    if (product) {
+      setFieldValue('description', `${product.name} - ${product.friendlyCode}`);
+      setFieldValue('paperType', product.paperTypeName || '');
+      setFieldValue('productionCost', product.unitPrice * formData.quantity);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -107,6 +118,23 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
                   ))}
                 </select>
                 {errors.customerId && <span className={styles.error}>{errors.customerId}</span>}
+              </div>
+
+              <div className={styles.field}>
+                <label htmlFor="productId">Produto (Opcional)</label>
+                <select
+                  id="productId"
+                  defaultValue=""
+                  onChange={(e) => handleProductSelect(e.target.value)}
+                  disabled={loading || isReadOnly}
+                >
+                  <option value="">Configuração Manual</option>
+                  {priceTable.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.friendlyCode} - {p.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.field}>

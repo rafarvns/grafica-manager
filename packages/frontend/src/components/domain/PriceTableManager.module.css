@@ -118,6 +118,10 @@
   cursor: not-allowed;
 }
 
+.formFieldFull {
+  grid-column: 1 / -1;
+}
+
 .formActions {
   display: flex;
   gap: 8px;
@@ -249,6 +253,41 @@
   border-radius: 4px;
   font-size: 14px;
   color: var(--color-text);
+}
+
+.readonlyInput {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-muted) !important;
+  font-family: monospace;
+  cursor: default;
+}
+
+.codeCell code {
+  background-color: var(--color-surface-hover);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+  padding: 8px 12px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.entryDescription {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
 }
 
 .actions {

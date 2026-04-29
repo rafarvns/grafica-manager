@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { usePrintHistory } from '@/hooks/usePrintHistory';
 import { PrintHistoryFilters } from '@/components/domain/PrintHistoryFilters';
 import { PrintHistoryTable } from '@/components/domain/PrintHistoryTable';
 import { PrintHistoryStats } from '@/components/domain/PrintHistoryStats';
-import { PriceTableManager } from '@/components/domain/PriceTableManager';
 import { PrintJobDetailsPanel } from '@/components/domain/PrintJobDetailsPanel';
 import type { PrintJobDTO, PrintJobDetailDTO, PrintJobSortField, SortOrder, ExportFormat } from '@grafica/shared/types';
 import styles from './PrintHistoryPage.module.css';
@@ -32,28 +31,10 @@ export function PrintHistoryPage() {
     reprocessJob,
     exportJobs,
     stats,
-    priceTable,
-    paperTypes,
-    createPriceEntry,
-    updatePriceEntry,
-    deletePriceEntry,
-    fetchPriceTable,
-    fetchPaperTypes,
-    fetchStats,
   } = usePrintHistory();
 
-  const [activeTab, setActiveTab] = useState<'history' | 'prices'>('history');
   const [showReprocessModal, setShowReprocessModal] = useState(false);
   const [reprocessJobId, setReprocessJobId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (activeTab === 'prices') {
-      fetchPriceTable();
-      fetchPaperTypes();
-    } else {
-      fetchStats();
-    }
-  }, [activeTab, fetchPriceTable, fetchPaperTypes, fetchStats]);
 
   const handleJobClick = async (job: PrintJobDTO) => {
     await fetchPrintJobDetail(job.id);
@@ -102,97 +83,60 @@ export function PrintHistoryPage() {
         </div>
       )}
 
-      <div className={styles.tabsContainer} role="tablist" aria-label="Seções do histórico">
-        <button
-          className={`${styles.tab} ${activeTab === 'history' ? styles.active : ''}`}
-          role="tab"
-          aria-selected={activeTab === 'history'}
-          aria-controls="history-panel"
-          id="history-tab"
-          onClick={() => setActiveTab('history')}
-        >
-          Histórico de Impressões
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'prices' ? styles.active : ''}`}
-          role="tab"
-          aria-selected={activeTab === 'prices'}
-          aria-controls="prices-panel"
-          id="prices-tab"
-          data-testid="price-table-tab"
-          onClick={() => setActiveTab('prices')}
-        >
-          Tabela de Preços
-        </button>
-      </div>
-
       <div className={styles.content}>
-        {activeTab === 'history' ? (
-          <div className={styles.historySection} role="tabpanel" id="history-panel" aria-labelledby="history-tab">
-            <PrintHistoryStats stats={stats} loading={loading} />
+        <div className={styles.historySection}>
+          <PrintHistoryStats stats={stats} loading={loading} />
 
-            <PrintHistoryFilters
-              filters={filters}
-              onApply={applyFilters}
-              onClear={clearFilters}
-              onFilterChange={setFilters}
-              loading={loading}
-            />
+          <PrintHistoryFilters
+            filters={filters}
+            onApply={applyFilters}
+            onClear={clearFilters}
+            onFilterChange={setFilters}
+            loading={loading}
+          />
 
-            <div className={styles.exportActions}>
-              <button
-                className={styles.exportButton}
-                onClick={() => handleExport('csv')}
-                disabled={loading}
-                data-testid="export-csv-button"
-              >
-                Exportar CSV
-              </button>
-              <button
-                className={styles.exportButton}
-                onClick={() => handleExport('pdf')}
-                disabled={loading}
-                data-testid="export-pdf-button"
-              >
-                Exportar PDF
-              </button>
+          <div className={styles.exportActions}>
+            <button
+              className={styles.exportButton}
+              onClick={() => handleExport('csv')}
+              disabled={loading}
+              data-testid="export-csv-button"
+            >
+              Exportar CSV
+            </button>
+            <button
+              className={styles.exportButton}
+              onClick={() => handleExport('pdf')}
+              disabled={loading}
+              data-testid="export-pdf-button"
+            >
+              Exportar PDF
+            </button>
+          </div>
+
+          {loading && (
+            <div className={styles.loadingSpinner} data-testid="loading-spinner">
+              <div className={styles.spinner} />
+              <span>Carregando...</span>
             </div>
+          )}
 
-            {loading && (
-              <div className={styles.loadingSpinner} data-testid="loading-spinner">
-                <div className={styles.spinner} />
-                <span>Carregando...</span>
-              </div>
-            )}
-
-            {!loading && (
-              <PrintHistoryTable
-                jobs={printJobs}
-                onJobClick={handleJobClick}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                onSort={handleSort}
-                page={page}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                onPageChange={setPage}
-                pageSize={pageSize}
-                onPageSizeChange={setPageSize}
-              />
-            )}
-          </div>
-        ) : (
-          <div role="tabpanel" id="prices-panel" aria-labelledby="prices-tab">
-            <PriceTableManager
-              priceTable={priceTable}
-              paperTypes={paperTypes}
-              onPricesUpdated={fetchPriceTable}
-              onCreate={createPriceEntry}
-              onUpdate={updatePriceEntry}
-              onDelete={deletePriceEntry}
+          {!loading && (
+            <PrintHistoryTable
+              jobs={printJobs}
+              onJobClick={handleJobClick}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={handleSort}
+              page={page}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              onPageChange={setPage}
+              pageSize={pageSize}
+              onPageSizeChange={setPageSize}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {selectedJob && (

@@ -60,7 +60,7 @@ interface UsePrintHistoryReturn {
   // Tabela de preços (mantido para compatibilidade)
   priceTable: PriceTableEntry[];
   paperTypes: PaperType[];
-  createPriceEntry: (paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
+  createPriceEntry: (name: string, description: string, friendlyCode: string, paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
   updatePriceEntry: (id: string, data: UpdatePriceTableEntryDTO) => Promise<void>;
   deletePriceEntry: (id: string) => Promise<void>;
   fetchPriceTable: () => Promise<void>;
@@ -269,10 +269,10 @@ export function usePrintHistory(): UsePrintHistoryReturn {
     }
   }, []);
 
-  const createPriceEntry = useCallback(async (paperTypeId: string, quality: string, colors: string, unitPrice: number) => {
+  const createPriceEntry = useCallback(async (name: string, description: string, friendlyCode: string, paperTypeId: string, quality: string, colors: string, unitPrice: number) => {
     try {
       setError(null);
-      const data: CreatePriceTableEntryDTO = { paperTypeId, quality, colors, unitPrice };
+      const data: CreatePriceTableEntryDTO = { name, description, friendlyCode, paperTypeId, quality, colors, unitPrice };
       const newEntry = await priceTableService.createPrice(data);
       setPriceTable((prev) => [...prev, newEntry]);
     } catch (err) {

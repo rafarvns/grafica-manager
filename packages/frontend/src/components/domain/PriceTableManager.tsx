@@ -8,8 +8,8 @@ interface PriceTableManagerProps {
   priceTable: PriceTableEntry[];
   paperTypes: PaperType[];
   onPricesUpdated: () => void;
-  onCreate: (paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
-  onUpdate: (id: string, unitPrice: number) => Promise<void>;
+  onCreate: (name: string, description: string, friendlyCode: string, paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
+  onUpdate: (id: string, unitPrice: number, name?: string, description?: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
@@ -31,6 +31,9 @@ export function PriceTableManager({
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [newPrice, setNewPrice] = useState({
+    name: '',
+    description: '',
+    friendlyCode: '',
     paperTypeId: '',
     quality: 'rascunho',
     colors: 'P&B' as ColorMode,
@@ -39,7 +42,27 @@ export function PriceTableManager({
 
   const handleCreateClick = () => {
     setShowCreateForm(true);
-    setNewPrice({ paperTypeId: '', quality: 'rascunho', colors: 'P&B', unitPrice: '' });
+    setNewPrice({ name: '', description: '', friendlyCode: '', paperTypeId: '', quality: 'rascunho', colors: 'P&B', unitPrice: '' });
+  };
+
+  const generateFriendlyCode = (data: typeof newPrice) => {
+    const initials = data.name
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase();
+    
+    const qualityMap: Record<string, string> = { rascunho: 'RSC', padrão: 'PDR', premium: 'PRM' };
+    const q = qualityMap[data.quality] || 'UNK';
+    
+    const c = data.colors === 'P&B' ? 'PB' : 'CLR';
+    
+    const paper = paperTypes.find(t => t.id === data.paperTypeId);
+    const pInit = paper ? paper.name.split(' ').map(w => w[0]).join('').toUpperCase() : '??';
+    
+    const priceStr = data.unitPrice ? parseFloat(data.unitPrice).toFixed(2).replace('.', '') : '000';
+    
+    return `${initials}-${pInit}-${q}-${c}-${priceStr}`;
   };
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -58,7 +81,8 @@ export function PriceTableManager({
 
     try {
       setLoading(true);
-      await onCreate(newPrice.paperTypeId, newPrice.quality, newPrice.colors, unitPrice);
+      const friendlyCode = generateFriendlyCode(newPrice);
+      await onCreate(newPrice.name, newPrice.description, friendlyCode, newPrice.paperTypeId, newPrice.quality, newPrice.colors, unitPrice);
       setMessage({ type: 'success', text: 'Preço criado com sucesso!' });
       setShowCreateForm(false);
       onPricesUpdated();
@@ -145,6 +169,46 @@ export function PriceTableManager({
 
       {showCreateForm && (
         <form className={styles.createForm} onSubmit={handleCreateSubmit}>
+          <div className={`${styles.formField} ${styles.formFieldFull}`}>
+            <label htmlFor="product-name">Nome do Produto:</label>
+            <input
+              id="product-name"
+              type="text"
+              placeholder="ex: Cartão de Visita, Panfleto..."
+              value={newPrice.name}
+              onChange={(e) =>
+                setNewPrice({ ...newPrice, name: e.target.value })
+              }
+              disabled={loading}
+              required
+            />
+          </div>
+
+          <div className={`${styles.formField} ${styles.formFieldFull}`}>
+            <label htmlFor="description">Descrição:</label>
+            <textarea
+              id="description"
+              placeholder="Detalhes adicionais sobre o produto..."
+              value={newPrice.description}
+              onChange={(e) =>
+                setNewPrice({ ...newPrice, description: e.target.value })
+              }
+              disabled={loading}
+              className={styles.textarea}
+            />
+          </div>
+
+          <div className={`${styles.formField} ${styles.formFieldFull}`}>
+            <label htmlFor="friendly-code">Código do Produto (Automático):</label>
+            <input
+              id="friendly-code"
+              type="text"
+              value={generateFriendlyCode(newPrice)}
+              disabled
+              className={styles.readonlyInput}
+            />
+          </div>
+
           <div className={styles.formField}>
             <label htmlFor="paper-type">Tipo de Papel:</label>
             <select
@@ -245,6 +309,8 @@ export function PriceTableManager({
         <table className={styles.table} data-testid="price-table">
           <thead>
             <tr>
+              <th>Cód</th>
+              <th>Nome do Produto</th>
               <th>Tipo de Papel</th>
               <th>Qualidade</th>
               <th>Tipo de Cor</th>
@@ -262,6 +328,15 @@ export function PriceTableManager({
             ) : (
               priceTable.map((entry) => (
                 <tr key={entry.id}>
+                  <td className={styles.codeCell}>
+                    <code>{entry.friendlyCode}</code>
+                  </td>
+                  <td>
+                    <strong>{entry.name || 'Sem nome'}</strong>
+                    {entry.description && (
+                      <p className={styles.entryDescription}>{entry.description}</p>
+                    )}
+                  </td>
                   <td>
                     {paperTypes.find(t => t.id === entry.paperTypeId)?.name || entry.paperTypeId}
                   </td>

@@ -8,6 +8,9 @@ export class PrismaPriceTableRepository implements PriceTableRepository {
   async create(data: CreatePriceTableEntryDTO): Promise<PriceTableEntry> {
     const entry = await this.prisma.priceTableEntry.create({
       data: {
+        name: data.name ?? null,
+        description: data.description ?? null,
+        friendlyCode: data.friendlyCode,
         paperTypeId: data.paperTypeId,
         quality: data.quality as any,
         colors: data.colors as any,
@@ -60,6 +63,8 @@ export class PrismaPriceTableRepository implements PriceTableRepository {
     const entry = await this.prisma.priceTableEntry.update({
       where: { id },
       data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.description !== undefined && { description: data.description }),
         ...(data.unitPrice !== undefined && { unitPrice: data.unitPrice }),
         ...(data.validUntil !== undefined && { validUntil: data.validUntil ? new Date(data.validUntil) : null }),
       },
@@ -77,6 +82,9 @@ export class PrismaPriceTableRepository implements PriceTableRepository {
   private mapToDomain(entry: any): PriceTableEntry {
     return {
       id: entry.id,
+      name: entry.name,
+      description: entry.description,
+      friendlyCode: entry.friendlyCode || '',
       paperTypeId: entry.paperTypeId,
       quality: entry.quality,
       colors: entry.colors,

@@ -31,6 +31,12 @@ const SettingsPage = lazy(() =>
 const ShopeeIntegrationPage = lazy(() =>
   import('@/pages/ShopeeIntegrationPage')
 );
+const PaperManagementPage = lazy(() =>
+  import('@/pages/PaperManagementPage').then((m) => ({ default: m.PaperManagementPage }))
+);
+const ProductManagementPage = lazy(() =>
+  import('@/pages/ProductManagementPage').then((m) => ({ default: m.ProductManagementPage }))
+);
 
 function LoadingFallback() {
   return (
@@ -56,6 +62,8 @@ export function App(): React.ReactElement {
                 <Route path="/relatorios" component={<ReportsPage />} />
                 <Route path="/configuracoes" component={<SettingsPage />} />
                 <Route path="/shopee" component={<ShopeeIntegrationPage />} />
+                <Route path="/papeis" component={<PaperManagementPage />} />
+                <Route path="/produtos" component={<ProductManagementPage />} />
               </Suspense>
             </AppLayout>
             <ToastContainer />
