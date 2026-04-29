@@ -2,12 +2,22 @@ import { ApiError, type ApiResponse } from '@/types/api';
 
 class ApiClient {
   private token: string | null = null;
-  // Fallback URL (a Spec-0003 menciona que a URL base deve vir do env no main, 
-  // mas como o frontend se comunica com a API local, vamos definir por padrão localhost:3000)
   private readonly baseUrl = 'http://localhost:3333';
+
+  constructor() {
+    // Tenta carregar o token do env ou localStorage
+    const envToken = import.meta.env.VITE_API_TOKEN;
+    const storageToken = localStorage.getItem('api_token');
+    this.token = envToken || storageToken || null;
+  }
 
   public setToken(token: string | null) {
     this.token = token;
+    if (token) {
+      localStorage.setItem('api_token', token);
+    } else {
+      localStorage.removeItem('api_token');
+    }
   }
 
   private async fetch<T>(path: string, options: RequestInit & { params?: Record<string, any> } = {}): Promise<ApiResponse<T>> {

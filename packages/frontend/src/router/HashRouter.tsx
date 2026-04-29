@@ -51,7 +51,11 @@ interface RouteProps {
 export function Route({ path, component }: RouteProps) {
   const { currentPath } = useRouter();
   
-  if (currentPath === path) {
+  // Converter path do tipo "/pedidos/:id" para regex "^/pedidos/[^/]+$"
+  const regexPath = path.replace(/:[^\s/]+/g, '[^/]+');
+  const matcher = new RegExp(`^${regexPath}$`);
+
+  if (matcher.test(currentPath)) {
     return <>{component}</>;
   }
   

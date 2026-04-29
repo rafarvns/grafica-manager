@@ -179,6 +179,7 @@ export function PrintHistoryPage() {
             onUpdate={updatePriceEntry}
             onDelete={deletePriceEntry}
           />
+          </div>
         )}
       </div>
 

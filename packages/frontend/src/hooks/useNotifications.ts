@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useNotification, PersistentNotification } from '@/contexts/NotificationContext';
+import { apiClient } from '@/services/apiClient';
 
 const POLLING_INTERVAL = 10000; // 10s
 
@@ -17,17 +18,10 @@ export function useNotifications() {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const token = localStorage.getItem('api_token');
-      const response = await fetch('/api/v1/notifications?dismissed=false', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const { data } = await apiClient.get<PersistentNotification[]>('/notifications', {
+        params: { dismissed: false }
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setPersistentNotifications(data);
-      }
+      setPersistentNotifications(data);
     } catch (error) {
       console.error('Failed to fetch notifications', error);
     }
@@ -35,19 +29,11 @@ export function useNotifications() {
 
   const markAsRead = useCallback(async (id: string) => {
     try {
-      const token = localStorage.getItem('api_token');
-      const response = await fetch(`/api/v1/notifications/${id}/read`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await apiClient.patch(`/notifications/${id}/read`, {});
       
-      if (response.ok) {
-        setPersistentNotifications((prev: PersistentNotification[]) => 
-          prev.map((n: PersistentNotification) => n.id === id ? { ...n, read: true } : n)
-        );
-      }
+      setPersistentNotifications((prev: PersistentNotification[]) => 
+        prev.map((n: PersistentNotification) => n.id === id ? { ...n, read: true } : n)
+      );
     } catch (error) {
       console.error('Failed to mark notification as read', error);
     }
@@ -55,17 +41,9 @@ export function useNotifications() {
 
   const dismiss = useCallback(async (id: string) => {
     try {
-      const token = localStorage.getItem('api_token');
-      const response = await fetch(`/api/v1/notifications/${id}/dismiss`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await apiClient.patch(`/notifications/${id}/dismiss`, {});
       
-      if (response.ok) {
-        setPersistentNotifications((prev: PersistentNotification[]) => prev.filter((n: PersistentNotification) => n.id !== id));
-      }
+      setPersistentNotifications((prev: PersistentNotification[]) => prev.filter((n: PersistentNotification) => n.id !== id));
     } catch (error) {
       console.error('Failed to dismiss notification', error);
     }

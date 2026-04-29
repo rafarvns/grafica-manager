@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './OrdersPage.module.css';
 import { useOrders } from '@/hooks/useOrders';
+import { useRouter } from '@/router/HashRouter';
 import { OrderFilters } from '@/components/domain/OrderFilters';
 import { OrderKanban } from '@/components/domain/OrderKanban';
 import { OrderList } from '@/components/domain/OrderList';
@@ -8,6 +9,7 @@ import { OrderModal } from '@/components/domain/OrderModal';
 import { Order } from '@grafica/shared';
 
 export function OrdersPage() {
+  const { navigate } = useRouter();
   const {
     orders,
     loading,
@@ -29,8 +31,7 @@ export function OrdersPage() {
   };
 
   const handleEditOrder = (order: Order) => {
-    setSelectedOrder(order);
-    setIsModalOpen(true);
+    navigate(`/pedidos/${order.id}`);
   };
 
   return (

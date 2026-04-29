@@ -9,6 +9,7 @@ import { OrderPrintJobsSection } from '@/components/domain/OrderPrintJobsSection
 import { OrderFilesSection } from '@/components/domain/OrderFilesSection';
 import { ChangeStatusModal } from '@/components/domain/ChangeStatusModal';
 import { CancelOrderModal } from '@/components/domain/CancelOrderModal';
+import { PrintJobModal } from '@/components/domain/PrintJobModal';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import { useToast } from '@/hooks/useToast';
 import styles from './OrderDetailPage.module.css';
@@ -27,12 +28,15 @@ export function OrderDetailPage() {
     cancelOrder,
     uploadFile,
     downloadFile,
-    removeFile
+    removeFile,
+    refresh
   } = useOrderDetail(orderId);
 
   const [activeTab, setActiveTab] = useState<TabType>('details');
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [printFileInfo, setPrintFileInfo] = useState<{ id?: string, name?: string }>({});
 
   const handleUpdateDescription = async (desc: string) => {
     try {
@@ -68,6 +72,11 @@ export function OrderDetailPage() {
     } catch (err) {
       addToast({ type: 'error', message: 'Erro ao enviar arquivo.' });
     }
+  };
+
+  const handlePrintFile = (fileId: string, filename: string) => {
+    setPrintFileInfo({ id: fileId, name: filename });
+    setShowPrintModal(true);
   };
 
   if (loading) {
@@ -106,7 +115,13 @@ export function OrderDetailPage() {
         )}
         
         {activeTab === 'printJobs' && (
-          <OrderPrintJobsSection order={order} onCreatePrintJob={async () => {}} />
+          <OrderPrintJobsSection 
+            order={order} 
+            onCreatePrintJob={async () => {
+              setPrintFileInfo({});
+              setShowPrintModal(true);
+            }} 
+          />
         )}
         
         {activeTab === 'files' && (
@@ -114,6 +129,7 @@ export function OrderDetailPage() {
             order={order} 
             onUpload={handleUploadFile} 
             onDownload={downloadFile} 
+            onPrint={handlePrintFile}
           />
         )}
         
@@ -133,6 +149,15 @@ export function OrderDetailPage() {
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
         onConfirm={handleCancelOrder}
+      />
+
+      <PrintJobModal 
+        isOpen={showPrintModal}
+        onClose={() => setShowPrintModal(false)}
+        orderId={orderId}
+        fileId={printFileInfo.id}
+        filename={printFileInfo.name}
+        onSuccess={refresh}
       />
     </div>
   );

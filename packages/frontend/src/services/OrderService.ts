@@ -59,6 +59,11 @@ class OrderService {
   async deleteAttachment(orderId: string, attachmentId: string): Promise<void> {
     await apiClient.delete(`/orders/${orderId}/attachments/${attachmentId}`);
   }
+
+  async createPrintJob(orderId: string, data: any): Promise<any> {
+    const response = await apiClient.post(`/orders/${orderId}/print-jobs`, data);
+    return response.data;
+  }
 }
 
 export const orderService = new OrderService();

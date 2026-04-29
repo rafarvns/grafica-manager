@@ -28,12 +28,30 @@ async function bootstrap() {
 
     // Inicialização do Redis e Jobs
     try {
-      const redis = new IORedis(env.REDIS_URL, { maxRetriesPerRequest: null });
+      const redisUrl = env.REDIS_URL.replace(/["']/g, ''); // Remove aspas extras
+      const redis = new IORedis(redisUrl, { 
+        maxRetriesPerRequest: null,
+        family: 4, // Força IPv4 para evitar ::1
+        connectTimeout: 10000, // 10 segundos de timeout
+      });
+
+      redis.on('error', (err) => {
+        if (err.message.includes('ETIMEDOUT')) {
+          console.error(`[REDIS] Timeout ao conectar em ${redisUrl}. Verifique se o serviço está rodando e o firewall permite a porta.`);
+        } else {
+          console.error(`[REDIS] Erro: ${err.message}`);
+        }
+      });
+
+      redis.on('connect', () => {
+        console.log(`[REDIS] Conectado com sucesso ao servidor.`);
+      });
+
       setupRetentionCleanup(prisma, redis);
       setupNotificationCleanup(prisma, redis);
-      console.log(`[JOBS] Jobs inicializados com sucesso (Redis: ${env.REDIS_URL})`);
+      console.log(`[JOBS] Configurando jobs (Redis: ${redisUrl})`);
     } catch (redisError) {
-      console.warn(`[JOBS] Falha ao conectar ao Redis, jobs em background podem não funcionar:`, redisError instanceof Error ? redisError.message : redisError);
+      console.warn(`[JOBS] Falha ao configurar Redis:`, redisError instanceof Error ? redisError.message : redisError);
     }
 
     app.get('/health', (_req, res) => {
