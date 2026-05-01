@@ -1,61 +1,77 @@
 .container {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-xs);
 }
 
 .container h4 {
   margin-top: 0;
-  margin-bottom: 20px;
-  color: #aaa;
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .item {
-  background: rgba(0, 0, 0, 0.2);
-  border-left: 3px solid #e57373;
-  padding: 12px 16px;
-  border-radius: 4px;
+  background: var(--color-danger-light);
+  border-left: 3px solid var(--color-danger);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .type {
-  font-weight: bold;
-  color: #e57373;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
 }
 
 .time {
-  color: #666;
-  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
 }
 
 .message {
   margin: 0;
-  font-size: 0.9rem;
-  color: #ddd;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
 }
 
 .link {
   display: block;
-  margin-top: 8px;
-  font-size: 0.75rem;
-  color: #5cacee;
+  margin-top: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.link:hover {
+  text-decoration: underline;
 }
 
 .empty {
   text-align: center;
-  color: #666;
-  padding: 20px;
+  color: var(--color-text-muted);
+  padding: var(--space-5);
+  font-size: var(--font-size-sm);
 }

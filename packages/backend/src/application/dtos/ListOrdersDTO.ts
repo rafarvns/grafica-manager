@@ -18,7 +18,6 @@ export interface OrderListItem {
   quantity: number;
   status: OrderStatus;
   salePrice: number;
-  productionCost: number;
   dueDate: Date;
   createdAt: Date;
 }

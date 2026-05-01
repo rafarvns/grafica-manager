@@ -18,6 +18,36 @@
   flex-shrink: 0;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.backButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+}
+
+.backButton:hover {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.backButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .brandTitle {
   margin: 0;
   font-size: var(--font-size-xl);

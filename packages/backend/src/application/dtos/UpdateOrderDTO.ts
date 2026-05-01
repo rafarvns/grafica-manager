@@ -1,12 +1,9 @@
 export interface UpdateOrderInput {
   description?: string;
   quantity?: number;
-  paperTypeId?: string;
-  width?: number;
-  height?: number;
+  priceTableEntryId?: string | null;
   dueDate?: Date;
   salePrice?: number;
-  productionCost?: number;
   notes?: string | null;
   position?: number;
 }
@@ -17,12 +14,9 @@ export interface UpdateOrderOutput {
   customerId: string;
   description: string;
   quantity: number;
-  paperTypeId: string;
-  width: number;
-  height: number;
-  dueDate: Date;
+  priceTableEntryId?: string | null;
+  dueDate: Date | null;
   salePrice: number;
-  productionCost: number;
   status: string;
   notes: string | null;
   position: number;

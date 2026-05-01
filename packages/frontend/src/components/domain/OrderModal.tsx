@@ -19,14 +19,15 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
   const { notify } = useNotification();
   const [attachments, setAttachments] = useState<OrderAttachment[]>(initialOrder?.attachments || []);
   const [uploading, setUploading] = useState(false);
+  const [unitPrice, setUnitPrice] = useState(0);
 
-  const { 
-    formData, 
-    errors, 
-    loading, 
-    setFieldValue, 
-    submit, 
-    isEditing 
+  const {
+    formData,
+    errors,
+    loading,
+    setFieldValue,
+    submit,
+    isEditing
   } = useOrderForm({ initialOrder, onSuccess: () => {
     notify({ message: isEditing ? 'Pedido atualizado com sucesso' : 'Pedido criado com sucesso', type: 'success' });
     onSuccess();
@@ -36,12 +37,33 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
   const { customers, listCustomers } = useCustomers();
   const { priceTable } = usePrintConfiguration();
 
+  // Ao abrir em modo edição, recupera o preço unitário do produto vinculado
+  useEffect(() => {
+    if (isOpen && initialOrder?.priceTableEntryId && priceTable.length > 0) {
+      const product = priceTable.find(p => p.id === initialOrder.priceTableEntryId);
+      if (product) setUnitPrice(Number(product.unitPrice));
+    }
+  }, [isOpen, initialOrder, priceTable]);
+
   const handleProductSelect = (productId: string) => {
     const product = priceTable.find(p => p.id === productId);
     if (product) {
-      setFieldValue('description', `${product.name} - ${product.friendlyCode}`);
-      setFieldValue('paperType', product.paperTypeName || '');
-      setFieldValue('productionCost', product.unitPrice * formData.quantity);
+      const price = Number(product.unitPrice);
+      setUnitPrice(price);
+      setFieldValue('priceTableEntryId', productId);
+      setFieldValue('description', `${product.name || product.friendlyCode}`);
+      setFieldValue('salePrice', price * formData.quantity);
+    } else {
+      setUnitPrice(0);
+      setFieldValue('priceTableEntryId', '');
+      setFieldValue('salePrice', 0);
+    }
+  };
+
+  const handleQuantityChange = (qty: number) => {
+    setFieldValue('quantity', qty);
+    if (unitPrice > 0) {
+      setFieldValue('salePrice', unitPrice * qty);
     }
   };
 
@@ -70,7 +92,7 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
       const newAtt = await orderService.uploadAttachment(initialOrder.id, file);
       setAttachments((prev) => [...prev, newAtt]);
       notify({ message: 'Arquivo enviado com sucesso', type: 'success' });
-    } catch (err) {
+    } catch {
       notify({ message: 'Erro ao enviar arquivo', type: 'error' });
     } finally {
       setUploading(false);
@@ -84,7 +106,7 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
       await orderService.deleteAttachment(initialOrder.id, id);
       setAttachments((prev) => prev.filter((a) => a.id !== id));
       notify({ message: 'Arquivo removido', type: 'success' });
-    } catch (err) {
+    } catch {
       notify({ message: 'Erro ao remover arquivo', type: 'error' });
     } finally {
       setUploading(false);
@@ -92,6 +114,11 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
   };
 
   const isReadOnly = initialOrder?.status === 'shipping';
+
+  const formattedPrice = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(formData.salePrice);
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -121,17 +148,17 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
               </div>
 
               <div className={styles.field}>
-                <label htmlFor="productId">Produto (Opcional)</label>
+                <label htmlFor="productId">Produto</label>
                 <select
                   id="productId"
-                  defaultValue=""
+                  value={formData.priceTableEntryId || ''}
                   onChange={(e) => handleProductSelect(e.target.value)}
-                  disabled={loading || isReadOnly}
+                  disabled={loading || isReadOnly || isEditing}
                 >
-                  <option value="">Configuração Manual</option>
+                  <option value="">Selecione um produto</option>
                   {priceTable.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.friendlyCode} - {p.name}
+                      {p.friendlyCode} — {p.name}
                     </option>
                   ))}
                 </select>
@@ -166,70 +193,32 @@ export function OrderModal({ isOpen, onClose, onSuccess, initialOrder }: OrderMo
                 <input
                   id="quantity"
                   type="number"
+                  min="1"
                   value={formData.quantity}
-                  onChange={(e) => setFieldValue('quantity', parseInt(e.target.value) || 0)}
+                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
                   disabled={loading || isReadOnly}
                 />
                 {errors.quantity && <span className={styles.error}>{errors.quantity}</span>}
               </div>
 
               <div className={styles.field}>
-                <label htmlFor="paperType">Tipo de Papel *</label>
-                <input
-                  id="paperType"
-                  type="text"
-                  value={formData.paperType}
-                  onChange={(e) => setFieldValue('paperType', e.target.value)}
-                  disabled={loading || isReadOnly}
-                  placeholder="Ex: Couchê 150g"
-                />
-                {errors.paperType && <span className={styles.error}>{errors.paperType}</span>}
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="dimensions">Dimensões *</label>
-                <input
-                  id="dimensions"
-                  type="text"
-                  value={formData.dimensions}
-                  onChange={(e) => setFieldValue('dimensions', e.target.value)}
-                  disabled={loading || isReadOnly}
-                  placeholder="Ex: 10x15cm"
-                />
-                {errors.dimensions && <span className={styles.error}>{errors.dimensions}</span>}
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="salePrice">Preço de Venda (R$) *</label>
+                <label htmlFor="salePrice">Preço Total</label>
                 <input
                   id="salePrice"
-                  type="number"
-                  step="0.01"
-                  value={formData.salePrice}
-                  onChange={(e) => setFieldValue('salePrice', parseFloat(e.target.value) || 0)}
-                  disabled={loading || isReadOnly}
+                  type="text"
+                  value={formattedPrice}
+                  readOnly
+                  className={styles.readonlyInput}
+                  aria-label="Preço total calculado automaticamente"
                 />
                 {errors.salePrice && <span className={styles.error}>{errors.salePrice}</span>}
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="productionCost">Custo Estimado (R$) *</label>
-                <input
-                  id="productionCost"
-                  type="number"
-                  step="0.01"
-                  value={formData.productionCost}
-                  onChange={(e) => setFieldValue('productionCost', parseFloat(e.target.value) || 0)}
-                  disabled={loading || isReadOnly}
-                />
-                {errors.productionCost && <span className={styles.error}>{errors.productionCost}</span>}
               </div>
             </div>
 
             {errors.form && <div className={styles.formError}>{errors.form}</div>}
 
             {isEditing && (
-              <OrderFileUpload 
+              <OrderFileUpload
                 attachments={attachments}
                 onUpload={handleUpload}
                 onDelete={handleDeleteAttachment}

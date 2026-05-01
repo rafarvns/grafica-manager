@@ -1,11 +1,11 @@
 import { ID } from './index';
 
-export type OrderStatus = 
-  | 'draft' 
-  | 'scheduled' 
-  | 'in_production' 
-  | 'completed' 
-  | 'shipping' 
+export type OrderStatus =
+  | 'draft'
+  | 'scheduled'
+  | 'in_production'
+  | 'completed'
+  | 'shipping'
   | 'cancelled';
 
 export interface OrderAttachment {
@@ -43,11 +43,9 @@ export interface Order {
   customerName?: string;
   description: string;
   quantity: number;
-  paperType: string;
-  dimensions: string;
+  priceTableEntryId?: string | null;
   deadline: string; // ISO Date
   salePrice: number;
-  productionCost: number;
   status: OrderStatus;
   position: number;
   origin: 'SHOPEE' | 'MANUAL';
@@ -62,11 +60,9 @@ export interface CreateOrderDTO {
   customerId: ID;
   description: string;
   quantity: number;
-  paperType: string;
-  dimensions: string;
+  priceTableEntryId?: string;
   deadline: string;
   salePrice: number;
-  productionCost: number;
 }
 
 export interface UpdateOrderDTO extends Partial<CreateOrderDTO> {

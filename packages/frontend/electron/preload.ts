@@ -5,5 +5,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
   getPrinters: () => ipcRenderer.invoke('printer:get-list'),
-  printPdf: (filePath: string, options: any) => ipcRenderer.invoke('printer:print-pdf', filePath, options)
+  printPdf: (filePath: string, options: any) => ipcRenderer.invoke('printer:print-pdf', filePath, options),
+  openPdfDialog: () => ipcRenderer.invoke('dialog:open-pdf'),
+  readFile: (filePath: string) => ipcRenderer.invoke('fs:read-file', filePath),
 });

@@ -98,6 +98,65 @@ export function createPrintJobsRouter(prisma: PrismaClient): Router {
     }
   });
 
+  // ─── POST /print-jobs — Registrar impressão ───
+  router.post('/', async (req: Request, res: Response) => {
+    try {
+      const {
+        orderId,
+        printerName,
+        presetId,
+        quality,
+        colorMode,
+        paperTypeId,
+        paperWeight = 75,
+        pagesBlackAndWhite = 0,
+        pagesColor = 0,
+        documentName,
+        status = 'success',
+        errorMessage,
+      } = req.body;
+
+      if (!printerName) return res.status(400).json({ error: 'printerName é obrigatório' });
+      if (!documentName) return res.status(400).json({ error: 'documentName é obrigatório' });
+
+      // Busca ou cria o registro da impressora pelo nome do sistema
+      let printer = await prisma.printer.findUnique({ where: { systemId: printerName } });
+      if (!printer) {
+        printer = await prisma.printer.create({
+          data: { name: printerName, systemId: printerName },
+        });
+      }
+
+      const qualityMap: Record<string, string> = {
+        rascunho: 'DRAFT',
+        normal: 'NORMAL',
+        alta: 'HIGH',
+      };
+
+      const printJob = await prisma.printJob.create({
+        data: {
+          orderId: orderId || null,
+          printerId: printer.id,
+          presetId: presetId || null,
+          quality: (qualityMap[quality] || 'NORMAL') as any,
+          colorProfile: (colorMode || 'CMYK') as any,
+          paperTypeId: paperTypeId || null,
+          paperWeight: Number(paperWeight),
+          pagesBlackAndWhite: Number(pagesBlackAndWhite),
+          pagesColor: Number(pagesColor),
+          registeredCost: 0,
+          status,
+          errorMessage: errorMessage || null,
+          documentName,
+        },
+      });
+
+      return res.status(201).json(printJob);
+    } catch (error) {
+      return res.status(500).json({ error: error instanceof Error ? error.message : 'Erro ao registrar impressão' });
+    }
+  });
+
   // ─── GET /print-jobs/:id — Detalhe de uma impressão ───
   router.get('/:id', validate(getPrintJobSchema, 'params'), async (req: Request, res: Response) => {
     try {

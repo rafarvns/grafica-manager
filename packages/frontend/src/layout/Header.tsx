@@ -5,9 +5,23 @@ import { NotificationPanel } from '@/components/ui/NotificationPanel/Notificatio
 import styles from './AppLayout.module.css';
 
 export function Header() {
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    }
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
+        <button
+          className={styles.backButton}
+          onClick={handleBack}
+          aria-label="Voltar para página anterior"
+          title="Voltar"
+        >
+          &#8592;
+        </button>
         <h1 className={styles.brandTitle}>Gráfica Manager</h1>
       </div>
       <div className={styles.headerCenter}>

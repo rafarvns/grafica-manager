@@ -80,7 +80,6 @@ model PaperType {
 
   printPresets PrintPreset[]
   printJobs    PrintJob[]
-  orders       Order[]
   priceEntries PriceTableEntry[]
 
   @@index([deletedAt])
@@ -124,7 +123,8 @@ model PriceTableEntry {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  paper PaperType @relation(fields: [paperTypeId], references: [id])
+  paper  PaperType @relation(fields: [paperTypeId], references: [id])
+  orders Order[]
 
   @@index([paperTypeId])
   @@map("price_table_entries")
@@ -197,35 +197,33 @@ model Customer {
 }
 
 model Order {
-  id              String      @id @default(uuid())
-  orderNumber     String      @unique // ex: "ORD-001", "ORD-SHOPEE-12345"
-  status          OrderStatus @default(draft)
-  description     String      @db.Text
-  quantity        Int         @default(1)
-  paperTypeId     String?
-  width           Decimal?    @db.Decimal(12, 4)
-  height          Decimal?    @db.Decimal(12, 4)
-  dueDate         DateTime?
+  id                  String      @id @default(uuid())
+  orderNumber         String      @unique // ex: "ORD-001", "ORD-SHOPEE-12345"
+  status              OrderStatus @default(draft)
+  description         String      @db.Text
+  quantity            Int         @default(1)
+  // Produto da tabela de preços selecionado no pedido manual
+  priceTableEntryId   String?
+  dueDate             DateTime?
   // ID do pedido na plataforma de e-commerce de origem
-  externalOrderId String?
+  externalOrderId     String?
   // Para Shopee: shopee_order_id (deduplication key)
-  shopeeOrderId   String?     @unique
-  shopeeShopId    String?
-  // Valores financeiros
-  salePrice       Decimal     @db.Decimal(12, 4)
-  productionCost  Decimal     @db.Decimal(12, 4)
-  notes           String?     @db.Text
-  position        Int         @default(0)
-  customerId      String?
-  storeId         String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  shopeeOrderId       String?     @unique
+  shopeeShopId        String?
+  // Valor de venda: calculado automaticamente (quantidade × preço unitário do produto)
+  salePrice           Decimal     @db.Decimal(12, 4)
+  notes               String?     @db.Text
+  position            Int         @default(0)
+  customerId          String?
+  storeId             String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
   // Soft-delete — queries de listagem filtram deletedAt: null (spec 0001 RNF3)
-  deletedAt       DateTime?
+  deletedAt           DateTime?
 
   customer          Customer?          @relation(fields: [customerId], references: [id])
   store             Store?             @relation(fields: [storeId], references: [id])
-  paper             PaperType?         @relation(fields: [paperTypeId], references: [id])
+  priceTableEntry   PriceTableEntry?   @relation(fields: [priceTableEntryId], references: [id])
   printJobs         PrintJob[]
   attachments       OrderAttachment[]
   statusHistory     OrderStatusHistory[]
@@ -235,7 +233,7 @@ model Order {
   @@index([status])
   @@index([customerId])
   @@index([storeId])
-  @@index([paperTypeId])
+  @@index([priceTableEntryId])
   @@index([externalOrderId])
   @@index([shopeeOrderId])
   @@index([deletedAt])
@@ -262,6 +260,7 @@ model PrintJob {
   orderId            String?
   printerId          String
   presetId           String?
+  documentName       String?
   quality            PrintQuality
   colorProfile       ColorProfile
   paperTypeId        String?

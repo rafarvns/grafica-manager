@@ -9,17 +9,15 @@ export interface StatusHistoryEntry {
 export interface GetOrderOutput {
   id: string;
   orderNumber: string;
-  customerId: string;
+  customerId?: string;
+  customerName?: string | null;
   description: string;
   quantity: number;
-  paperTypeId: string;
-  width: number;
-  height: number;
-  dueDate: Date;
+  priceTableEntryId?: string | null;
+  dueDate?: Date | null;
   salePrice: number;
-  productionCost: number;
   status: OrderStatus;
-  notes: string | null;
+  notes?: string | null;
   statusHistory: StatusHistoryEntry[];
   cancellationReason?: string;
   cancellationTime?: Date;

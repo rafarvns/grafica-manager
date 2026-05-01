@@ -96,8 +96,8 @@ const ShopeeIntegrationPage: React.FC = () => {
 
         <aside className={styles.sidebar}>
           <ErrorLogSection errors={errorLogs} loading={false} />
-          <div style={{ marginTop: '24px' }}>
-            <h4>Sincronizações Manuais</h4>
+          <div>
+            <p className={styles.sideSectionTitle}>Sincronizações Manuais</p>
             <SyncHistoryTable history={syncHistory} loading={false} />
           </div>
         </aside>

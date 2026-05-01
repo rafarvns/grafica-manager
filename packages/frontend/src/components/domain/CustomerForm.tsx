@@ -19,7 +19,6 @@ export function CustomerForm({
 }: CustomerFormProps) {
   const [loading, setLoading] = useState(!!customerId);
   const [submitting, setSubmitting] = useState(false);
-  const [orderSummary, setOrderSummary] = useState<any>(null);
 
   const checkEmailUnique = useCallback(async (email: string) => {
     try {
@@ -54,7 +53,6 @@ export function CustomerForm({
         updateField('city', customer.city || '');
         updateField('state', customer.state || '');
         updateField('zipCode', customer.zipCode || '');
-        setOrderSummary(customer.orderSummary);
       }
     } finally {
       setLoading(false);
@@ -115,6 +113,7 @@ export function CustomerForm({
         ) : (
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <div className={styles.formContent}>
+              <div className={styles.columns}>
               <div className={styles.section}>
                 <h3>Informações Básicas</h3>
 
@@ -216,52 +215,8 @@ export function CustomerForm({
                   </div>
                 </div>
               </div>
+              </div>{/* .columns */}
 
-              {orderSummary && (
-                <div className={styles.section} data-testid="customer-order-summary">
-                  <h3>Resumo de Pedidos</h3>
-
-                  <div className={styles.summaryGrid}>
-                    <div className={styles.summaryItem}>
-                      <span className={styles.summaryLabel}>Total</span>
-                      <span
-                        className={styles.summaryValue}
-                        data-testid="total-orders"
-                      >
-                        {orderSummary.total}
-                      </span>
-                    </div>
-
-                    <div className={styles.summaryItem}>
-                      <span className={styles.summaryLabel}>Ativos</span>
-                      <span className={styles.summaryValue}>
-                        {orderSummary.active}
-                      </span>
-                    </div>
-
-                    <div className={styles.summaryItem}>
-                      <span className={styles.summaryLabel}>Concluídos</span>
-                      <span className={styles.summaryValue}>
-                        {orderSummary.completed}
-                      </span>
-                    </div>
-
-                    <div className={styles.summaryItem}>
-                      <span className={styles.summaryLabel}>Cancelados</span>
-                      <span className={styles.summaryValue}>
-                        {orderSummary.cancelled}
-                      </span>
-                    </div>
-
-                    <div className={styles.summaryItem}>
-                      <span className={styles.summaryLabel}>Valor Total</span>
-                      <span className={styles.summaryValue}>
-                        R$ {orderSummary.totalValue.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className={styles.formActions}>

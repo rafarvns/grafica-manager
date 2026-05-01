@@ -46,7 +46,17 @@
       "Bash(pnpm --filter frontend test:unit --reporter=verbose)",
       "Bash(pnpm --filter frontend test tests/unit/components/domain/PriceTableManager.spec.tsx)",
       "Bash(rm -rf .vitest)",
-      "Bash(pnpm --filter frontend test:unit tests/unit/components/domain/PriceTableManager.spec.tsx)"
+      "Bash(pnpm --filter frontend test:unit tests/unit/components/domain/PriceTableManager.spec.tsx)",
+      "Bash(xargs wc *)",
+      "Bash(./node_modules/.bin/prisma --version)",
+      "Bash(packages/backend/node_modules/.bin/prisma --version)",
+      "Bash(packages/backend/node_modules/.bin/prisma migrate *)",
+      "Bash(../node_modules/.bin/prisma migrate *)",
+      "Bash(node_modules/.bin/prisma migrate *)",
+      "Bash(node -e \"const ptp = require\\('pdf-to-printer'\\); console.log\\(typeof ptp, Object.keys\\(ptp\\)\\)\")",
+      "Bash(ls packages/frontend/node_modules/pdf-to-printer)",
+      "Bash(node -e \"const ptp = require\\('./packages/frontend/node_modules/pdf-to-printer'\\); console.log\\(typeof ptp, Object.keys\\(ptp\\)\\)\")",
+      "Bash(node -e \"const ptp = require\\('./packages/frontend/node_modules/pdf-to-printer/dist/bundle.js'\\); console.log\\(typeof ptp, typeof ptp.default, Object.keys\\(ptp\\)\\)\")"
     ]
   }
 }

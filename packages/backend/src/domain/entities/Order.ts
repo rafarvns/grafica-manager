@@ -7,16 +7,14 @@ export interface OrderProps {
   status: OrderStatus;
   description: string;
   quantity: number;
-  paperTypeId?: string | null;
-  width?: number | null;
-  height?: number | null;
+  priceTableEntryId?: string | null;
   dueDate?: Date | null;
   shopeeOrderId?: string | null;
   shopeeShopId?: string | null;
   salePrice: number;
-  productionCost: number;
   notes?: string | null;
   customerId?: string | null;
+  customerName?: string | null;
   storeId?: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -31,15 +29,13 @@ export class Order {
   get status() { return this.props.status; }
   get description() { return this.props.description; }
   get quantity() { return this.props.quantity; }
-  get paperTypeId() { return this.props.paperTypeId; }
-  get width() { return this.props.width; }
-  get height() { return this.props.height; }
+  get priceTableEntryId() { return this.props.priceTableEntryId; }
   get dueDate() { return this.props.dueDate; }
   get shopeeOrderId() { return this.props.shopeeOrderId; }
   get shopeeShopId() { return this.props.shopeeShopId; }
   get salePrice() { return this.props.salePrice; }
-  get productionCost() { return this.props.productionCost; }
   get customerId() { return this.props.customerId; }
+  get customerName() { return this.props.customerName; }
   get storeId() { return this.props.storeId; }
   get createdAt() { return this.props.createdAt; }
   get updatedAt() { return this.props.updatedAt; }
@@ -83,12 +79,9 @@ export class Order {
   update(props: {
     description?: string | undefined;
     quantity?: number | undefined;
-    paperTypeId?: string | null | undefined;
-    width?: number | null | undefined;
-    height?: number | null | undefined;
+    priceTableEntryId?: string | null | undefined;
     dueDate?: Date | null | undefined;
     salePrice?: number | undefined;
-    productionCost?: number | undefined;
     notes?: string | null | undefined;
   }) {
     if (this.props.status === 'shipping') {
@@ -109,15 +102,8 @@ export class Order {
       (this.props as any).salePrice = props.salePrice;
     }
 
-    if (props.productionCost !== undefined) {
-      if (props.productionCost < 0) throw new Error('Custo de produção não pode ser negativo');
-      (this.props as any).productionCost = props.productionCost;
-    }
-
     if (props.description !== undefined) (this.props as any).description = props.description.trim();
-    if (props.paperTypeId !== undefined) (this.props as any).paperTypeId = props.paperTypeId;
-    if (props.width !== undefined) (this.props as any).width = props.width;
-    if (props.height !== undefined) (this.props as any).height = props.height;
+    if (props.priceTableEntryId !== undefined) (this.props as any).priceTableEntryId = props.priceTableEntryId;
     if (props.dueDate !== undefined) (this.props as any).dueDate = props.dueDate;
     if (props.notes !== undefined) (this.props as any).notes = props.notes;
 

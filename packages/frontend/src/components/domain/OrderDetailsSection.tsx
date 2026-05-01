@@ -60,31 +60,15 @@ export function OrderDetailsSection({ order, onUpdateDescription }: OrderDetails
             <span className={styles.value}>{order.quantity} un</span>
           </div>
           
-          <div className={styles.field}>
-            <span className={styles.label}>Tipo de Papel</span>
-            <span className={styles.value}>{order.paperType}</span>
-          </div>
-          
-          <div className={styles.field}>
-            <span className={styles.label}>Dimensões</span>
-            <span className={styles.value}>{order.dimensions}</span>
-          </div>
         </div>
       </Card>
-      
+
       <Card title="Financeiro e Prazos">
         <div className={styles.grid}>
           <div className={styles.field}>
             <span className={styles.label}>Preço de Venda</span>
             <span className={`${styles.value} ${styles.price}`}>
               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(order.salePrice)}
-            </span>
-          </div>
-          
-          <div className={styles.field}>
-            <span className={styles.label}>Custo Estimado</span>
-            <span className={styles.value}>
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(order.productionCost)}
             </span>
           </div>
           

@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { join } from 'path';
 
 const isDev = process.env['NODE_ENV'] === 'development';
@@ -26,18 +26,24 @@ function createWindow(): void {
       sandbox: true,
     },
   });
+  
+  win.maximize();
 
   if (isDev) {
     win.loadURL('http://localhost:5173');
+    win.webContents.openDevTools();
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'));
   }
 }
 
 import { setupPrinterHandlers } from './ipc/printer';
+import { setupFileHandlers } from './ipc/files';
 
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null);
   setupPrinterHandlers();
+  setupFileHandlers();
   createWindow();
 
   app.on('activate', () => {

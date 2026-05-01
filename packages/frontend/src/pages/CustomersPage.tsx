@@ -4,8 +4,8 @@ import { CustomerTable } from '@/components/domain/CustomerTable';
 import { CustomerForm } from '@/components/domain/CustomerForm';
 import { CustomerFilters } from '@/components/domain/CustomerFilters';
 import { ConfirmDeleteModal } from '@/components/domain/ConfirmDeleteModal';
-import { CustomerProfile } from '@/components/domain/CustomerProfile';
 import { useToast } from '@/hooks/useToast';
+import { useRouter } from '@/router/HashRouter';
 import styles from './CustomersPage.module.css';
 
 export function CustomersPage() {
@@ -19,13 +19,13 @@ export function CustomersPage() {
     updateCustomer,
     deleteCustomer,
     getCustomer,
-  } = useCustomers();
+  } = useCustomers(); // getCustomer usado pelo CustomerForm
 
   const { addToast } = useToast();
+  const { navigate } = useRouter();
 
   const [showForm, setShowForm] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-  const [viewingCustomerId, setViewingCustomerId] = useState<string | null>(null);
   const [deletingCustomer, setDeletingCustomer] = useState<{ id: string; name: string } | null>(null);
   
   const [filters, setFilters] = useState<ListCustomersInput>({
@@ -60,7 +60,7 @@ export function CustomersPage() {
   };
 
   const handleViewDetails = (customerId: string) => {
-    setViewingCustomerId(customerId);
+    navigate(`/clientes/${customerId}`);
   };
 
   const handleFormClose = () => {
@@ -227,13 +227,6 @@ export function CustomersPage() {
         />
       )}
 
-      {viewingCustomerId && (
-        <CustomerProfile
-          customerId={viewingCustomerId}
-          getCustomer={getCustomer}
-          onClose={() => setViewingCustomerId(null)}
-        />
-      )}
     </div>
   );
 }

@@ -16,8 +16,8 @@ const OrdersPage = lazy(() =>
 const CustomersPage = lazy(() =>
   import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage }))
 );
-const PrintHistoryPage = lazy(() =>
-  import('@/pages/PrintHistoryPage').then((m) => ({ default: m.PrintHistoryPage }))
+const PrintPage = lazy(() =>
+  import('@/pages/PrintPage').then((m) => ({ default: m.PrintPage }))
 );
 const ReportsPage = lazy(() =>
   import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage }))
@@ -31,11 +31,11 @@ const SettingsPage = lazy(() =>
 const ShopeeIntegrationPage = lazy(() =>
   import('@/pages/ShopeeIntegrationPage')
 );
-const PaperManagementPage = lazy(() =>
-  import('@/pages/PaperManagementPage').then((m) => ({ default: m.PaperManagementPage }))
+const CadastrosPage = lazy(() =>
+  import('@/pages/CadastrosPage').then((m) => ({ default: m.CadastrosPage }))
 );
-const ProductManagementPage = lazy(() =>
-  import('@/pages/ProductManagementPage').then((m) => ({ default: m.ProductManagementPage }))
+const CustomerDetailPage = lazy(() =>
+  import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage }))
 );
 
 function LoadingFallback() {
@@ -58,12 +58,12 @@ export function App(): React.ReactElement {
                 <Route path="/pedidos" component={<OrdersPage />} />
                 <Route path="/pedidos/:id" component={<OrderDetailPage />} />
                 <Route path="/clientes" component={<CustomersPage />} />
-                <Route path="/impressoes" component={<PrintHistoryPage />} />
+                <Route path="/clientes/:id" component={<CustomerDetailPage />} />
+                <Route path="/impressoes" component={<PrintPage />} />
                 <Route path="/relatorios" component={<ReportsPage />} />
                 <Route path="/configuracoes" component={<SettingsPage />} />
                 <Route path="/shopee" component={<ShopeeIntegrationPage />} />
-                <Route path="/papeis" component={<PaperManagementPage />} />
-                <Route path="/produtos" component={<ProductManagementPage />} />
+                <Route path="/cadastros" component={<CadastrosPage />} />
               </Suspense>
             </AppLayout>
             <ToastContainer />

@@ -13,9 +13,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .info {
@@ -24,17 +24,17 @@
 }
 
 .printerName {
-  color: #fff;
-  font-weight: 500;
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
 }
 
 .date {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .empty {
   text-align: center;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-muted);
   padding: 32px;
 }

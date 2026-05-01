@@ -2,12 +2,9 @@ export interface CreateOrderInput {
   customerId: string;
   description: string;
   quantity: number;
-  paperTypeId: string;
-  width: number;
-  height: number;
+  priceTableEntryId?: string;
   dueDate: Date;
   salePrice: number;
-  productionCost: number;
   notes?: string;
 }
 
@@ -17,12 +14,9 @@ export interface CreateOrderOutput {
   customerId: string;
   description: string;
   quantity: number;
-  paperTypeId: string;
-  width: number;
-  height: number;
-  dueDate: Date;
+  priceTableEntryId?: string | null;
+  dueDate: Date | null;
   salePrice: number;
-  productionCost: number;
   status: 'draft';
   notes: string | null;
   createdAt: Date;

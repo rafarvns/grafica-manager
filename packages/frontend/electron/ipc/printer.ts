@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import ptp from 'pdf-to-printer';
+import * as ptp from 'pdf-to-printer';
 import { PrintOptions } from '../../src/types/printer';
 import fs from 'fs';
 

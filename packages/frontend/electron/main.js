@@ -27,16 +27,21 @@ function createWindow() {
             sandbox: true,
         },
     });
+    win.maximize();
     if (isDev) {
         win.loadURL('http://localhost:5173');
+        win.webContents.openDevTools();
     }
     else {
         win.loadFile((0, path_1.join)(__dirname, '../renderer/index.html'));
     }
 }
 const printer_1 = require("./ipc/printer");
+const files_1 = require("./ipc/files");
 electron_1.app.whenReady().then(() => {
+    electron_1.Menu.setApplicationMenu(null);
     (0, printer_1.setupPrinterHandlers)();
+    (0, files_1.setupFileHandlers)();
     createWindow();
     electron_1.app.on('activate', () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0)
