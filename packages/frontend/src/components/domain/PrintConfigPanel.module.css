@@ -41,3 +41,45 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.fieldWarning select,
+.fieldWarning input {
+  border-color: var(--color-warning, #d97706);
+}
+
+.fieldWarning select:focus,
+.fieldWarning input:focus {
+  border-color: var(--color-warning, #d97706);
+  box-shadow: 0 0 0 2px var(--color-warning-light, rgba(217, 119, 6, 0.15));
+}
+
+.warningText {
+  font-size: var(--font-size-xs);
+  color: var(--color-warning, #d97706);
+  font-weight: 500;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.fieldError select,
+.fieldError input {
+  border-color: var(--color-danger, #dc2626);
+}
+
+.fieldError select:focus,
+.fieldError input:focus {
+  border-color: var(--color-danger, #dc2626);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+}
+
+.hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.errorText {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger, #dc2626);
+}

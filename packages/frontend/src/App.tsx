@@ -34,6 +34,9 @@ const ShopeeIntegrationPage = lazy(() =>
 const CadastrosPage = lazy(() =>
   import('@/pages/CadastrosPage').then((m) => ({ default: m.CadastrosPage }))
 );
+const PrintJobReportPage = lazy(() =>
+  import('@/pages/PrintJobReportPage').then((m) => ({ default: m.PrintJobReportPage }))
+);
 const CustomerDetailPage = lazy(() =>
   import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage }))
 );
@@ -61,6 +64,8 @@ export function App(): React.ReactElement {
                 <Route path="/clientes/:id" component={<CustomerDetailPage />} />
                 <Route path="/impressoes" component={<PrintPage />} />
                 <Route path="/relatorios" component={<ReportsPage />} />
+                <Route path="/relatorios/pedidos" component={<ReportsPage />} />
+                <Route path="/relatorios/impressoes" component={<PrintJobReportPage />} />
                 <Route path="/configuracoes" component={<SettingsPage />} />
                 <Route path="/shopee" component={<ShopeeIntegrationPage />} />
                 <Route path="/cadastros" component={<CadastrosPage />} />

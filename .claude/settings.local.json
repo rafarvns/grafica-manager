@@ -56,7 +56,12 @@
       "Bash(node -e \"const ptp = require\\('pdf-to-printer'\\); console.log\\(typeof ptp, Object.keys\\(ptp\\)\\)\")",
       "Bash(ls packages/frontend/node_modules/pdf-to-printer)",
       "Bash(node -e \"const ptp = require\\('./packages/frontend/node_modules/pdf-to-printer'\\); console.log\\(typeof ptp, Object.keys\\(ptp\\)\\)\")",
-      "Bash(node -e \"const ptp = require\\('./packages/frontend/node_modules/pdf-to-printer/dist/bundle.js'\\); console.log\\(typeof ptp, typeof ptp.default, Object.keys\\(ptp\\)\\)\")"
+      "Bash(node -e \"const ptp = require\\('./packages/frontend/node_modules/pdf-to-printer/dist/bundle.js'\\); console.log\\(typeof ptp, typeof ptp.default, Object.keys\\(ptp\\)\\)\")",
+      "Bash(xargs grep *)",
+      "Bash(pnpm --filter frontend tsc --noEmit)",
+      "Bash(pnpm --filter frontend typecheck)",
+      "Bash(pnpm --filter backend typecheck)",
+      "Bash(pnpm --filter backend exec prisma generate)"
     ]
   }
 }

@@ -16,6 +16,7 @@ export class PrismaPriceTableRepository implements PriceTableRepository {
         colors: data.colors as any,
         unitPrice: data.unitPrice,
         validUntil: data.validUntil ? new Date(data.validUntil) : null,
+        maxPages: data.maxPages ?? 1,
       },
     });
 
@@ -67,6 +68,7 @@ export class PrismaPriceTableRepository implements PriceTableRepository {
         ...(data.description !== undefined && { description: data.description }),
         ...(data.unitPrice !== undefined && { unitPrice: data.unitPrice }),
         ...(data.validUntil !== undefined && { validUntil: data.validUntil ? new Date(data.validUntil) : null }),
+        ...(data.maxPages !== undefined && { maxPages: data.maxPages }),
       },
     });
 
@@ -91,6 +93,7 @@ export class PrismaPriceTableRepository implements PriceTableRepository {
       unitPrice: Number(entry.unitPrice),
       validUntil: entry.validUntil,
       active: true, // Mocked as active is not in schema but expected by interface
+      maxPages: entry.maxPages ?? 1,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
     };

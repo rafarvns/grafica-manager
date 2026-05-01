@@ -8,8 +8,8 @@ interface PriceTableManagerProps {
   priceTable: PriceTableEntry[];
   paperTypes: PaperType[];
   onPricesUpdated: () => void;
-  onCreate: (name: string, description: string, friendlyCode: string, paperTypeId: string, quality: string, colors: string, unitPrice: number) => Promise<void>;
-  onUpdate: (id: string, unitPrice: number, name?: string, description?: string) => Promise<void>;
+  onCreate: (name: string, description: string, friendlyCode: string, paperTypeId: string, quality: string, colors: string, unitPrice: number, maxPages: number) => Promise<void>;
+  onUpdate: (id: string, unitPrice: number, name?: string, description?: string, maxPages?: number) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
@@ -27,6 +27,7 @@ export function PriceTableManager({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState<number>(0);
+  const [editingMaxPages, setEditingMaxPages] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -38,11 +39,12 @@ export function PriceTableManager({
     quality: 'rascunho',
     colors: 'P&B' as ColorMode,
     unitPrice: '',
+    maxPages: '1',
   });
 
   const handleCreateClick = () => {
     setShowCreateForm(true);
-    setNewPrice({ name: '', description: '', friendlyCode: '', paperTypeId: '', quality: 'rascunho', colors: 'P&B', unitPrice: '' });
+    setNewPrice({ name: '', description: '', friendlyCode: '', paperTypeId: '', quality: 'rascunho', colors: 'P&B', unitPrice: '', maxPages: '1' });
   };
 
   const generateFriendlyCode = (data: typeof newPrice) => {
@@ -51,17 +53,17 @@ export function PriceTableManager({
       .map((word) => word[0])
       .join('')
       .toUpperCase();
-    
+
     const qualityMap: Record<string, string> = { rascunho: 'RSC', padrão: 'PDR', premium: 'PRM' };
     const q = qualityMap[data.quality] || 'UNK';
-    
+
     const c = data.colors === 'P&B' ? 'PB' : 'CLR';
-    
+
     const paper = paperTypes.find(t => t.id === data.paperTypeId);
     const pInit = paper ? paper.name.split(' ').map(w => w[0]).join('').toUpperCase() : '??';
-    
+
     const priceStr = data.unitPrice ? parseFloat(data.unitPrice).toFixed(2).replace('.', '') : '000';
-    
+
     return `${initials}-${pInit}-${q}-${c}-${priceStr}`;
   };
 
@@ -79,10 +81,16 @@ export function PriceTableManager({
       return;
     }
 
+    const maxPages = parseInt(newPrice.maxPages) || 1;
+    if (maxPages < 1) {
+      setMessage({ type: 'error', text: 'O máximo de páginas deve ser >= 1.' });
+      return;
+    }
+
     try {
       setLoading(true);
       const friendlyCode = generateFriendlyCode(newPrice);
-      await onCreate(newPrice.name, newPrice.description, friendlyCode, newPrice.paperTypeId, newPrice.quality, newPrice.colors, unitPrice);
+      await onCreate(newPrice.name, newPrice.description, friendlyCode, newPrice.paperTypeId, newPrice.quality, newPrice.colors, unitPrice, maxPages);
       setMessage({ type: 'success', text: 'Preço criado com sucesso!' });
       setShowCreateForm(false);
       onPricesUpdated();
@@ -95,9 +103,10 @@ export function PriceTableManager({
     }
   };
 
-  const handleEditStart = (id: string, currentPrice: number) => {
+  const handleEditStart = (id: string, currentPrice: number, currentMaxPages: number) => {
     setEditingId(id);
     setEditingValue(currentPrice);
+    setEditingMaxPages(currentMaxPages);
   };
 
   const handleEditSave = async (id: string) => {
@@ -106,9 +115,14 @@ export function PriceTableManager({
       return;
     }
 
+    if (editingMaxPages < 1) {
+      setMessage({ type: 'error', text: 'O máximo de páginas deve ser >= 1.' });
+      return;
+    }
+
     try {
       setLoading(true);
-      await onUpdate(id, editingValue);
+      await onUpdate(id, editingValue, undefined, undefined, editingMaxPages);
       setMessage({ type: 'success', text: 'Preço atualizado com sucesso!' });
       setEditingId(null);
       onPricesUpdated();
@@ -284,6 +298,23 @@ export function PriceTableManager({
             />
           </div>
 
+          <div className={styles.formField}>
+            <label htmlFor="max-pages">Máximo de Páginas:</label>
+            <input
+              id="max-pages"
+              type="number"
+              data-testid="new-price-max-pages"
+              placeholder="1"
+              min="1"
+              step="1"
+              value={newPrice.maxPages}
+              onChange={(e) =>
+                setNewPrice({ ...newPrice, maxPages: e.target.value })
+              }
+              disabled={loading}
+            />
+          </div>
+
           <div className={styles.formActions}>
             <button
               type="submit"
@@ -315,13 +346,14 @@ export function PriceTableManager({
               <th>Qualidade</th>
               <th>Tipo de Cor</th>
               <th>Preço Unitário</th>
+              <th>Máx. Pág.</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {priceTable.length === 0 ? (
               <tr>
-                <td colSpan={5} className={styles.emptyCell}>
+                <td colSpan={8} className={styles.emptyCell}>
                   Nenhuma entrada de preço configurada.
                 </td>
               </tr>
@@ -364,6 +396,24 @@ export function PriceTableManager({
                       <span>R$ {entry.unitPrice.toFixed(2)}</span>
                     )}
                   </td>
+                  <td>
+                    {editingId === entry.id ? (
+                      <input
+                        type="number"
+                        data-testid="edit-price-max-pages"
+                        min="1"
+                        step="1"
+                        value={editingMaxPages}
+                        onChange={(e) =>
+                          setEditingMaxPages(parseInt(e.target.value) || 1)
+                        }
+                        disabled={loading}
+                        className={styles.priceInput}
+                      />
+                    ) : (
+                      <span>{entry.maxPages ?? 1}</span>
+                    )}
+                  </td>
                   <td className={styles.actions}>
                     {editingId === entry.id ? (
                       <>
@@ -387,7 +437,7 @@ export function PriceTableManager({
                       <>
                         <button
                           className={styles.editButton}
-                          onClick={() => handleEditStart(entry.id, entry.unitPrice)}
+                          onClick={() => handleEditStart(entry.id, entry.unitPrice, entry.maxPages ?? 1)}
                           disabled={loading}
                           data-testid="edit-price"
                         >

@@ -30,14 +30,14 @@ export function OrderSelector({ value, onChange, disabled }: OrderSelectorProps)
 
   return (
     <div>
-      <label htmlFor="order-selector">Pedido (opcional)</label>
+      <label htmlFor="order-selector">Pedido</label>
       <select
         id="order-selector"
         value={value}
         onChange={handleChange}
         disabled={disabled || loading}
       >
-        <option value="">— Nenhum pedido —</option>
+        <option value="">— Selecione um pedido —</option>
         {orders.map((o) => (
           <option key={o.id} value={o.id}>
             {o.orderNumber} — {o.customerName || 'Cliente'} — {o.description.slice(0, 40)}

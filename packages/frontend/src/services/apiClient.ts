@@ -112,6 +112,22 @@ class ApiClient {
     return this.fetch<T>(path, { ...options, method: 'DELETE' });
   }
 
+  public async postBlob(path: string, body: unknown): Promise<Blob> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+
+    let p = path;
+    if (p.startsWith('/api/v1')) p = p.substring(7);
+    else if (p.startsWith('/api')) p = p.substring(4);
+    else if (p.startsWith('/v1')) p = p.substring(3);
+    const normalizedPath = p.startsWith('/') ? p : `/${p}`;
+    const url = `${this.baseUrl}/api/v1${normalizedPath}`;
+
+    const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+    if (!response.ok) throw new Error(`Erro na exportação (Status: ${response.status})`);
+    return response.blob();
+  }
+
   public getBaseUrl(): string {
     return this.baseUrl;
   }

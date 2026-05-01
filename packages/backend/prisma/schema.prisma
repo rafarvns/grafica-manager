@@ -120,6 +120,7 @@ model PriceTableEntry {
   unitPrice       Decimal  @db.Decimal(12, 4)
   validUntil      DateTime?
   active          Boolean  @default(true)
+  maxPages        Int      @default(1)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

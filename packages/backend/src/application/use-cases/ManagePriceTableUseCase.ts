@@ -27,6 +27,10 @@ export class ManagePriceTableUseCase {
       throw new Error('Preço unitário deve ser > 0');
     }
 
+    if (input.maxPages !== undefined && input.maxPages < 1) {
+      throw new Error('Quantidade máxima de páginas deve ser >= 1');
+    }
+
     const quality = input.quality as PrintQuality;
     const colors = input.colors as ColorMode;
 
@@ -51,6 +55,7 @@ export class ManagePriceTableUseCase {
       colors,
       unitPrice: input.unitPrice,
       validUntil: input.validUntil as any,
+      maxPages: input.maxPages ?? 1,
     });
 
     return {
@@ -63,6 +68,7 @@ export class ManagePriceTableUseCase {
       colors: price.colors,
       unitPrice: price.unitPrice,
       validUntil: price.validUntil as any,
+      maxPages: price.maxPages,
       createdAt: price.createdAt,
     };
   }
@@ -85,6 +91,7 @@ export class ManagePriceTableUseCase {
       ...(input.description !== undefined && { description: input.description }),
       ...(input.unitPrice !== undefined && { unitPrice: input.unitPrice }),
       ...(input.validUntil !== undefined && { validUntil: input.validUntil }),
+      ...(input.maxPages !== undefined && { maxPages: input.maxPages }),
     });
 
     return {
@@ -97,6 +104,7 @@ export class ManagePriceTableUseCase {
       colors: updated.colors,
       unitPrice: updated.unitPrice,
       validUntil: updated.validUntil as any,
+      maxPages: updated.maxPages,
       createdAt: updated.createdAt,
     };
   }
@@ -148,6 +156,7 @@ export class ManagePriceTableUseCase {
       colors: p.colors,
       unitPrice: p.unitPrice,
       validUntil: p.validUntil as any,
+      maxPages: p.maxPages,
       createdAt: p.createdAt,
     }));
   }

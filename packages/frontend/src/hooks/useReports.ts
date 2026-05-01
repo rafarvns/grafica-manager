@@ -1,74 +1,55 @@
 import { useState, useCallback } from 'react';
 import { apiClient } from '@/services/apiClient';
+import type { ReportResult } from '@grafica/shared';
 
-export type ReportGrouping = 'NONE' | 'CLIENT' | 'PAPER' | 'ORIGIN' | 'PERIOD';
+export type ReportGrouping = 'none' | 'customer' | 'order' | 'paper' | 'origin';
 export type SortDirection = 'ASC' | 'DESC';
 export type PageSize = 25 | 50 | 100;
 
 export interface ReportFilters {
-  from: string;
-  to: string;
-  customerId?: string;
-  origin?: string;
-  paperTypeId?: string;
+  startDate: string;
+  endDate: string;
   grouping?: ReportGrouping;
-  sortColumn?: string;
-  sortDirection?: SortDirection;
   page?: number;
   pageSize?: PageSize;
 }
 
-export interface ReportRow {
-  label: string;
-  printCount: number;
-  revenue: number;
-  cost: number;
-  grossMarginPercent: number;
-  netMarginPercent: number;
-}
-
-export interface ReportResult {
-  rows: ReportRow[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-
-const API_BASE = 'http://localhost:3000/api/v1';
-
-function buildExportUrl(path: string, filters: ReportFilters): string {
-  const qs = new URLSearchParams();
-  qs.set('from', filters.from);
-  qs.set('to', filters.to);
-  if (filters.customerId) qs.set('customerId', filters.customerId);
-  if (filters.origin) qs.set('origin', filters.origin);
-  if (filters.paperTypeId) qs.set('paperTypeId', filters.paperTypeId);
-  if (filters.grouping) qs.set('grouping', filters.grouping);
-  if (filters.sortColumn) qs.set('sortColumn', filters.sortColumn);
-  if (filters.sortDirection) qs.set('sortDirection', filters.sortDirection);
-  if (filters.page) qs.set('page', String(filters.page));
-  if (filters.pageSize) qs.set('pageSize', String(filters.pageSize));
-  return `${API_BASE}/reports${path}?${qs}`;
+function triggerDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export function useReports() {
   const [data, setData] = useState<ReportResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<Partial<ReportFilters>>({});
+  const [filters, setFiltersState] = useState<Partial<ReportFilters>>({});
 
   const generate = useCallback(async (f: ReportFilters) => {
-    if (!f.from || !f.to) {
+    if (!f.startDate || !f.endDate) {
       setError('Selecione um período para gerar o relatório');
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const resp = await apiClient.post<{ data: ReportResult }>('/v1/reports/generate', f);
+      const params: Record<string, string | number> = {
+        startDate: f.startDate,
+        endDate: f.endDate,
+      };
+      if (f.grouping) params['grouping'] = f.grouping;
+      if (f.page) params['page'] = f.page;
+      if (f.pageSize) params['pageSize'] = f.pageSize;
+
+      const resp = await apiClient.get<{ data: ReportResult }>('/reports/generate', { params });
       setData(resp.data.data);
-      setFilters(f);
+      setFiltersState(f);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao gerar relatório';
       setError(message);
@@ -77,29 +58,36 @@ export function useReports() {
     }
   }, []);
 
-  const exportCsv = useCallback(
-    (f: ReportFilters) => {
-      const url = buildExportUrl('/export/csv', f);
-      window.open(url, '_blank');
-    },
-    []
-  );
+  const exportCsv = useCallback(async (f: ReportFilters) => {
+    try {
+      const blob = await apiClient.postBlob('/reports/export', { filters: f, format: 'csv' });
+      triggerDownload(blob, 'relatorio.csv');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao exportar CSV');
+    }
+  }, []);
 
-  const exportExcel = useCallback(
-    (f: ReportFilters) => {
-      const url = buildExportUrl('/export/excel', f);
-      window.open(url, '_blank');
-    },
-    []
-  );
+  const exportExcel = useCallback(async (f: ReportFilters) => {
+    try {
+      const blob = await apiClient.postBlob('/reports/export', { filters: f, format: 'excel' });
+      triggerDownload(blob, 'relatorio.xlsx');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao exportar Excel');
+    }
+  }, []);
 
-  const exportPdf = useCallback(() => {
-    window.print();
+  const exportPdf = useCallback(async (f: ReportFilters) => {
+    try {
+      const blob = await apiClient.postBlob('/reports/export', { filters: f, format: 'pdf' });
+      triggerDownload(blob, 'relatorio.pdf');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao exportar PDF');
+    }
   }, []);
 
   const changePage = useCallback(
     (page: number) => {
-      if (!filters.from || !filters.to) return;
+      if (!filters.startDate || !filters.endDate) return;
       void generate({ ...(filters as ReportFilters), page });
     },
     [filters, generate]

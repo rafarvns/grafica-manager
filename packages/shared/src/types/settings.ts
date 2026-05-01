@@ -43,6 +43,7 @@ export interface PriceTableEntry {
   unitPrice: number;
   validUntil: Date;
   active: boolean;
+  maxPages: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,6 +80,7 @@ export interface CreatePriceTableEntryDTO {
   unitPrice: number;
   validUntil: string | Date;
   active?: boolean;
+  maxPages?: number;
 }
 
 export interface UpdatePriceTableEntryDTO extends Partial<CreatePriceTableEntryDTO> {}

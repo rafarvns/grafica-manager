@@ -7,21 +7,36 @@ export interface PrintConfig {
   orientation: 'portrait' | 'landscape';
   side: 'simplex' | 'duplex' | 'duplexshort';
   copies: number;
+  pageRanges: string;
 }
 
 interface PrintConfigPanelProps {
   config: PrintConfig;
   onChange: (config: PrintConfig) => void;
   disabled?: boolean;
+  warnings?: Set<keyof PrintConfig>;
+  maxPages?: number;
 }
 
-export function PrintConfigPanel({ config, onChange, disabled }: PrintConfigPanelProps) {
+// Aceita: "", "1", "1-5", "1-5, 8, 11-13", "2,4,6"
+const PAGE_RANGE_REGEX = /^(\d+(-\d+)?)(\s*,\s*(\d+(-\d+)?))*$/;
+
+function isValidPageRange(value: string): boolean {
+  if (value.trim() === '') return true;
+  return PAGE_RANGE_REGEX.test(value.trim());
+}
+
+export function PrintConfigPanel({ config, onChange, disabled, warnings, maxPages }: PrintConfigPanelProps) {
   const set = <K extends keyof PrintConfig>(key: K, val: PrintConfig[K]) =>
     onChange({ ...config, [key]: val });
 
+  const warn = (key: keyof PrintConfig) => warnings?.has(key) ?? false;
+
+  const pageRangeInvalid = !isValidPageRange(config.pageRanges);
+
   return (
     <div className={styles.grid}>
-      <div className={styles.field}>
+      <div className={warn('quality') ? `${styles.field} ${styles.fieldWarning}` : styles.field}>
         <label htmlFor="pc-quality">Qualidade</label>
         <select
           id="pc-quality"
@@ -33,9 +48,10 @@ export function PrintConfigPanel({ config, onChange, disabled }: PrintConfigPane
           <option value="normal">Normal</option>
           <option value="alta">Alta</option>
         </select>
+        {warn('quality') && <span className={styles.warningText}>Diverge do pedido</span>}
       </div>
 
-      <div className={styles.field}>
+      <div className={warn('colorMode') ? `${styles.field} ${styles.fieldWarning}` : styles.field}>
         <label htmlFor="pc-color">Cor</label>
         <select
           id="pc-color"
@@ -47,6 +63,7 @@ export function PrintConfigPanel({ config, onChange, disabled }: PrintConfigPane
           <option value="CMYK">Colorido (CMYK)</option>
           <option value="RGB">Colorido (RGB)</option>
         </select>
+        {warn('colorMode') && <span className={styles.warningText}>Diverge do pedido</span>}
       </div>
 
       <div className={styles.field}>
@@ -76,7 +93,7 @@ export function PrintConfigPanel({ config, onChange, disabled }: PrintConfigPane
         </select>
       </div>
 
-      <div className={styles.field}>
+      <div className={warn('copies') ? `${styles.field} ${styles.fieldWarning}` : styles.field}>
         <label htmlFor="pc-copies">Cópias</label>
         <input
           id="pc-copies"
@@ -87,6 +104,34 @@ export function PrintConfigPanel({ config, onChange, disabled }: PrintConfigPane
           onChange={(e) => set('copies', Math.max(1, parseInt(e.target.value) || 1))}
           disabled={disabled}
         />
+        {warn('copies') && <span className={styles.warningText}>Diverge do pedido</span>}
+      </div>
+
+      <div className={[
+        styles.field,
+        styles.fieldFull,
+        warn('pageRanges') ? styles.fieldWarning : '',
+        pageRangeInvalid ? styles.fieldError : '',
+      ].filter(Boolean).join(' ')}>
+        <label htmlFor="pc-pages">Intervalo de Páginas</label>
+        <input
+          id="pc-pages"
+          type="text"
+          placeholder="ex: 1-5, 8, 11-13  (vazio = todas)"
+          value={config.pageRanges}
+          onChange={(e) => set('pageRanges', e.target.value)}
+          disabled={disabled}
+          aria-invalid={pageRangeInvalid}
+        />
+        {maxPages !== undefined && (
+          <span className={styles.hint}>Produto tem até {maxPages} página(s)</span>
+        )}
+        {pageRangeInvalid && (
+          <span className={styles.errorText}>Formato inválido — use ex: 1-5, 8, 11-13</span>
+        )}
+        {!pageRangeInvalid && warn('pageRanges') && (
+          <span className={styles.warningText}>Diverge do pedido</span>
+        )}
       </div>
     </div>
   );

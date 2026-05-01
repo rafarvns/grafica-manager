@@ -7,6 +7,7 @@ export interface CreatePriceTableInput {
   colors: string;
   unitPrice: number;
   validUntil?: Date;
+  maxPages?: number;
 }
 
 export interface UpdatePriceTableInput {
@@ -15,6 +16,7 @@ export interface UpdatePriceTableInput {
   description?: string;
   unitPrice?: number;
   validUntil?: Date;
+  maxPages?: number;
 }
 
 export interface PriceTableOutput {
@@ -27,6 +29,7 @@ export interface PriceTableOutput {
   colors: string;
   unitPrice: number;
   validUntil?: Date;
+  maxPages: number;
   createdAt: Date;
 }
 

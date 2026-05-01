@@ -37,10 +37,10 @@ export function ProductManagementPage() {
             priceTable={priceTable}
             paperTypes={paperTypes}
             onPricesUpdated={fetchPriceTable}
-            onCreate={(name, description, friendlyCode, paperTypeId, quality, colors, unitPrice) => 
-              createPriceEntry(name, description, friendlyCode, paperTypeId, quality, colors, unitPrice)
+            onCreate={(name, description, friendlyCode, paperTypeId, quality, colors, unitPrice, maxPages) =>
+              createPriceEntry(name, description, friendlyCode, paperTypeId, quality, colors, unitPrice, maxPages)
             }
-            onUpdate={updatePriceEntry}
+            onUpdate={(id, unitPrice, name, description, maxPages) => updatePriceEntry(id, { unitPrice, name, description, maxPages })}
             onDelete={deletePriceEntry}
           />
         )}

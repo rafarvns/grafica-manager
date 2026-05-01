@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useReports, ReportGrouping, PageSize, ReportFilters } from '@/hooks/useReports';
+import { ReportsTabs } from '@/components/domain/ReportsTabs';
 import { Button } from '@/components/ui/Button/Button';
 import { Spinner } from '@/components/ui/Spinner/Spinner';
 import styles from './ReportsPage.module.css';
 
 const GROUPING_LABELS: Record<ReportGrouping, string> = {
-  NONE: 'Sem agrupamento',
-  CLIENT: 'Por cliente',
-  PAPER: 'Por papel',
-  ORIGIN: 'Por origem',
-  PERIOD: 'Por período',
+  none: 'Sem agrupamento',
+  customer: 'Por cliente',
+  order: 'Por pedido',
+  paper: 'Por papel',
+  origin: 'Por origem',
 };
 
 const PAGE_SIZE_OPTIONS: PageSize[] = [25, 50, 100];
@@ -22,13 +23,18 @@ function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`;
 }
 
+function formatDate(isoString: string): string {
+  const d = new Date(isoString);
+  return d.toLocaleDateString('pt-BR');
+}
+
 export function ReportsPage() {
   const { data, loading, error, generate, exportCsv, exportExcel, exportPdf, changePage } =
     useReports();
 
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [grouping, setGrouping] = useState<ReportGrouping>('NONE');
+  const [grouping, setGrouping] = useState<ReportGrouping>('none');
   const [pageSize, setPageSize] = useState<PageSize>(25);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -38,7 +44,7 @@ export function ReportsPage() {
       return null;
     }
     setValidationError(null);
-    return { from, to, grouping, pageSize };
+    return { startDate: from, endDate: to, grouping, pageSize };
   };
 
   const handleGenerate = () => {
@@ -46,25 +52,31 @@ export function ReportsPage() {
     if (filters) void generate(filters);
   };
 
-  const handleExportCsv = () => {
+  const handleExportCsv = async () => {
     const filters = buildFilters();
-    if (filters) exportCsv(filters);
+    if (filters) await exportCsv(filters);
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     const filters = buildFilters();
-    if (filters) exportExcel(filters);
+    if (filters) await exportExcel(filters);
   };
 
-  const handleExportPdf = () => {
-    exportPdf();
+  const handleExportPdf = async () => {
+    const filters = buildFilters();
+    if (filters) await exportPdf(filters);
   };
+
+  const totalPages = data
+    ? Math.ceil(data.pagination.totalCount / data.pagination.pageSize)
+    : 0;
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>Relatórios</h1>
       </header>
+      <ReportsTabs />
 
       <section className={styles.filters} aria-label="Filtros do relatório">
         <div className={styles.filterRow}>
@@ -163,39 +175,78 @@ export function ReportsPage() {
 
       {data && (
         <section aria-label="Resultado do relatório">
+          <div className={styles.totals}>
+            <div className={styles.totalItem}>
+              <span className={styles.totalLabel}>Pedidos</span>
+              <span className={styles.totalValue}>{data.totals.totalOrders}</span>
+            </div>
+            <div className={styles.totalItem}>
+              <span className={styles.totalLabel}>Receita</span>
+              <span className={styles.totalValue}>{formatCurrency(data.totals.totalRevenue)}</span>
+            </div>
+            <div className={styles.totalItem}>
+              <span className={styles.totalLabel}>Custo</span>
+              <span className={styles.totalValue}>{formatCurrency(data.totals.totalCost)}</span>
+            </div>
+            <div className={styles.totalItem}>
+              <span className={styles.totalLabel}>Margem</span>
+              <span className={styles.totalValue}>{formatCurrency(data.totals.totalMargin)}</span>
+            </div>
+            <div className={styles.totalItem}>
+              <span className={styles.totalLabel}>Margem %</span>
+              <span className={styles.totalValue}>{formatPercent(data.totals.marginPercent)}</span>
+            </div>
+            <div className={styles.totalItem}>
+              <span className={styles.totalLabel}>Ticket Médio</span>
+              <span className={styles.totalValue}>{formatCurrency(data.totals.ticketAverage)}</span>
+            </div>
+          </div>
+
           <p className={styles.summary}>
-            {data.total} resultado{data.total !== 1 ? 's' : ''} · Página {data.page} de{' '}
-            {data.totalPages}
+            {data.pagination.totalCount} resultado{data.pagination.totalCount !== 1 ? 's' : ''} ·
+            Página {data.pagination.page} de {totalPages}
           </p>
 
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th scope="col">Grupo</th>
-                  <th scope="col">Impressões</th>
-                  <th scope="col">Receita</th>
+                  <th scope="col">Data</th>
+                  <th scope="col">Pedido</th>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Papel</th>
+                  <th scope="col">Qtde</th>
+                  <th scope="col">Venda</th>
                   <th scope="col">Custo</th>
-                  <th scope="col">Margem Bruta</th>
-                  <th scope="col">Margem Líquida</th>
+                  <th scope="col">Margem</th>
+                  <th scope="col">Margem %</th>
+                  <th scope="col">Origem</th>
                 </tr>
               </thead>
               <tbody>
                 {data.rows.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className={styles.empty}>
+                    <td colSpan={10} className={styles.empty}>
                       Nenhum resultado para o período selecionado.
                     </td>
                   </tr>
                 ) : (
-                  data.rows.map((row, idx) => (
-                    <tr key={idx}>
-                      <td>{row.label}</td>
-                      <td>{row.printCount.toLocaleString('pt-BR')}</td>
-                      <td>{formatCurrency(row.revenue)}</td>
+                  data.rows.map((row) => (
+                    <tr key={row.orderId}>
+                      <td>{formatDate(row.date)}</td>
+                      <td>{row.orderNumber}</td>
+                      <td>{row.customerName}</td>
+                      <td>{row.paperType}</td>
+                      <td>{row.quantity.toLocaleString('pt-BR')}</td>
+                      <td>{formatCurrency(row.salePrice)}</td>
                       <td>{formatCurrency(row.cost)}</td>
-                      <td>{formatPercent(row.grossMarginPercent)}</td>
-                      <td>{formatPercent(row.netMarginPercent)}</td>
+                      <td>{formatCurrency(row.margin)}</td>
+                      <td>{formatPercent(row.marginPercent)}</td>
+                      <td>
+                        <span className={row.origin === 'SHOPEE' ? styles.tagShopee : styles.tagManual}>
+                          {row.origin === 'SHOPEE' ? 'Shopee' : 'Manual'}
+                        </span>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -203,23 +254,23 @@ export function ReportsPage() {
             </table>
           </div>
 
-          {data.totalPages > 1 && (
+          {totalPages > 1 && (
             <nav className={styles.pagination} aria-label="Paginação">
               <Button
                 variant="secondary"
-                onClick={() => changePage(data.page - 1)}
-                disabled={data.page <= 1}
+                onClick={() => changePage(data.pagination.page - 1)}
+                disabled={data.pagination.page <= 1}
                 aria-label="Página anterior"
               >
                 ←
               </Button>
               <span className={styles.pageInfo}>
-                {data.page} / {data.totalPages}
+                {data.pagination.page} / {totalPages}
               </span>
               <Button
                 variant="secondary"
-                onClick={() => changePage(data.page + 1)}
-                disabled={data.page >= data.totalPages}
+                onClick={() => changePage(data.pagination.page + 1)}
+                disabled={data.pagination.page >= totalPages}
                 aria-label="Próxima página"
               >
                 →
