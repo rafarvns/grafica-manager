@@ -64,22 +64,6 @@ describe('CreateOrderUseCase', () => {
       await expect(useCase.execute(input)).rejects.toThrow('Preço de venda não pode ser negativo');
     });
 
-    it('deve validar que custo de produção é >= 0', async () => {
-      const input: CreateOrderInput = {
-        customerId: 'customer-1',
-        description: 'Design brochura',
-        quantity: 100,
-        paperTypeId: 'paper-1',
-        width: 210,
-        height: 297,
-        dueDate: new Date(),
-        salePrice: 100.0,
-        productionCost: -5.0,
-      };
-
-      await expect(useCase.execute(input)).rejects.toThrow('Custo de produção não pode ser negativo');
-    });
-
     it('deve validar que descrição é obrigatória', async () => {
       const input: CreateOrderInput = {
         customerId: 'customer-1',

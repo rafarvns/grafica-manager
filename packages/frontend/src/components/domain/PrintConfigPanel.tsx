@@ -1,11 +1,12 @@
 import React from 'react';
 import styles from './PrintConfigPanel.module.css';
+import type { PrinterCapabilities } from '@/types/printer';
 
 export interface PrintConfig {
   quality: 'rascunho' | 'normal' | 'alta';
   colorMode: 'CMYK' | 'RGB' | 'GRAYSCALE';
   orientation: 'portrait' | 'landscape';
-  side: 'simplex' | 'duplex' | 'duplexshort';
+  side: 'simplex' | 'duplex' | 'duplexshort' | 'manualduplex' | 'manualduplexshort';
   copies: number;
   pageRanges: string;
 }
@@ -16,6 +17,7 @@ interface PrintConfigPanelProps {
   disabled?: boolean;
   warnings?: Set<keyof PrintConfig>;
   maxPages?: number;
+  capabilities?: PrinterCapabilities;
 }
 
 // Aceita: "", "1", "1-5", "1-5, 8, 11-13", "2,4,6"
@@ -26,13 +28,16 @@ function isValidPageRange(value: string): boolean {
   return PAGE_RANGE_REGEX.test(value.trim());
 }
 
-export function PrintConfigPanel({ config, onChange, disabled, warnings, maxPages }: PrintConfigPanelProps) {
+export function PrintConfigPanel({ config, onChange, disabled, warnings, maxPages, capabilities }: PrintConfigPanelProps) {
   const set = <K extends keyof PrintConfig>(key: K, val: PrintConfig[K]) =>
     onChange({ ...config, [key]: val });
 
   const warn = (key: keyof PrintConfig) => warnings?.has(key) ?? false;
 
   const pageRangeInvalid = !isValidPageRange(config.pageRanges);
+
+  const supportsDuplex = capabilities?.supportsDuplex ?? true;
+  const supportsColor = capabilities?.supportsColor ?? true;
 
   return (
     <div className={styles.grid}>
@@ -55,14 +60,15 @@ export function PrintConfigPanel({ config, onChange, disabled, warnings, maxPage
         <label htmlFor="pc-color">Cor</label>
         <select
           id="pc-color"
-          value={config.colorMode}
+          value={supportsColor ? config.colorMode : 'GRAYSCALE'}
           onChange={(e) => set('colorMode', e.target.value as PrintConfig['colorMode'])}
-          disabled={disabled}
+          disabled={disabled || !supportsColor}
         >
           <option value="GRAYSCALE">Preto e branco</option>
-          <option value="CMYK">Colorido (CMYK)</option>
-          <option value="RGB">Colorido (RGB)</option>
+          <option value="CMYK" disabled={!supportsColor}>Colorido (CMYK)</option>
+          <option value="RGB" disabled={!supportsColor}>Colorido (RGB)</option>
         </select>
+        {!supportsColor && <span className={styles.hint}>Impressora monocromática</span>}
         {warn('colorMode') && <span className={styles.warningText}>Diverge do pedido</span>}
       </div>
 
@@ -88,9 +94,21 @@ export function PrintConfigPanel({ config, onChange, disabled, warnings, maxPage
           disabled={disabled}
         >
           <option value="simplex">Frente</option>
-          <option value="duplex">Frente e verso (longo)</option>
-          <option value="duplexshort">Frente e verso (curto)</option>
+          {supportsDuplex ? (
+            <>
+              <option value="duplex">Frente e verso (longo)</option>
+              <option value="duplexshort">Frente e verso (curto)</option>
+            </>
+          ) : (
+            <>
+              <option value="manualduplex">Frente e verso manual (longo)</option>
+              <option value="manualduplexshort">Frente e verso manual (curto)</option>
+            </>
+          )}
         </select>
+        {!supportsDuplex && (config.side === 'manualduplex' || config.side === 'manualduplexshort') && (
+          <span className={styles.hint}>Será impresso em 2 passagens com instruções na tela</span>
+        )}
       </div>
 
       <div className={warn('copies') ? `${styles.field} ${styles.fieldWarning}` : styles.field}>

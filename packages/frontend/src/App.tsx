@@ -19,8 +19,8 @@ const CustomersPage = lazy(() =>
 const PrintPage = lazy(() =>
   import('@/pages/PrintPage').then((m) => ({ default: m.PrintPage }))
 );
-const ReportsPage = lazy(() =>
-  import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage }))
+const ReportsHub = lazy(() =>
+  import('@/pages/ReportsHub').then((m) => ({ default: m.ReportsHub }))
 );
 const OrderDetailPage = lazy(() =>
   import('@/pages/OrderDetailPage').then((m) => ({ default: m.OrderDetailPage }))
@@ -33,9 +33,6 @@ const ShopeeIntegrationPage = lazy(() =>
 );
 const CadastrosPage = lazy(() =>
   import('@/pages/CadastrosPage').then((m) => ({ default: m.CadastrosPage }))
-);
-const PrintJobReportPage = lazy(() =>
-  import('@/pages/PrintJobReportPage').then((m) => ({ default: m.PrintJobReportPage }))
 );
 const CustomerDetailPage = lazy(() =>
   import('@/pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage }))
@@ -63,9 +60,7 @@ export function App(): React.ReactElement {
                 <Route path="/clientes" component={<CustomersPage />} />
                 <Route path="/clientes/:id" component={<CustomerDetailPage />} />
                 <Route path="/impressoes" component={<PrintPage />} />
-                <Route path="/relatorios" component={<ReportsPage />} />
-                <Route path="/relatorios/pedidos" component={<ReportsPage />} />
-                <Route path="/relatorios/impressoes" component={<PrintJobReportPage />} />
+                <Route path="/relatorios" prefix component={<ReportsHub />} />
                 <Route path="/configuracoes" component={<SettingsPage />} />
                 <Route path="/shopee" component={<ShopeeIntegrationPage />} />
                 <Route path="/cadastros" component={<CadastrosPage />} />

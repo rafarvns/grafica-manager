@@ -1,17 +1,4 @@
-import { Printer, PrintOptions } from '../types/printer';
-
-// Interface que reflete o objeto exposto no preload.ts
-interface ElectronAPI {
-  platform: string;
-  getPrinters: () => Promise<Printer[]>;
-  printPdf: (filePath: string, options: PrintOptions) => Promise<boolean>;
-}
-
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
-}
+import { Printer, PrintOptions, PrintJobResult } from '../types/printer';
 
 export const printerService = {
   /**
@@ -28,14 +15,13 @@ export const printerService = {
 
   /**
    * Envia um arquivo PDF para impressão usando as opções configuradas.
-   * @param filePath Caminho absoluto local para o PDF.
-   * @param options Configurações de impressão.
-   * @returns Verdadeiro se enviado com sucesso, Falso se houve erro.
+   * Retorna um discriminador: 'success' (impresso), 'cancelled' (usuário cancelou no
+   * diálogo de Preferências) ou 'error' (falha real).
    */
-  async printPdf(filePath: string, options: PrintOptions): Promise<boolean> {
+  async printPdf(filePath: string, options: PrintOptions): Promise<PrintJobResult> {
     if (!window.electronAPI) {
       console.warn('electronAPI not available. Cannot print.');
-      return false;
+      return { status: 'error', error: 'electronAPI indisponível' };
     }
     return window.electronAPI.printPdf(filePath, options);
   }

@@ -46,19 +46,25 @@ export function useRouter() {
 interface RouteProps {
   path: string;
   component: ReactNode;
+  prefix?: boolean;
 }
 
-export function Route({ path, component }: RouteProps) {
+export function Route({ path, component, prefix = false }: RouteProps) {
   const { currentPath } = useRouter();
-  
-  // Converter path do tipo "/pedidos/:id" para regex "^/pedidos/[^/]+$"
-  const regexPath = path.replace(/:[^\s/]+/g, '[^/]+');
-  const matcher = new RegExp(`^${regexPath}$`);
 
-  if (matcher.test(currentPath)) {
+  let matches: boolean;
+  if (prefix) {
+    matches = currentPath === path || currentPath.startsWith(path + '/');
+  } else {
+    // Converter path do tipo "/pedidos/:id" para regex "^/pedidos/[^/]+$"
+    const regexPath = path.replace(/:[^\s/]+/g, '[^/]+');
+    matches = new RegExp(`^${regexPath}$`).test(currentPath);
+  }
+
+  if (matches) {
     return <>{component}</>;
   }
-  
+
   return null;
 }
 

@@ -57,24 +57,29 @@ export class PrismaOrderRepository implements OrderRepository {
 
   async create(order: Order): Promise<Order> {
     const data = order.toJSON();
-    const created = await this.prisma.order.create({
-      data: {
-        id: data.id,
-        orderNumber: data.orderNumber,
-        status: data.status,
-        description: data.description,
-        quantity: data.quantity,
-        priceTableEntryId: data.priceTableEntryId ?? null,
-        dueDate: data.dueDate ?? null,
-        shopeeOrderId: data.shopeeOrderId ?? null,
-        shopeeShopId: data.shopeeShopId ?? null,
-        salePrice: data.salePrice,
-        notes: data.notes ?? null,
-        customerId: data.customerId ?? null,
-        storeId: data.storeId ?? null,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-      },
+    const created = await this.prisma.$transaction(async (tx) => {
+      const count = await tx.order.count();
+      const orderNumber = `PED-${String(count + 1).padStart(4, '0')}`;
+
+      return tx.order.create({
+        data: {
+          id: data.id,
+          orderNumber,
+          status: data.status,
+          description: data.description,
+          quantity: data.quantity,
+          priceTableEntryId: data.priceTableEntryId ?? null,
+          dueDate: data.dueDate ?? null,
+          shopeeOrderId: data.shopeeOrderId ?? null,
+          shopeeShopId: data.shopeeShopId ?? null,
+          salePrice: data.salePrice,
+          notes: data.notes ?? null,
+          customerId: data.customerId ?? null,
+          storeId: data.storeId ?? null,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        },
+      });
     });
 
     return this.mapToDomain(created);

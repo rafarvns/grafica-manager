@@ -32,19 +32,6 @@ export class PrismaPriceTableRepository implements PriceTableRepository {
     return this.mapToDomain(entry);
   }
 
-  async findByCombination(paperTypeId: string, quality: string, colors: string): Promise<PriceTableEntry | null> {
-    const entry = await this.prisma.priceTableEntry.findFirst({
-      where: {
-        paperTypeId,
-        quality: quality as any,
-        colors: colors as any,
-      },
-    });
-
-    if (!entry) return null;
-    return this.mapToDomain(entry);
-  }
-
   async findAll(filters?: { activeOnly?: boolean }): Promise<PriceTableEntry[]> {
     const where: any = {};
     // PriceTableEntry doesn't have 'active' field in current schema, we could filter by validUntil

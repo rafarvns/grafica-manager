@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
+// Vite resolve `?url` para um asset local servido pelo próprio app,
+// o que mantém o worker dentro do `script-src 'self'` da CSP do Electron.
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { ipcBridge } from '@/services/ipcBridge';
 
-// Configurar worker do pdf.js
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+  console.log('[PDF/hook] pdfjs version:', pdfjsLib.version, '| workerSrc:', pdfWorkerUrl);
 }
 
 const MIN_ZOOM = 50;
@@ -44,6 +47,7 @@ export function usePdfPreview(): UsePdfPreviewReturn {
 
   const pdfDocRef = useRef<pdfjsLib.PDFDocumentProxy | null>(null);
   const pdfPageRef = useRef<pdfjsLib.PDFPageProxy | null>(null);
+  const renderTaskRef = useRef<{ promise: Promise<void>; cancel: () => void } | null>(null);
 
   const pageInfo: PageInfo = {
     current: currentPage,
@@ -53,20 +57,33 @@ export function usePdfPreview(): UsePdfPreviewReturn {
 
   // Carrega o PDF
   const loadPdf = useCallback(async (filePath: string) => {
+    console.log('[PDF/hook] loadPdf START:', filePath);
     try {
       setLoading(true);
       setError(null);
 
+      console.log('[PDF/hook] calling ipcBridge.readFile');
       const pdfData = await ipcBridge.readFile(filePath);
+      console.log('[PDF/hook] readFile returned:', {
+        type: Object.prototype.toString.call(pdfData),
+        isUint8Array: pdfData instanceof Uint8Array,
+        isArrayBuffer: pdfData instanceof ArrayBuffer,
+        byteLength: (pdfData as { byteLength?: number } | null | undefined)?.byteLength,
+        truthy: !!pdfData,
+      });
       if (!pdfData) {
         throw new Error('Failed to read PDF file');
       }
 
       const typedArray = new Uint8Array(pdfData);
+      console.log('[PDF/hook] typedArray bytes:', typedArray.byteLength, '| header:', Array.from(typedArray.slice(0, 8)));
+
+      console.log('[PDF/hook] calling pdfjsLib.getDocument');
       const pdf = await pdfjsLib.getDocument({
         data: typedArray,
         disableAutoFetch: true,
       }).promise;
+      console.log('[PDF/hook] getDocument resolved | numPages:', pdf.numPages);
 
       pdfDocRef.current = pdf;
       setTotalPages(pdf.numPages);
@@ -75,14 +92,18 @@ export function usePdfPreview(): UsePdfPreviewReturn {
 
       // Carrega primeira página
       const firstPage = await pdf.getPage(1);
+      console.log('[PDF/hook] first page loaded');
       pdfPageRef.current = firstPage;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('[PDF/hook] loadPdf ERROR:', err);
+      if (err instanceof Error) console.error('[PDF/hook] stack:', err.stack);
       setError(errorMessage);
       setTotalPages(0);
       setCurrentPage(0);
     } finally {
       setLoading(false);
+      console.log('[PDF/hook] loadPdf END');
     }
   }, []);
 
@@ -128,8 +149,22 @@ export function usePdfPreview(): UsePdfPreviewReturn {
   // Renderiza página no canvas
   const renderPage = useCallback(
     async (canvasRef: React.RefObject<HTMLCanvasElement>) => {
+      console.log('[PDF/hook] renderPage CALLED:', {
+        hasDoc: !!pdfDocRef.current,
+        hasCanvas: !!canvasRef.current,
+        currentPage,
+        zoom,
+      });
       if (!pdfDocRef.current || !canvasRef.current) {
+        console.warn('[PDF/hook] renderPage ABORTED — no doc or canvas');
         return;
+      }
+
+      // Cancela qualquer render anterior em andamento na mesma canvas
+      if (renderTaskRef.current) {
+        console.log('[PDF/hook] cancelling previous render task');
+        renderTaskRef.current.cancel();
+        renderTaskRef.current = null;
       }
 
       try {
@@ -139,6 +174,7 @@ export function usePdfPreview(): UsePdfPreviewReturn {
         const viewport = page.getViewport({
           scale: zoom / 100,
         });
+        console.log('[PDF/hook] viewport:', { width: viewport.width, height: viewport.height });
 
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
@@ -149,15 +185,37 @@ export function usePdfPreview(): UsePdfPreviewReturn {
 
         canvas.width = viewport.width;
         canvas.height = viewport.height;
+        console.log('[PDF/hook] canvas sized to:', { w: canvas.width, h: canvas.height });
 
         const renderContext = {
           canvasContext: context,
           viewport: viewport,
         };
 
-        await page.render(renderContext).promise;
+        const renderTask = page.render(renderContext);
+        renderTaskRef.current = renderTask;
+
+        try {
+          await renderTask.promise;
+          console.log('[PDF/hook] render DONE | canvas client size:', {
+            cw: canvas.clientWidth,
+            ch: canvas.clientHeight,
+          });
+        } finally {
+          if (renderTaskRef.current === renderTask) {
+            renderTaskRef.current = null;
+          }
+        }
       } catch (err) {
+        // RenderingCancelledException é esperado quando cancelamos render anterior
+        const name = (err as { name?: string } | null)?.name;
+        if (name === 'RenderingCancelledException') {
+          console.log('[PDF/hook] render cancelled (expected)');
+          return;
+        }
         const errorMessage = err instanceof Error ? err.message : 'Failed to render page';
+        console.error('[PDF/hook] renderPage ERROR:', err);
+        if (err instanceof Error) console.error('[PDF/hook] stack:', err.stack);
         setError(errorMessage);
       }
     },

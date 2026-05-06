@@ -34,17 +34,6 @@ export class ManagePriceTableUseCase {
     const quality = input.quality as PrintQuality;
     const colors = input.colors as ColorMode;
 
-    // Verificar duplicação
-    const existing = await this.priceTableRepository.findByCombination(
-      input.paperTypeId,
-      quality,
-      colors
-    );
-
-    if (existing) {
-      throw new Error('Já existe um preço para esta combinação de papel, qualidade e cores');
-    }
-
     // Criar
     const price = await this.priceTableRepository.create({
       name: input.name,

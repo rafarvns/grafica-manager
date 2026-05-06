@@ -10,7 +10,7 @@ describe('printerService', () => {
           { name: 'Printer 1', status: PrinterStatus.READY },
           { name: 'Printer 2', status: PrinterStatus.PAPER_JAM },
         ]),
-        printPdf: vi.fn().mockResolvedValue(true),
+        printPdf: vi.fn().mockResolvedValue({ status: 'success' }),
       }
     });
   });
@@ -24,8 +24,8 @@ describe('printerService', () => {
   });
 
   it('should request printing a pdf', async () => {
-    const success = await printerService.printPdf('C:\\doc.pdf', { copies: 1, printer: 'Printer 1' });
-    expect(success).toBe(true);
+    const result = await printerService.printPdf('C:\\doc.pdf', { copies: 1, printer: 'Printer 1' });
+    expect(result).toEqual({ status: 'success' });
     expect(window.electronAPI!.printPdf).toHaveBeenCalledWith('C:\\doc.pdf', { copies: 1, printer: 'Printer 1' });
   });
 
@@ -33,8 +33,8 @@ describe('printerService', () => {
     vi.stubGlobal('window', {});
     const printers = await printerService.getPrinters();
     expect(printers).toEqual([]);
-    
-    const success = await printerService.printPdf('x', {});
-    expect(success).toBe(false);
+
+    const result = await printerService.printPdf('x', {});
+    expect(result.status).toBe('error');
   });
 });

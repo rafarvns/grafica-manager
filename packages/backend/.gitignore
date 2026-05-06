@@ -34,3 +34,6 @@ prisma/.env.local
 # Testing
 coverage/
 .nyc_output/
+
+# Uploads (PDFs de pedidos enviados pelo frontend)
+uploads/

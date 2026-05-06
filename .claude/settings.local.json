@@ -61,7 +61,15 @@
       "Bash(pnpm --filter frontend tsc --noEmit)",
       "Bash(pnpm --filter frontend typecheck)",
       "Bash(pnpm --filter backend typecheck)",
-      "Bash(pnpm --filter backend exec prisma generate)"
+      "Bash(pnpm --filter backend exec prisma generate)",
+      "Bash(pnpm --filter backend test -- --run packages/backend/tests/unit/application/use-cases/ManagePriceTableUseCase.spec.ts)",
+      "WebFetch(domain:www.electronjs.org)",
+      "WebSearch",
+      "Bash(pnpm tsc *)",
+      "Bash(pnpm run *)",
+      "Bash(pnpm exec *)",
+      "WebFetch(domain:wiki.tcl-lang.org)",
+      "Bash(git *)"
     ]
   }
 }

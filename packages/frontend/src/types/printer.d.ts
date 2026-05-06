@@ -34,6 +34,26 @@ export interface Printer {
     isDefault: boolean;
     options: Record<string, string>;
 }
+export type PrintQualityLevel = 'rascunho' | 'normal' | 'alta';
+export interface PrinterCapabilities {
+    supportsDuplex: boolean;
+    supportsColor: boolean;
+}
+export interface PrintPreferencesPrefill {
+    orientation?: 'portrait' | 'landscape';
+    copies?: number;
+    quality?: PrintQualityLevel;
+    monochrome?: boolean;
+    side?: 'simplex' | 'duplex' | 'duplexlong' | 'duplexshort';
+}
+export type PrintJobResult = {
+    status: 'success';
+} | {
+    status: 'cancelled';
+} | {
+    status: 'error';
+    error: string;
+};
 export interface PrintOptions {
     printer?: string;
     pages?: string;
@@ -47,5 +67,9 @@ export interface PrintOptions {
     silent?: boolean;
     printDialog?: boolean;
     copies?: number;
+    quality?: PrintQualityLevel;
+    /** Quando true, pula o diálogo nativo de Preferências e imprime silencioso direto.
+     *  Usado pelo wizard de manual duplex para não abrir dialog em cada passagem. */
+    skipPrinterDialog?: boolean;
 }
 //# sourceMappingURL=printer.d.ts.map

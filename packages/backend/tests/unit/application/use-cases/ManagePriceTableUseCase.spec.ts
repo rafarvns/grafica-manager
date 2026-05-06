@@ -11,7 +11,6 @@ const mockPriceTableRepository = {
   delete: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
-  findByCombination: vi.fn(),
 };
 
 const mockPrintJobRepository = {
@@ -44,22 +43,20 @@ describe('ManagePriceTableUseCase', () => {
         createdAt: new Date(),
       };
 
-      mockPriceTableRepository.findByCombination.mockResolvedValue(null);
       mockPriceTableRepository.create.mockResolvedValue(repoOutput);
 
       const result = await useCase.createPrice(input);
 
-      expect(mockPriceTableRepository.findByCombination).toHaveBeenCalledWith(
-        'paper-123',
-        'padrão',
-        'colorido'
-      );
       expect(mockPriceTableRepository.create).toHaveBeenCalledWith({
+        name: undefined,
+        description: undefined,
+        friendlyCode: undefined,
         paperTypeId: 'paper-123',
         quality: 'padrão',
         colors: 'colorido',
         unitPrice: 0.50,
         validUntil: undefined,
+        maxPages: 1,
       });
       
       expect(result).toEqual({
@@ -71,23 +68,6 @@ describe('ManagePriceTableUseCase', () => {
         validUntil: undefined,
         createdAt: repoOutput.createdAt,
       });
-    });
-
-    it('deve lançar erro se preço já existe para combinação', async () => {
-      const input: CreatePriceTableInput = {
-        paperTypeId: 'paper-123',
-        quality: 'padrão',
-        colors: 'colorido',
-        unitPrice: 0.50,
-      };
-
-      mockPriceTableRepository.findByCombination.mockResolvedValue({
-        id: 'price-existing',
-      });
-
-      await expect(useCase.createPrice(input)).rejects.toThrow(
-        'Já existe um preço para esta combinação de papel, qualidade e cores'
-      );
     });
 
     it('deve validar unitPrice > 0', async () => {

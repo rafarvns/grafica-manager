@@ -28,7 +28,7 @@ export class CreateOrderUseCase {
     }
 
     const order = Order.create({
-      orderNumber: 'PENDING',
+      orderNumber: '',
       customerId: input.customerId,
       description: input.description.trim(),
       quantity: input.quantity,

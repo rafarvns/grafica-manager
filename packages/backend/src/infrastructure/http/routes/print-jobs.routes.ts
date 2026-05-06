@@ -114,7 +114,13 @@ export function createPrintJobsRouter(prisma: PrismaClient): Router {
         documentName,
         status = 'success',
         errorMessage,
+        duplexMode,
       } = req.body;
+
+      if (duplexMode) {
+        // TODO: persistir em coluna dedicada via migration. Hoje só logado para diagnóstico.
+        console.log(`[print-jobs] duplexMode recebido: ${duplexMode} (printer=${printerName}, doc=${documentName})`);
+      }
 
       if (!printerName) return res.status(400).json({ error: 'printerName é obrigatório' });
       if (!documentName) return res.status(400).json({ error: 'documentName é obrigatório' });
